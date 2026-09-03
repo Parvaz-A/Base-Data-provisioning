@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base Data Provisioning – Click dummy v3</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Hebrew:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F8; --panel:#fff; --ink:#18212E; --ink-2:#56617A; --ink-3:#8C96AB;
+  --line:#DCE1EA; --line-soft:#ECEFF4;
+  --blue:#1E6FE0; --blue-soft:#E7F0FD; --blue-ink:#144FA3;
+  --ok:#1F8A5E; --ok-soft:#E1F4EB; --warn:#B7690C; --warn-soft:#FCF0DD; --err:#C2331F; --err-soft:#FCE6E2;
+  --he:#6B45B9; --he-soft:#EFE9FA; --ar:#1F8A7C; --ar-soft:#E0F3F0; --en:#1E6FE0; --en-soft:#E7F0FD;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"IBM Plex Sans","IBM Plex Sans Hebrew","IBM Plex Sans Arabic",system-ui,sans-serif;font-size:13.5px;line-height:1.45;color:var(--ink);background:var(--bg);min-height:100vh}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+input,select{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--mono);font-size:12.5px}
+.rtl{direction:rtl;unicode-bidi:isolate;font-family:"IBM Plex Sans Hebrew","IBM Plex Sans Arabic",sans-serif;display:inline-block}
+
+header{background:var(--panel);border-bottom:1px solid var(--line);padding:0 32px}
+.hbar{display:flex;align-items:center;gap:14px;height:64px}
+.logo{width:36px;height:36px;border-radius:9px;background:var(--blue);display:grid;place-items:center}
+.logo svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round}
+.hbar h1{margin:0;font-size:17px;font-weight:600;line-height:1.1}
+.hbar .sub{color:var(--ink-3);font-size:12px;margin-top:2px}
+.hbar .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.ver{display:flex;align-items:center;gap:8px;padding:5px 10px;border:1px solid var(--line);border-radius:7px;background:#F8FAFC;font-size:12.5px}
+.ver b{font-weight:500}
+.tabs{display:flex;gap:2px;height:44px}
+.tabs button{display:flex;align-items:center;gap:8px;padding:0 14px;color:var(--ink-2);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500}
+.tabs button:hover{color:var(--ink);background:#F8FAFC}
+.tabs button.active{color:var(--blue-ink);border-bottom-color:var(--blue)}
+.tabs button .n{font-size:11px;padding:1px 6px;border-radius:99px;background:var(--line-soft);color:var(--ink-2)}
+.tabs button .n.w{background:var(--warn-soft);color:var(--warn)}
+.tabs button .n.e{background:var(--err-soft);color:var(--err)}
+
+main{padding:24px 32px 48px;max-width:1500px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.card+.card{margin-top:16px}
+.chead{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.chead h2{margin:0;font-size:14.5px;font-weight:600}
+.chead .d{color:var(--ink-3);font-size:12.5px}
+.chead .tools{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:7px;border:1px solid var(--line);background:var(--panel);font-weight:500;white-space:nowrap}
+.btn:hover{background:#F4F6FA}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.primary:hover{background:var(--blue-ink)}
+.btn.small{padding:3px 9px;font-size:12.5px}
+.btn.ghost{border-color:transparent}.btn.ghost:hover{background:var(--line-soft)}
+.btn.danger{color:var(--err)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.ib{width:28px;height:28px;border-radius:6px;display:inline-grid;place-items:center;color:var(--ink-3);vertical-align:middle}
+.ib:hover{background:var(--line-soft);color:var(--blue-ink)}
+.ib.del:hover{color:var(--err);background:var(--err-soft)}
+.ib svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+td.act{text-align:right;white-space:nowrap;width:1%}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:500;line-height:18px;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.err{background:var(--err-soft);color:var(--err)}.chip.neutral{background:var(--line-soft);color:var(--ink-2)}
+.chip.he{background:var(--he-soft);color:var(--he)}.chip.ar{background:var(--ar-soft);color:var(--ar)}.chip.en{background:var(--en-soft);color:var(--en)}
+.chip.he.off,.chip.ar.off,.chip.en.off{background:var(--line-soft);color:var(--ink-3);text-decoration:line-through}
+.search{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:7px;background:var(--panel);padding:6px 10px;min-width:240px;color:var(--ink-3)}
+.search input{border:0;outline:0;flex:1;padding:0;background:none;color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--panel)}
+.seg button{padding:5px 11px;color:var(--ink-2);font-weight:500}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.active{background:var(--blue-soft);color:var(--blue-ink)}
+.notice{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
+.notice.warn{background:var(--warn-soft);color:var(--warn)}.notice.err{background:var(--err-soft);color:var(--err)}.notice.info{background:var(--blue-soft);color:var(--blue-ink)}.notice.ok{background:var(--ok-soft);color:var(--ok)}
+.notice .btn{margin-left:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-weight:500;color:var(--ink-3);font-size:11.5px;letter-spacing:.02em;padding:9px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:#FAFBFD}
+td{padding:9px 14px;border-bottom:1px solid var(--line-soft);vertical-align:middle;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.row{cursor:pointer}
+tr.row:hover td{background:#F8FAFC}
+tr.open td{background:var(--blue-soft)}
+.miss{color:var(--ink-3);font-style:italic}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:1px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.err{background:var(--err)}.dot.off{background:var(--line)}
+.stat{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:600;color:#fff;flex:none}
+.stat.ok{background:var(--ok)}.stat.err{background:var(--err)}.stat.warn{background:var(--warn)}
+.in{padding:6px 9px;border:1px solid var(--line);border-radius:6px;background:#FCFDFE;width:100%}
+.in:focus{border-color:var(--blue);outline:0;background:#fff}
+.in.rtl{direction:rtl;text-align:right}
+.in.derived{background:var(--line-soft);color:var(--ink-2);border-style:dashed}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--ink-2);margin-bottom:4px}
+.hint{font-size:12px;color:var(--ink-3);margin-top:3px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+.empty{padding:40px 24px;text-align:center;color:var(--ink-2)}
+.empty h3{margin:0 0 6px;font-size:15px;color:var(--ink)}
+.empty .btn{margin-top:12px}
+.toggle{width:34px;height:20px;border-radius:99px;background:var(--line);position:relative;display:inline-block;vertical-align:middle;cursor:pointer}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}
+.toggle.on{background:var(--ok)}.toggle.on::after{left:16px}
+
+.detail{padding:16px 18px 18px;background:#FAFBFD;border-bottom:1px solid var(--line-soft)}
+.detail .subtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.detail .subtabs button{padding:6px 12px;color:var(--ink-2);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500}
+.detail .subtabs button.active{color:var(--blue-ink);border-bottom-color:var(--blue)}
+.detail .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.langtbl{display:grid;grid-template-columns:150px repeat(3,1fr);gap:8px 12px;align-items:center}
+.langtbl .h{font-size:12px;color:var(--ink-3)}
+.langtbl .l{font-size:12.5px;color:var(--ink-2)}
+
+/* announcement sequence */
+.seq{border:1px solid var(--line);border-radius:8px;background:#fff;margin-bottom:10px}
+.seq .seqhead{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line-soft)}
+.seq .seqhead .total{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-left:auto}
+.seq .item{display:grid;grid-template-columns:22px 34px 28px 1fr 190px 64px auto;gap:10px;align-items:center;padding:7px 12px;border-bottom:1px solid var(--line-soft)}
+.seq .item:last-of-type{border-bottom:0}
+.seq .item.missing{background:var(--warn-soft)}
+.seq .grip{color:var(--ink-3);cursor:grab;font-size:14px}
+.seq .no{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.seq .play{width:24px;height:24px;border-radius:50%;background:var(--blue-soft);color:var(--blue-ink);display:grid;place-items:center;font-size:11px}
+.seq .item.missing .play{background:#fff;color:var(--warn)}
+.seq .file{font-family:var(--mono);font-size:12.5px}
+.seq .src{font-size:12px;color:var(--ink-3)}
+.seq .bar{height:4px;background:var(--line-soft);border-radius:2px;position:relative}
+.seq .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:2px}
+.seq .dur{font-family:var(--mono);font-size:12px;color:var(--ink-3);text-align:right}
+.seq .add{padding:8px 12px;border-top:1px dashed var(--line);display:flex;gap:8px}
+.timeline{display:flex;height:18px;border-radius:4px;overflow:hidden;margin:8px 12px 10px}
+.timeline span{display:grid;place-items:center;font-size:10.5px;color:#fff;font-family:var(--mono);border-right:1px solid #fff}
+.timeline .lib{background:#8C96AB}.timeline .st{background:var(--blue)}.timeline .gap{background:repeating-linear-gradient(45deg,var(--warn-soft),var(--warn-soft) 4px,#fff 4px,#fff 8px);color:var(--warn)}
+
+.split{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start}
+.tree button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 14px;border-bottom:1px solid var(--line-soft)}
+.tree button:hover{background:#F8FAFC}
+.tree button.active{background:var(--blue-soft)}
+.tree .ln{font-family:var(--mono);font-size:12px;background:var(--ink);color:#fff;padding:1px 6px;border-radius:4px;min-width:36px;text-align:center}
+.tree .active .ln{background:var(--blue)}
+.tree .meta{margin-left:auto;font-size:12px;color:var(--ink-3)}
+.route-meta{display:grid;grid-template-columns:repeat(5,auto) 1fr;gap:4px 28px;padding:12px 16px;border-bottom:1px solid var(--line-soft);align-items:center}
+.route-meta span{display:block;font-size:11.5px;color:var(--ink-3)}
+.route-meta b{font-weight:500}
+.route-meta select{border:1px solid var(--line);border-radius:6px;padding:3px 6px;background:#fff}
+.filter{display:flex;align-items:center;gap:10px;padding:8px 16px;background:#F8FAFC;border-bottom:1px solid var(--line-soft);font-size:12.5px;color:var(--ink-2)}
+.filter .legend{display:flex;gap:14px;margin-right:auto}
+.rt td{padding:5px 10px}
+.rt td:first-child,.rt th:first-child{padding-left:16px;width:30px}
+.rt .node{width:12px;height:12px;border-radius:50%;border:2px solid var(--blue);background:#fff;display:block;position:relative;z-index:1}
+.rt .node.end{background:var(--blue)}
+.rt .node.pass{border-color:var(--ink-3);width:8px;height:8px;margin:2px}
+.rt td:first-child{position:relative}
+.rt tr:not(:last-child) td:first-child::after{content:"";position:absolute;left:21px;top:20px;bottom:-1px;width:2px;background:var(--blue)}
+.rt .cell{border:1px solid transparent;border-radius:5px;padding:3px 6px;min-width:64px;display:inline-block}
+.rt .cell:hover{border-color:var(--line);background:#fff}
+.rt .cell.derived{color:var(--ink-3)}
+.rt select{border:1px solid transparent;background:transparent;padding:3px 4px;border-radius:5px}
+.rt select:hover{border-color:var(--line);background:#fff}
+.rt tr.pass td{color:var(--ink-3)}
+.rt tr.sel td{background:var(--blue-soft)}
+.addrow{padding:10px 16px;border-top:1px dashed var(--line)}
+.preview{border-top:1px solid var(--line);background:#111827;color:#fff;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.preview .scr{background:#000;border:1px solid #374151;border-radius:6px;padding:10px 12px;min-height:74px}
+.preview .lbl{font-size:11px;color:#9CA3AF;margin-bottom:6px}
+.preview .led{font-family:var(--mono);color:#FFB020;font-size:20px;letter-spacing:.06em;white-space:nowrap;overflow:hidden}
+.preview .led.small{font-size:14px}
+.preview .tft{font-size:15px;line-height:1.4}
+.preview .tft .top{color:#93C5FD;font-size:12px}
+.preview .rtl{display:block;text-align:right}
+.preview .audioline{grid-column:1/-1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:#9CA3AF}
+.preview .audioline .chip{background:#1F2937;color:#E5E7EB}
+.preview .audioline .chip.st{background:var(--blue);color:#fff}
+
+.vers td .mono{color:var(--ink-2)}
+.check{display:flex;gap:12px;align-items:flex-start;padding:10px 16px;border-bottom:1px solid var(--line-soft)}
+.check:last-child{border:0}
+.check b{font-weight:500}
+.check .d{font-size:12.5px;color:var(--ink-2)}
+.check .btn{margin-left:auto}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.kpi{padding:14px 16px}
+.kpi .n{font-size:26px;font-weight:600;line-height:1.1}
+.kpi .l{color:var(--ink-2);font-size:12.5px;margin-top:2px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(24,33,46,.4);display:none;place-items:center;z-index:20}
+.modal-bg.open{display:grid}
+.modal{background:var(--panel);border-radius:12px;width:600px;max-width:92vw;box-shadow:0 24px 70px rgba(0,0,0,.25)}
+.modal header{padding:16px 20px;border-bottom:1px solid var(--line-soft)}
+.modal header h3{margin:0;font-size:16px}
+.modal .body{padding:16px 20px}
+.modal footer{padding:12px 20px;border-top:1px solid var(--line-soft);display:flex;justify-content:flex-end;gap:8px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none;z-index:30}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbar">
+    <div class="logo"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 10h14M9 14h.01M15 14h.01M8 21l1.5-3M16 21l-1.5-3"/></svg></div>
+    <div><h1>Base Data Provisioning</h1><div class="sub">Passenger information · ISR on-board system</div></div>
+    <div class="right">
+      <div class="ver">Version <b>2091</b> <span class="chip warn">Draft</span></div>
+      <button class="btn ghost" onclick="toast('Changes saved')">Save</button>
+      <button class="btn primary" onclick="go('export')">Validate &amp; export</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<main id="main"></main>
+<div class="modal-bg" id="modal"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= Data ================= */
+const L=['he','en','ar'], LN={he:'Hebrew',en:'English',ar:'Arabic'};
+/* Library of shared audio segments (tbl_FunctionAnnouncement). Duration in seconds. */
+const lib={
+ 300:{file:'gong.wav',desc:'Gong',dur:1.2},
+ 200:{file:'200_{l}.mp3',desc:'"This train is a train to"',dur:2.1},
+ 201:{file:'201_{l}.mp3',desc:'"The train will stop at the stations"',dur:2.6},
+ 401:{file:'401_{l}.mp3',desc:'"The next station is"',dur:1.8},
+ 45:{file:'045_{l}.mp3',desc:'"Change trains at this station"',dur:2.4},
+ 303:{file:'Passenger_Alarm_Toilet.mp3',desc:'WC emergency call',dur:3.0},
+ 304:{file:'PRM_Ramp_Request.mp3',desc:'Ramp request',dur:2.8},
+};
+const orte=[
+ {code:300,en:'Paate Modiin',he:'פאתי מודיעין',ar:'بوابات موديعين',gps:1,audio:{he:1,en:0,ar:1}},
+ {code:400,en:'Modiin Ctr',he:'מודיעין מרכז',ar:'موديعين المركز',gps:1,audio:{he:1,en:0,ar:1}},
+ {code:680,en:'JLM-Navon',he:'ירושלים-נבון',ar:'القدس - نافون',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:700,en:'KiryatHayim',he:'קריית חיים',ar:'كريات حاييم',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1220,en:'HaMifrats CS',he:'מרכזית המפרץ',ar:'مركزية همفراتس',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1230,en:'HaMifrats CS',he:'מרכזית המפרץ',ar:'مركزية همفراتس',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1240,en:'Yokne\'am',he:'יוקנעם',ar:'يوكنعام',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1250,en:'MigdalHaEmek',he:'מגדל העמק',ar:'مجدال هعيمك',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1260,en:'Afula',he:'עפולה',ar:'العفولة',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1280,en:'Bet She\'an',he:'בית שאן',ar:'بيسان',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1300,en:'H. HaMifrats',he:'חוצות המפרץ',ar:'حوتسوت همفراتس',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1400,en:'K. Motzkin',he:'קריית מוצקין',ar:'كريات موتسكين',gps:0,audio:{he:1,en:1,ar:1}},
+ {code:1500,en:'Akko',he:'עכו',ar:'عكا',gps:1,audio:{he:1,en:1,ar:1},note:'Check front-LED spelling (comment carried over from Excel)',transfer:1},
+ {code:1600,en:'Nahariya',he:'נהריה',ar:'نهاريا',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1820,en:'Ahihud',he:'אחיהוד',ar:'أحيهود',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:1840,en:'Karmiel',he:'כרמיאל',ar:'',gps:1,audio:{he:1,en:1,ar:0}},
+ {code:2100,en:'Haifa Ctr 8',he:'חיפה מרכז',ar:'حيفا المركز',gps:1,audio:{he:1,en:1,ar:1},transfer:1},
+ {code:2200,en:'HaifaB.Galim',he:'חיפה בת גלים',ar:'حيفا بات جليم',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:2300,en:'Haifa-Hof C.',he:'חיפה חוף הכרמל',ar:'حيفا حوف هكرمل',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:2500,en:'Atlit',he:'עתלית',ar:'عتليت',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:2800,en:'Binyamina',he:'בנימינה',ar:'بنيامينا',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:3600,en:'TLV-Uni',he:'ת"א אוניברסיטה',ar:'تل أبيب الجامعة',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:3700,en:'TLV-Center',he:'ת"א מרכז',ar:'تل أبيب المركز',gps:1,audio:{he:1,en:1,ar:1},transfer:1},
+ {code:4600,en:'TLV-HaShalom',he:'ת"א השלום',ar:'تل أبيب هشالوم',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:4900,en:'TLV-HaHagana',he:'ת"א ההגנה',ar:'تل أبيب ههجناه',gps:1,audio:{he:1,en:1,ar:1}},
+ {code:8600,en:'Ben Gurion Airport',he:'נתב"ג',ar:'مطار بن غوريون',gps:1,audio:{he:1,en:1,ar:1}},
+];
+const ortBy=c=>orte.find(o=>o.code===c)||{code:c,en:'?',he:'',ar:'',audio:{}};
+const ortStatus=o=>{const t=L.every(l=>o[l]),a=L.every(l=>o.audio[l]);return (t&&a&&o.gps)?'ok':'warn'};
+/* An announcement = ordered sequence of items (files). Built per station, per language, per situation. */
+function sequence(o,kind,l){
+ const name={file:`${String(o.code).padStart(4,'0')}_${l}.mp3`,desc:`Station name ${o.en}`,dur:1.4,src:'station',ok:!!o.audio[l]};
+ const seg=c=>({file:lib[c].file.replace('{l}',l),desc:lib[c].desc,dur:lib[c].dur,src:'library',code:c,ok:true});
+ if(kind==='next')  return [seg(300),seg(401),name,...(o.transfer?[seg(45)]:[])];
+ if(kind==='last')  return [seg(300),seg(401),name,seg(201)];
+ if(kind==='depart')return [seg(200),name];
+ return [];
+}
+const KINDS=[['next','Arrival · next station','code '+'{c}1'],['last','Arrival · last station','code {c}2'],['depart','Departure','code {c}']];
+
+const fahrten={
+ '173':{desc:'Nahariya – Modiin Ctr',vts:'0001',stops:[[1600,0,'H',null,null],[1500,8.827,'H',150,143],[1400,11.51,'H',150,143],[700,1.022,'H',150,143],[1300,1.898,'H',150,143],[1220,2.521,'H',150,143],[2100,4.962,'H',150,143],[2200,1.731,'H',150,143],[2300,6.161,'H',150,143],[2500,11.2,'H',150,143],[2800,20.62,'H',150,143],[3600,49.778,'H',150,143],[3700,2.326,'H',150,143],[4600,1.318,'H',150,143],[4900,2.289,'H',150,143],[8600,9.927,'H',151,143],[300,15.486,'H',150,143],[400,4.826,'H',150,402]]},
+ '6001':{desc:'Nahariya – Ben Gurion',vts:'0002',stops:[[1600,0,'H',null,null],[1500,8.827,'H',150,143],[1400,11.51,'H',150,143],[2100,10.403,'H',150,143],[2300,7.892,'H',150,143],[2800,31.82,'H',150,143],[3100,11.004,'D',null,null],[3300,13.712,'H',150,143],[3500,18.161,'H',150,143],[3700,9.227,'H',150,143],[8600,13.534,'H',151,8602]]},
+ '9701':{desc:'Bet She\'an – Haifa',vts:'0001',stops:[[1280,0,'H',null,null],[1260,22.1,'H',150,143],[1250,9.4,'H',150,143],[1240,6.2,'H',150,143],[1230,12.8,'H',150,143],[2100,4.9,'H',151,143]]},
+ '9703':{desc:'Bet She\'an – Haifa',vts:'0001',stops:[[1280,0,'H',null,null],[1260,22.1,'H',150,143],[1250,9.4,'H',150,143],[1240,6.2,'H',150,143],[1230,12.8,'H',150,143],[2100,4.9,'H',151,143]]},
+ '9705':{desc:'Bet She\'an – Haifa',vts:'0003',stops:[]},
+ '9707':{desc:'Bet She\'an – Haifa',vts:'0003',stops:[]},
+ '9709':{desc:'Bet She\'an – Haifa',vts:'0003',stops:[]},
+ '9710':{desc:'Haifa – Bet She\'an',vts:'0003',stops:[]},
+};
+const tripStatus=k=>fahrten[k].stops.length?'ok':'err';
+
+const ziele=[
+ {code:9001,en:{f:'Not in Service',s1:'Not in Service',s2:'No Entry',t:'Not in Service'},he:{f:'לא בשירות',s1:'לא בשירות',s2:'אין כניסה',t:'לא בשירות'},ar:{f:'خارج الخدمة',s1:'خارج الخدمة',s2:'ممنوع الدخول',t:'خارج الخدمة'}},
+ {code:9002,en:{f:'Do not board',s1:'Do not board',s2:'',t:'Do not board'},he:{f:'נא לא לעלות לרכבת',s1:'נא לא לעלות לרכבת',s2:'',t:'נא לא לעלות לרכבת'},ar:{f:'',s1:'',s2:'',t:''}},
+ {code:90300,en:{f:'Paate Modiin',s1:'Paate Modiin',s2:'',t:'Train to Paate Modiin'},he:{f:'פאתי מודיעין',s1:'פאתי מודיעין',s2:'',t:'רכבת לתחנת פאתי מודיעין'},ar:{f:'بوابات موديعين',s1:'بوابات موديعين',s2:'',t:'قطار إلى بوابات موديعين'}},
+ {code:90400,en:{f:'Modiin Ctr',s1:'Modiin Ctr',s2:'',t:'Train to Modiin Center'},he:{f:'מודיעין מרכז',s1:'מודיעין מרכז',s2:'',t:'רכבת לתחנת מודיעין מרכז'},ar:{f:'موديعين المركز',s1:'موديعين المركز',s2:'',t:'قطار إلى موديعين المركز'}},
+ {code:90680,en:{f:'JLM-Navon',s1:'JLM-Navon',s2:'',t:'Train to Jerusalem Navon'},he:{f:'ירושלים-נבון',s1:'ירושלים-נבון',s2:'',t:'רכבת לתחנת ירושלים-נבון'},ar:{f:'القدس - نافون',s1:'القدس - نافون',s2:'',t:'قطار إلى القدس نافون'}},
+ {code:91260,en:{f:'Afula',s1:'Afula',s2:'',t:'Train to Afula'},he:{f:'עפולה',s1:'עפולה',s2:'',t:'רכבת לתחנת עפולה'},ar:{f:'العفولة',s1:'العفولة',s2:'',t:'قطار إلى العفولة'}},
+ {code:91280,en:{f:'Bet She\'an',s1:'Bet She\'an',s2:'',t:'Train to Bet She\'an'},he:{f:'בית שאן',s1:'בית שאן',s2:'',t:'רכבת לתחנת בית שאן'},ar:{f:'بيسان',s1:'بيسان',s2:'',t:'قطار إلى بيسان'}},
+];
+const funkTexte=[{code:1,loc:'F',name:'Special text 1',en:'Special text 1',he:'טקסט מיוחד 1',ar:'نص خاص 1'},{code:2,loc:'F,S',name:'Do not board',en:'Do not enter',he:'נא לא לעלות לרכבת',ar:'ممنوع الصعود'},{code:3,loc:'T',name:'TFT text, 1 line',en:'TFT Text Line1',he:'שורה 1',ar:'السطر 1'},{code:4,loc:'T',name:'TFT text, 4 lines',en:'Line1 / Line2 / Line3 / Line4',he:'שורה 1 / 2 / 3 / 4',ar:'السطر 1 / 2 / 3 / 4'}];
+const LOC={F:'Front LED',S:'Side LED',T:'TFT','F,S':'Front + side LED'};
+const vts=[['0001',[1,1,1,1,1,1,1,1],'all trains (default)'],['0002',[1,1,1,1,1,1,0,0],''],['0003',[1,1,1,1,0,0,1,0],''],['0004',[0,0,0,0,1,0,0,0],''],['0005',[0,0,0,0,0,1,0,0],'']];
+const versions=[
+ {v:'2091',date:'03 Sep 2026, 07:48',st:'warn',lbl:'Draft · 5 issues',net:'ISR North',trips:8,by:'A. Homayouni'},
+ {v:'2090',date:'27 Aug 2026, 16:10',st:'ok',lbl:'Exported',net:'ISR North',trips:8,by:'M. Bernard'},
+ {v:'2089',date:'14 Aug 2026, 11:32',st:'ok',lbl:'Exported',net:'ISR North',trips:6,by:'M. Bernard'},
+ {v:'2088',date:'02 Aug 2026, 09:05',st:'err',lbl:'Import failed',net:'ISR North',trips:6,by:'R. Wolfstein'},
+];
+const issues=[
+ {sev:'err',t:'Global validity 19.11.2025 – 19.11.2035 exceeds one year',view:'vts'},
+ {sev:'err',t:'4 trips without a station sequence (9705, 9707, 9709, 9710)',view:'fahrten'},
+ {sev:'warn',t:'Station 1840 Karmiel: Arabic text and Arabic name file missing',view:'orte'},
+ {sev:'warn',t:'Station 1400 K. Motzkin: no GPS window',view:'orte'},
+ {sev:'warn',t:'Destination 9002: Arabic text missing',view:'texte'},
+ {sev:'warn',t:'2 English station name files missing (300, 400) – 6 announcements incomplete',view:'orte'},
+];
+
+/* ================= Navigation ================= */
+const TABS=[
+ {id:'versionen',label:'Versions'},
+ {id:'orte',label:'Stations',n:()=>orte.filter(o=>ortStatus(o)!=='ok').length,cls:'w'},
+ {id:'fahrten',label:'Trips',n:()=>Object.keys(fahrten).filter(k=>tripStatus(k)==='err').length,cls:'e'},
+ {id:'texte',label:'Display texts',n:()=>1,cls:'w'},
+ {id:'ansagen',label:'Audio library'},
+ {id:'vts',label:'Validity',n:()=>1,cls:'e'},
+ {id:'export',label:'Validate & export'},
+];
+let cur='versionen', q='', openRow=null, subtab='ansage', selTrip='173', selStop=1, tripFilter='all', texteTab='ziele', lang='all', seqKind='next';
+
+function renderTabs(){document.getElementById('tabs').innerHTML=TABS.map(t=>{const n=t.n?t.n():0;return `<button class="${cur===t.id?'active':''}" onclick="go('${t.id}')">${t.label}${n?`<span class="n ${t.cls}">${n}</span>`:''}</button>`}).join('')}
+function go(id){cur=id;q='';openRow=null;renderTabs();render()}
+function render(keep){document.getElementById('main').innerHTML=V[cur]();if(keep){const i=document.querySelector('.search input');if(i){i.focus();i.setSelectionRange(q.length,q.length)}}}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800)}
+const cell=(s,l)=>s?(l==='en'?s:`<span class="rtl" dir="rtl" lang="${l}">${s}</span>`):'<span class="miss">missing</span>';
+const km=n=>n.toLocaleString('en-GB',{minimumFractionDigits:3,maximumFractionDigits:3});
+const sec=n=>`${Math.floor(n/60)}:${String(Math.round(n%60)).padStart(2,'0')}`;
+const search=ph=>`<label class="search">⌕<input placeholder="${ph}" value="${q}" oninput="q=this.value;render(true)"></label>`;
+const langSeg=()=>`<div class="seg">${['all',...L].map(l=>`<button class="${lang===l?'active':''}" onclick="lang='${l}';render()">${l==='all'?'All':LN[l]}</button>`).join('')}</div>`;
+const langs=()=>lang==='all'?L:[lang];
+const PEN='<svg viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5l3 3"/></svg>';
+const BIN='<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+const edit=(js,title='Edit')=>`<button class="ib" title="${title}" onclick="event.stopPropagation();${js}">${PEN}</button>`;
+const del=(js,title='Delete')=>`<button class="ib del" title="${title}" onclick="event.stopPropagation();${js}">${BIN}</button>`;
+
+/* ================= Views ================= */
+const V={};
+
+V.versionen=()=>`
+ <div class="kpis">
+  <div class="card kpi"><div class="n num">${orte.length}</div><div class="l">Stations · ${orte.filter(o=>ortStatus(o)==='ok').length} complete</div></div>
+  <div class="card kpi"><div class="n num">${Object.keys(fahrten).length}</div><div class="l">Trips · ${Object.keys(fahrten).filter(k=>tripStatus(k)==='err').length} without stops</div></div>
+  <div class="card kpi"><div class="n num" style="color:var(--err)">${issues.filter(i=>i.sev==='err').length}</div><div class="l">Errors blocking export</div></div>
+  <div class="card kpi"><div class="n num" style="color:var(--warn)">${issues.filter(i=>i.sev==='warn').length}</div><div class="l">Warnings</div></div>
+ </div>
+ <div class="card"><div class="chead"><h2>Versions</h2><span class="d">Each version is a complete data set for the on-board import</span><div class="tools">${search('Version, network')}<button class="btn" onclick="toast('Version 2092 created from 2091')">New version from 2091</button></div></div>
+ <table class="vers"><thead><tr><th>Version</th><th>Last change</th><th>Status</th><th>Network</th><th>Trips</th><th>Edited by</th><th></th></tr></thead><tbody>
+ ${versions.filter(v=>!q||v.v.includes(q)||v.net.toLowerCase().includes(q.toLowerCase())).map(v=>`<tr class="row" onclick="${v.st==='ok'?`toast('Version ${v.v} is read-only – create a copy to edit')`:v.st==='err'?`openImportLog('${v.v}')`:`go('export')`}"><td class="mono">${v.v}</td><td class="num">${v.date}</td><td><span class="chip ${v.st}">${v.lbl}</span></td><td>${v.net}</td><td class="num">${v.trips}</td><td>${v.by}</td><td class="act">${v.st==='warn'?edit("go('orte')"):v.st==='err'?`<button class="btn small" onclick="event.stopPropagation();openImportLog('${v.v}')">Import log</button>`:'<button class="btn small" onclick="event.stopPropagation();toast(\'Download started\')">Download</button>'}</td></tr>`).join('')}
+ </tbody></table></div>
+ <div class="card"><div class="chead"><h2>Open in version 2091</h2></div>
+ ${issues.map(i=>`<div class="check"><span class="stat ${i.sev}">${i.sev==='err'?'!':'i'}</span><div><b>${i.t}</b></div><button class="btn small" onclick="go('${i.view}')">Open</button></div>`).join('')}</div>`;
+
+/* --- Stations --- */
+V.orte=()=>{
+ const rows=orte.filter(o=>!q||String(o.code).includes(q)||o.en.toLowerCase().includes(q.toLowerCase()));
+ return `<div class="card"><div class="chead"><h2>Stations</h2><span class="d">${orte.length} stations · ${orte.filter(o=>ortStatus(o)!=='ok').length} incomplete</span><div class="tools"><div class="seg"><button class="${!window.onlyOpen?'active':''}" onclick="onlyOpen=false;render()">All</button><button class="${window.onlyOpen?'active':''}" onclick="onlyOpen=true;render()">Incomplete only</button></div>${search('Code or name')}<button class="btn primary" onclick="openRow='new';render()">Add station</button></div></div>
+ <table><thead><tr><th style="width:32px"></th><th>Code</th><th>Name</th><th>Texts</th><th>Name file</th><th>GPS</th><th>Status</th><th></th></tr></thead><tbody>
+ ${(openRow==='new'?[{code:'',en:'',he:'',ar:'',gps:0,audio:{he:0,en:0,ar:0},_new:1}]:[]).concat(rows.filter(o=>!window.onlyOpen||ortStatus(o)!=='ok')).map(o=>{const st=ortStatus(o),isO=openRow===o.code||(o._new&&openRow==='new');return `
+  <tr class="row ${isO?'open':''}" onclick="openRow=${isO?'null':o._new?"'new'":o.code};render()"><td style="color:var(--ink-3)">${isO?'▾':'▸'}</td><td class="mono">${o._new?'<span class=miss>new</span>':o.code}</td><td>${o._new?'<span class=miss>New station</span>':`${o.en} <span class="rtl" style="color:var(--ink-2);margin-left:6px">${o.he}</span>`}${o.transfer?' <span class="chip neutral">transfer</span>':''}</td>
+  <td>${L.map(l=>`<span class="chip ${l} ${o[l]?'':'off'}">${l}</span>`).join(' ')}</td><td>${L.map(l=>`<span class="chip ${l} ${o.audio[l]?'':'off'}">${l}</span>`).join(' ')}</td><td><span class="dot ${o.gps?'ok':'warn'}"></span> ${o.gps?'window':'missing'}</td><td><span class="chip ${st}">${st==='ok'?'Complete':'Incomplete'}</span></td><td class="act"><span style="color:var(--ink-3);margin-right:6px">${o.note?'💬':''}</span>${o._new?'':edit(`openRow=${o.code};subtab='texte';render()`)+del(`toast('Delete station ${o.code}?')`)}</td></tr>
+  ${isO?`<tr><td colspan="8" style="padding:0">${ortDetail(o)}</td></tr>`:''}`}).join('')}
+ </tbody></table></div>`;
+};
+function ortDetail(o){
+ const tabs=[['texte','Display texts'],['ansage','Announcements'],['gps','GPS window'],['verw','Used in trips']];
+ let b='';
+ if(subtab==='texte') b=`${o.note?`<div class="notice warn">${o.note}</div>`:''}
+  <div class="langtbl"><div class="h">Output</div>${L.map(l=>`<div class="h"><span class="chip ${l}">${LN[l]}</span></div>`).join('')}
+  <div class="l">Short name (base)</div>${L.map(l=>`<input class="in ${l!=='en'?'rtl':''}" value="${o[l]||''}" placeholder="${LN[l]} missing" ${!o[l]&&!o._new?'style="border-color:var(--warn)"':''}>`).join('')}
+  ${['Front LED','Side LED','TFT','Terminal'].map(x=>`<div class="l">${x}</div>${L.map(l=>`<input class="in derived ${l!=='en'?'rtl':''}" value="${o[l]||''}" title="inherits short name" readonly>`).join('')}`).join('')}</div>
+  <div class="hint" style="margin-top:8px">Front LED, side LED, TFT and terminal inherit the short name (dashed). Click a field to override it.</div>`;
+ if(subtab==='ansage') b=announcementEditor(o);
+ if(subtab==='gps') b=`<div class="grid2"><div>
+  <div class="field"><label>GPS code</label><input class="in mono" value="${o.code}"></div>
+  <div class="field"><label>Longitude / latitude</label><input class="in mono" value="${o.gps?'35.082888 / 32.928228':''}" placeholder="dd.dddddd / dd.dddddd"></div>
+  <div class="field"><label>Inner window (x, width, y, height)</label><input class="in mono" value="${o.gps?'126272893,53040,118522904,32800':''}"></div>
+  <div class="field"><label>Outer window (x, width, y, height)</label><input class="in mono" value="${o.gps?'126246373,106080,118506504,65600':''}"></div>
+  ${o.gps?'<div class="notice ok">Standard window (53040 × 32800 / 106080 × 65600)</div>':'<div class="notice warn">No window defined. <button class="btn small" onclick="event.stopPropagation();toast(\'Standard window created around coordinate\')">Create from coordinate</button></div>'}
+  </div><div><svg viewBox="0 0 340 200" style="width:100%;background:#F3F5F8;border-radius:8px"><rect x="40" y="30" width="260" height="140" fill="none" stroke="#8C96AB" stroke-dasharray="4 3"/><rect x="105" y="65" width="130" height="70" fill="#E7F0FD" stroke="#1E6FE0"/><circle cx="170" cy="100" r="3" fill="#1E6FE0"/><text x="44" y="24" font-size="11" fill="#56617A">Outer window</text><text x="109" y="60" font-size="11" fill="#144FA3">Inner window</text></svg></div></div>`;
+ if(subtab==='verw'){const used=Object.keys(fahrten).filter(k=>fahrten[k].stops.some(s=>s[0]===o.code));b=used.length?`<div class="notice info">This station is used in ${used.length} trips – changes apply to all of them.</div>${used.map(k=>`<div class="check"><span class="mono">${k}</span><div>${fahrten[k].desc}</div><button class="btn small" onclick="event.stopPropagation();selTrip='${k}';go('fahrten')">Open</button></div>`).join('')}`:'<div class="empty">Not used in any trip.</div>'}
+ return `<div class="detail" onclick="event.stopPropagation()"><div class="subtabs">${tabs.map(t=>`<button class="${subtab===t[0]?'active':''}" onclick="subtab='${t[0]}';render()">${t[1]}</button>`).join('')}</div>${b}<div class="actions">${o._new?'':'<button class="btn ghost danger" style="margin-right:auto">Delete</button>'}<button class="btn" onclick="openRow=null;render()">Close</button><button class="btn primary" onclick="openRow=null;render();toast('${o._new?'Station created':'Saved'}')">${o._new?'Create':'Save'}</button></div></div>`;
+}
+
+/* Announcement editor: one station → 3 situations → 3 languages → sequence of files */
+function announcementEditor(o){
+ const code=String(o.code).padStart(4,'0');
+ const kind=KINDS.find(k=>k[0]===seqKind);
+ const seqs=langs().map(l=>{
+  const items=sequence(o,seqKind,l);
+  const total=items.reduce((a,i)=>a+i.dur,0), missing=items.filter(i=>!i.ok).length;
+  return `<div class="seq">
+   <div class="seqhead"><span class="chip ${l}">${LN[l]}</span><span class="d" style="color:var(--ink-3);font-size:12.5px">${items.length} items</span>${missing?`<span class="chip warn">${missing} file missing</span>`:'<span class="chip ok">Complete</span>'}<span class="total">${sec(total)}</span><button class="btn small" onclick="toast('${missing?'Cannot play – file missing':'Playing full announcement'}')" ${missing?'disabled':''}>▶ Play all</button></div>
+   <div class="timeline">${items.map(i=>`<span class="${i.ok?(i.src==='library'?'lib':'st'):'gap'}" style="flex:${i.dur}" title="${i.desc}">${i.ok?(i.code||o.code):'?'}</span>`).join('')}</div>
+   ${items.map((i,n)=>`<div class="item ${i.ok?'':'missing'}"><span class="grip">⋮⋮</span><span class="no">Item ${n+1}</span><button class="play" onclick="toast('${i.ok?'Playing '+i.file:'File missing'}')">${i.ok?'▶':'!'}</button><div><div class="file ${i.ok?'':'miss'}">${i.ok?i.file:i.file+' – missing'}</div><div class="src">${i.desc} · ${i.src==='library'?'library segment '+i.code:'station-specific'}</div></div><div class="bar"><i style="width:${i.ok?'100':'0'}%"></i></div><div class="dur">${sec(i.dur)}</div><div style="display:flex;gap:4px">${i.src==='station'?`<button class="btn small" onclick="toast('File dialog')">${i.ok?'Replace':'Upload'}</button>`:`<button class="btn small ghost" onclick="toast('Segment picker')">Swap</button>`}${del(`toast('Item removed')`,'Remove item')}</div></div>`).join('')}
+   <div class="add"><button class="btn small" onclick="toast('Segment picker: gong, sentence fragments, station names …')">+ Add item from library</button><button class="btn small ghost" onclick="toast('File dialog')">Upload new file</button><span class="hint" style="margin-left:auto;margin-top:2px">Drag ⋮⋮ to reorder</span></div>
+  </div>`}).join('');
+ return `<div style="display:flex;gap:10px;align-items:center;margin-bottom:12px"><div class="seg">${KINDS.map(k=>`<button class="${seqKind===k[0]?'active':''}" onclick="seqKind='${k[0]}';render()">${k[1]}</button>`).join('')}</div><span class="mono" style="color:var(--ink-3)">announcement code ${kind[2].replace('{c}',o.code)}</span><div style="margin-left:auto">${langSeg()}</div></div>
+ <div class="notice info">An announcement is a sequence of files. Shared segments (gong, sentence fragments) come from the audio library; only the station name file <span class="mono">${code}_&lt;lang&gt;.mp3</span> is specific to this station. The order below is what the train plays.</div>
+ ${seqs}`;
+}
+
+/* --- Trips --- */
+V.fahrten=()=>{
+ const t=fahrten[selTrip];let dist=0;
+ const stops=t.stops.map((s,i)=>{dist+=s[1];return {s,i,dist}}).filter(x=>tripFilter==='all'||x.s[2]===tripFilter);
+ const tree=Object.keys(fahrten).map(k=>`<button class="${k===selTrip?'active':''}" onclick="selTrip='${k}';selStop=1;render()"><span class="ln">${k}</span><span>${fahrten[k].desc}</span><span class="meta">${fahrten[k].stops.length?fahrten[k].stops.length+' stops':'<span class="dot err"></span> empty'}</span></button>`).join('');
+ const body=t.stops.length?`
+  <div class="filter"><div class="legend"><span><span class="dot" style="background:var(--blue)"></span> Stop</span><span><span class="dot" style="background:var(--ink-3)"></span> Pass-through</span><span style="color:var(--ink-3)">Dashed values are derived</span></div>Filter: <div class="seg"><button class="${tripFilter==='all'?'active':''}" onclick="tripFilter='all';render()">All</button><button class="${tripFilter==='H'?'active':''}" onclick="tripFilter='H';render()">Stops</button><button class="${tripFilter==='D'?'active':''}" onclick="tripFilter='D';render()">Pass-through</button></div></div>
+  <table class="rt"><thead><tr><th></th><th>Station</th><th>Name</th><th>Stop type</th><th>Distance km</th><th>km</th><th>Arrival ann.</th><th>Last-stop ann.</th><th>Departure</th><th>VIA</th><th>Languages</th><th>Station text</th><th>Station ann.</th><th></th></tr></thead><tbody>
+  ${stops.map(({s,i,dist})=>{const o=ortBy(s[0]),last=i===t.stops.length-1,pass=s[2]==='D';return `<tr class="${pass?'pass':''} ${selStop===i?'sel':''}" onclick="selStop=${i};render()"><td><span class="node ${i===0||last?'end':''} ${pass?'pass':''}"></span></td><td class="mono">${s[0]}</td><td>${o.en}</td><td><select onclick="event.stopPropagation()"><option ${!pass?'selected':''}>Stop</option><option ${pass?'selected':''}>Pass-through</option></select></td><td><span class="cell num">${i?'+ '+km(s[1]):'–'}</span></td><td class="num" style="color:var(--ink-2)">${km(dist)}</td><td><span class="cell num">${s[3]??'–'}</span></td><td><span class="cell num">${s[4]??'–'}</span></td><td><span class="cell">–</span></td><td><span class="cell">–</span></td><td>${L.map(l=>`<span class="chip ${l} ${o[l]&&o.audio[l]?'':'off'}">${l}</span>`).join(' ')}</td><td><span class="cell derived num">${s[0]}</span></td><td><span class="cell derived num">${pass?'–':s[0]+(last?'2':i?'1':'')}</span></td><td class="act">${edit(`selStop=${i};render();toast('Edit stop ${o.en}')`)}${del(`toast('Stop removed')`)}</td></tr>`}).join('')}
+  </tbody></table>
+  <div class="addrow"><button class="btn small" onclick="toast('Pick a station …')">+ Add station</button> <button class="btn small ghost" onclick="toast('Reorder by drag & drop')">Reorder</button></div>
+  ${preview(t)}`:`<div class="empty"><h3>No station sequence yet</h3>Trip ${selTrip} exists but is empty – it will be skipped on export.<br><button class="btn primary" onclick="fahrten[selTrip].stops=JSON.parse(JSON.stringify(fahrten['9701'].stops));renderTabs();render();toast('Stops copied from 9701')">Copy stops from 9701</button> <button class="btn" onclick="toast('Pick a station …')">Add manually</button></div>`;
+ return `<div class="split">
+  <div class="card"><div class="chead"><h2>Trips</h2><div class="tools"><button class="btn small primary" onclick="toast('New trip')">New</button></div></div><div class="tree">${tree}</div></div>
+  <div class="card"><div class="chead"><h2>Trip ${selTrip}</h2><span class="d">${t.desc}</span><div class="tools"><button class="btn small" onclick="toast('Trip ${selTrip} duplicated as ${+selTrip+1}')">Duplicate</button>${del(`toast('Delete trip ${selTrip}?')`,'Delete trip')}</div></div>
+  <div class="route-meta"><div><span>Line no.</span><b class="mono">${selTrip}</b></div><div><span>Stops / pass-through</span><b class="num">${t.stops.filter(s=>s[2]==='H').length} / ${t.stops.filter(s=>s[2]==='D').length}</b></div><div><span>Route length</span><b class="num">${km(t.stops.reduce((a,s)=>a+s[1],0))} km</b></div><div><span>Validity</span><select onchange="toast('Validity changed')">${vts.map(v=>`<option ${v[0]===t.vts?'selected':''}>${v[0]} · ${v[1].slice(0,7).map((x,i)=>x?['Mo','Tu','We','Th','Fr','Sa','Su'][i]:'').filter(Boolean).join(' ')||'–'}</option>`).join('')}</select></div><div><span>Destination display</span><b class="mono">${t.stops.length?'9'+String(t.stops[t.stops.length-1][0]).padStart(4,'0'):'–'}</b></div><div></div></div>
+  ${body}</div></div>`;
+};
+function preview(t){
+ const idx=Math.min(selStop,t.stops.length-1),s=t.stops[idx],o=ortBy(s[0]),end=ortBy(t.stops[t.stops.length-1][0]),last=idx===t.stops.length-1;
+ const items=sequence(o,last?'last':'next','en');
+ return `<div class="preview"><div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;color:#9CA3AF;font-size:12px">On-board preview · next station <b style="color:#fff">${o.en}</b> · destination <b style="color:#fff">${end.en}</b><span style="margin-left:auto">Click a row to change the stop</span></div>
+ <div class="scr"><div class="lbl">Front LED (destination)</div><div class="led">${end.en}</div><div class="led small rtl">${end.he}</div></div>
+ <div class="scr"><div class="lbl">Side LED (2 rows)</div><div class="led small">${end.en}</div><div class="led small">via ${ortBy(t.stops[Math.floor(t.stops.length/2)][0]).en}</div></div>
+ <div class="scr"><div class="lbl">TFT inside</div><div class="tft"><div class="top">Next station · ${L.map(l=>o[l]?l:'').filter(Boolean).join(' · ')}</div>${o.en}<span class="rtl">${o.he}</span><span class="rtl">${o.ar||'<span style="color:#F59E0B;font-size:12px">Arabic missing</span>'}</span></div></div>
+ <div class="audioline">Announcement (en): ${items.map(i=>`<span class="chip ${i.src==='station'?'st':''}" style="${i.ok?'':'border:1px dashed #F59E0B;color:#F59E0B'}">${i.code?i.code+' ':''}${i.ok?i.desc:'missing: '+i.file}</span>`).join('→ ')}<button class="btn small" style="margin-left:auto;background:#1F2937;border-color:#374151;color:#fff" onclick="toast('Playing')">▶ ${sec(items.reduce((a,i)=>a+i.dur,0))}</button></div></div>`;
+}
+
+/* --- Display texts --- */
+V.texte=()=>{
+ const tabs=[['ziele','Destinations',ziele.length],['ftexte','Function texts',funkTexte.length],['sonder','Special destinations',0],['special','Special info',3]];
+ let b='';
+ if(texteTab==='ziele') b=`<table><thead><tr><th>Train no.</th><th></th><th>Front LED</th><th>Side LED top</th><th>Side LED bottom</th><th>TFT</th><th>Status</th><th></th></tr></thead><tbody>${ziele.filter(z=>!q||String(z.code).includes(q)).map(z=>langs().map((l,i)=>`<tr class="row" onclick="toast('Edit destination ${z.code}')"><td class="mono">${i===0?z.code:''}</td><td><span class="chip ${l}">${l}</span></td><td>${cell(z[l].f,l)}</td><td>${cell(z[l].s1,l)}</td><td>${z[l].s2?cell(z[l].s2,l):'<span style="color:var(--ink-3)">–</span>'}</td><td>${cell(z[l].t,l)}</td><td>${i===0?`<span class="chip ${L.every(x=>z[x].f)?'ok':'warn'}">${L.every(x=>z[x].f)?'Complete':'Incomplete'}</span>`:''}</td><td class="act">${i===0?edit(`toast('Edit destination ${z.code}')`)+del(`toast('Delete destination ${z.code}?')`):''}</td></tr>`).join('')).join('')}</tbody></table>`;
+ if(texteTab==='ftexte') b=`<table><thead><tr><th>Code</th><th>Name</th><th>Output</th>${langs().map(l=>`<th><span class="chip ${l}">${l}</span></th>`).join('')}<th></th></tr></thead><tbody>${funkTexte.map(f=>`<tr class="row" onclick="toast('Edit function text ${f.code}')"><td class="mono">${f.code}</td><td>${f.name}</td><td><span class="chip neutral">${f.loc}</span> ${LOC[f.loc]}</td>${langs().map(l=>`<td>${cell(f[l],l)}</td>`).join('')}<td class="act">${edit(`toast('Edit function text ${f.code}')`)}${del(`toast('Delete function text ${f.code}?')`)}</td></tr>`).join('')}</tbody></table>`;
+ if(texteTab==='sonder') b=`<div class="empty"><h3>No special destinations yet</h3>Special destinations work like destinations but apply only to selected trips.<br><button class="btn primary" onclick="toast('Add special destination')">Add special destination</button></div>`;
+ if(texteTab==='special'){const s=[[7,'Welcome','Welcome','ברוכים הבאים','مرحباً بكم'],[8,'Farewell on arrival','Thank you for travelling with us','תודה שנסעתם איתנו','شكراً لسفركم معنا'],[9,'Farewell at stop','Goodbye','להתראות','إلى اللقاء']];b=`<div style="padding:12px 16px 0"><div class="notice info">Codes 7–9 are fixed by the on-board system and cannot be changed.</div></div><table><thead><tr><th>Code</th><th>Meaning</th>${langs().map(l=>`<th><span class="chip ${l}">${l}</span></th>`).join('')}<th></th></tr></thead><tbody>${s.map(r=>`<tr class="row" onclick="toast('Edit special info ${r[0]}')"><td class="mono">${r[0]}</td><td>${r[1]}</td>${langs().map(l=>`<td>${cell(r[{en:2,he:3,ar:4}[l]],l)}</td>`).join('')}<td class="act">${edit(`toast('Edit texts for code ${r[0]}')`,'Edit texts (code is fixed)')}</td></tr>`).join('')}</tbody></table>`}
+ return `<div class="card"><div class="chead"><div class="seg">${tabs.map(t=>`<button class="${texteTab===t[0]?'active':''}" onclick="texteTab='${t[0]}';render()">${t[1]} <span style="color:var(--ink-3)">${t[2]}</span></button>`).join('')}</div><div class="tools">${langSeg()}${search('Code')}<button class="btn primary" onclick="toast('New')">Add</button></div></div>${b}</div>`;
+};
+
+/* --- Audio library --- */
+V.ansagen=()=>{
+ const rows=Object.keys(lib).map(c=>({code:+c,...lib[c]}));
+ const perLang=f=>f.includes('{l}');
+ return `
+ <div class="notice info">The library holds the shared segments every announcement is built from. Station name files are managed at the station (Stations → Announcements). A full announcement = library segments + station file, in order.</div>
+ <div class="card"><div class="chead"><h2>Library segments</h2><span class="d">gong, sentence fragments, alarms</span><div class="tools">${langSeg()}<button class="btn primary" onclick="toast('New segment')">Add segment</button></div></div>
+ <table><thead><tr><th>Code</th><th>Meaning</th><th>Files</th><th>Length</th><th>Used in</th><th>Status</th><th></th></tr></thead><tbody>
+ ${rows.map(f=>`<tr class="row" onclick="toast('Segment ${f.code}')"><td class="mono">${f.code}</td><td>${f.desc}</td><td>${perLang(f.file)?langs().map(l=>`<span class="chip ${l}">${f.file.replace('{l}',l)}</span>`).join(' '):`<span class="chip neutral">${f.file}</span> <span class="hint" style="display:inline">language-neutral</span>`}</td><td class="num">${sec(f.dur)}</td><td class="hint" style="margin:0">${{300:'every arrival announcement',401:'every arrival announcement',201:'last-stop announcements',200:'departure announcements',45:'3 transfer stations',303:'alarm',304:'alarm'}[f.code]||'–'}</td><td><span class="chip ok">OK</span></td><td class="act">${edit(`toast('Edit segment ${f.code}')`)}${del(`toast('Delete segment ${f.code}?')`)}</td></tr>`).join('')}
+ </tbody></table></div>
+ <div class="card"><div class="chead"><h2>Announcement patterns</h2><span class="d">Which segments each situation uses, in order – the station file is inserted automatically</span></div>
+ ${KINDS.map(k=>{const items=sequence({code:'XXXX',en:'<station>',audio:{en:1},transfer:k[0]==='next'},k[0],'en');return `<div class="check"><b style="min-width:180px">${k[1]}</b><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${items.map(i=>`<span class="chip ${i.src==='station'?'en':'neutral'}">${i.code?i.code+' · ':''}${i.desc}</span>`).join('→ ')}${k[0]==='next'?'<span class="hint" style="margin:0">(45 only at transfer stations)</span>':''}</div>${edit(`toast('Edit pattern')`,'Edit pattern')}</div>`}).join('')}</div>
+ <div class="card"><div class="chead"><h2>Special announcements</h2></div><div class="empty"><h3>No special announcements yet</h3>Sequences for operational situations, with code, terminal description and files per language.<br><button class="btn primary" onclick="toast('Add special announcement')">Add special announcement</button></div></div>`;
+};
+
+/* --- Validity --- */
+V.vts=()=>{const D=['Mo','Tu','We','Th','Fr','Sa','Su','Holiday'];return `
+ <div class="notice err">Global validity may cover at most one year. Currently: 19.11.2025 – 19.11.2035. <button class="btn small" onclick="document.getElementById('valid').value='19.11.2025 – 18.11.2026';toast('Validity set to one year')">Set to one year</button></div>
+ <div class="grid2" style="gap:16px">
+ <div class="card"><div class="chead"><h2>Global</h2></div><div style="padding:16px">
+  <div class="field"><label>Description</label><input class="in" value="Passenger Operation"></div>
+  <div class="field"><label>Reserved</label><input class="in mono" value="2091"></div>
+  <div class="field"><label>Valid from – to</label><input class="in mono" id="valid" value="19.11.2025 – 19.11.2035" style="border-color:var(--err)"><div class="hint">Format dd.mm.yyyy – dd.mm.yyyy</div></div>
+  <div class="field"><label>Public holidays</label><input class="in mono" placeholder="dd.mm., dd.mm., …"></div></div></div>
+ <div class="card"><div class="chead"><h2>Operating days</h2><div class="tools"><button class="btn small primary" onclick="toast('Code 0006 created')">Add code</button></div></div>
+ <table><thead><tr><th>Code</th>${D.map(d=>`<th style="text-align:center">${d}</th>`).join('')}<th>Trips</th><th></th></tr></thead><tbody>
+ ${vts.map(r=>`<tr><td class="mono">${r[0]}<div style="font-size:11.5px;color:var(--ink-3);font-family:'IBM Plex Sans'">${r[2]}</div></td>${r[1].map(v=>`<td style="text-align:center"><span class="toggle ${v?'on':''}" style="width:22px;height:14px" onclick="this.classList.toggle('on')"></span></td>`).join('')}<td class="num">${Object.keys(fahrten).filter(k=>fahrten[k].vts===r[0]).length}</td><td class="act">${edit(`toast('Edit validity code ${r[0]}')`)}${r[0]==='0001'?'':del(`toast('Delete code ${r[0]}?')`)}</td></tr>`).join('')}
+ </tbody></table></div></div>`};
+
+/* --- Export --- */
+V.export=()=>{const c=[['ok','Stations',`${orte.length} stations, 3 incomplete (exported with gaps)`],['ok','GPS windows','25 windows, 1 missing'],['err','Trips','4 trips without a station sequence'],['warn','Destinations','Destination 9002: Arabic text missing'],['err','Validity','Global validity exceeds one year'],['warn','Announcements','6 announcements incomplete (2 station name files missing)'],['ok','Function texts / special info','complete']];
+ return `<div class="card"><div class="chead"><h2>Validation of version 2091</h2><span class="chip err">2 errors</span><span class="chip warn">3 warnings</span><div class="tools"><button class="btn" onclick="toast('Validation run')">Run again</button><button class="btn primary" onclick="openExport()">Export …</button></div></div>
+ ${c.map(x=>`<div class="check"><span class="stat ${x[0]}">${x[0]==='ok'?'✓':x[0]==='err'?'!':'i'}</span><div><b>${x[1]}</b><div class="d">${x[2]}</div></div>${x[0]!=='ok'?`<button class="btn small" onclick="go('${{Stations:'orte',Trips:'fahrten',Destinations:'texte',Validity:'vts',Announcements:'orte'}[x[1]]||'orte'}')">Fix</button>`:''}</div>`).join('')}</div>
+ <div class="card"><div class="chead"><h2>What gets exported</h2><span class="d">ZIP for the on-board import – same structure as the current Excel tables</span></div><div style="padding:12px 16px;display:flex;gap:6px;flex-wrap:wrap">${['tbl_Ort_he/en/ar','tbl_GPS','tbl_frt_173 … 9710','tbl_Ziel_he/en/ar','tbl_VTS','tbl_Announcement_he/en/ar (code · item · file)','tbl_FunctionAnnouncement','tbl_FunctionText_he/en/ar','tbl_SpecialInfo','audio/'].map(x=>`<span class="chip neutral mono">${x}</span>`).join('')}</div></div>`};
+
+/* ================= Dialogs ================= */
+const modal=document.getElementById('modal');
+function openExport(){modal.innerHTML=`<div class="modal"><header><h3>Export version 2091</h3></header><div class="body">
+ <div class="notice err">2 errors block the export. Warnings do not.</div>
+ <div class="field"><label>Target format</label><select class="in"><option>On-board import (ZIP: CSV tables + audio)</option><option>Excel workbook (compatible with the current process)</option></select></div>
+ <div class="field"><label>Options</label><label style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="toggle on" onclick="this.classList.toggle('on')"></span>Skip empty trips and note them in the log</label><label style="display:flex;gap:8px;align-items:center"><span class="toggle on" onclick="this.classList.toggle('on')"></span>Lock version after export</label></div>
+ </div><footer><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" disabled>Start export</button></footer></div>`;modal.classList.add('open')}
+function openImportLog(v){modal.innerHTML=`<div class="modal"><header><h3>Import log · version ${v}</h3></header><div class="body"><div class="check"><span class="stat err">!</span><div><b>tbl_VTS</b><div class="d">Validity range exceeds 365 days (19.11.2025-19.11.2035)</div></div></div><div class="check"><span class="stat err">!</span><div><b>tbl_frt_9705</b><div class="d">Empty station sequence</div></div></div><div class="check"><span class="stat warn">i</span><div><b>tbl_Announcement_en</b><div class="d">23 items reference blank.mp3</div></div></div></div><footer><button class="btn" onclick="closeModal()">Close</button><button class="btn primary" onclick="closeModal();go('export')">Validate 2091</button></footer></div>`;modal.classList.add('open')}
+function closeModal(){modal.classList.remove('open')}
+modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+renderTabs();render();
+</script>
+</body>
+</html>
