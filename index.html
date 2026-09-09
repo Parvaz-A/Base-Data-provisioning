@@ -98,7 +98,7 @@
   .app-shell{
     display:grid;
     grid-template-columns:1fr;
-    grid-template-rows:44px 64px 1fr;
+    grid-template-rows:44px auto 1fr;
     grid-template-areas: "isrnav" "topbar" "main";
     min-height:100vh;
     background:var(--bg);
@@ -351,6 +351,44 @@
   ::-webkit-scrollbar{ width:10px; height:10px; }
   ::-webkit-scrollbar-thumb{ background:var(--border-strong); border-radius:6px; }
   ::-webkit-scrollbar-track{ background:transparent; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:1024px){
+    .station-layout{ grid-template-columns:240px 1fr; }
+  }
+  @media (max-width:900px){
+    .main{ padding:18px 14px 40px; }
+    .station-layout{ grid-template-columns:1fr; }
+    .station-list-card{ order:1; }
+    .station-list{ max-height:280px; }
+    .station-detail{ order:2; padding:18px 16px; }
+    .field-row, .field-row-3{ grid-template-columns:1fr; }
+    .langtbl{ grid-template-columns:90px repeat(3,minmax(180px,1fr)); overflow-x:auto; padding-bottom:2px; }
+    .isr-topnav{ padding:0 10px; gap:14px; overflow-x:auto; }
+    .isr-topnav-menu{ gap:14px; }
+    .isr-topnav::-webkit-scrollbar{ display:none; }
+    .topbar{ padding:10px 16px; }
+    .panel-head h2{ font-size:17px; }
+    .panel-head p{ max-width:none; }
+    .route-builder, .sz-form, .template-card, .archive-entry{ padding:16px; }
+    .modal-box{ padding:18px 16px; max-width:94vw; }
+    .field-row-3.station-detail-row, .station-detail-head{ flex-wrap:wrap; }
+    .export-bar{ width:100%; justify-content:flex-start; }
+  }
+  @media (max-width:600px){
+    body{ font-size:13px; }
+    .isr-topnav-item{ font-size:12px; }
+    .isr-topnav-menu{ gap:10px; }
+    .isr-topnav-right{ gap:10px; }
+    .topbar-title h1{ font-size:14px; }
+    .station-detail-head{ flex-direction:column; align-items:flex-start; gap:8px; }
+    .route-line-stop{ width:52px; }
+    .route-line-label{ max-width:50px; font-size:9px; }
+    .route-card, .card.station-detail, .card.route-builder{ padding-left:14px; padding-right:14px; }
+    table.audio-table th, table.audio-table td, table.sz-table th, table.sz-table td{ padding:8px 6px; font-size:11.8px; }
+    .btn{ padding:8px 11px; font-size:12.5px; }
+    .field-row-3{ grid-template-columns:1fr; }
+  }
 </style>
 </head>
 <body>
