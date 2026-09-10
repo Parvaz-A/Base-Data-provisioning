@@ -2,41 +2,46 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Base Data Provisioning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F5F9FC;
+    /* ---- ISR MUI reference palette (from Figma variables) ---- */
+    --bg:#F5F5F5;
     --surface:#FFFFFF;
-    --surface-2:#EEF6FA;
-    --border:#DCEAF3;
-    --border-strong:#B9D6E8;
-    --text:#0F2430;
-    --text-muted:#48697A;
-    --text-faint:#84A2B0;
-    --accent:#06AEC7;
+    --surface-2:#F5F5F5;
+    --border:rgba(0,0,0,0.12);
+    --border-strong:rgba(0,0,0,0.23);
+    --text:#0F1720;
+    --text-muted:rgba(0,0,0,0.6);
+    --text-faint:rgba(0,0,0,0.45);
+    --accent:#2196F3;
     --accent-contrast:#FFFFFF;
-    --accent-soft:#CFF6FB;
-    --accent-strong:#048096;
-    --success:#16A34A;
-    --success-soft:#DCFCE7;
-    --warning:#F59E0B;
-    --warning-soft:#FEF3C7;
-    --danger:#EF4444;
-    --danger-soft:#FEE2E2;
-    --danger-strong:#B91C1C;
-    --focus:#06AEC7;
-    --en:#2563EB; --en-soft:#DBEAFE;
-    --he:#9333EA; --he-soft:#F3E8FF;
-    --ar:#DB2777; --ar-soft:#FCE7F3;
-    --shadow-1: 0 1px 2px rgba(15,36,48,0.07), 0 1px 1px rgba(15,36,48,0.05);
-    --shadow-2: 0 8px 24px rgba(15,36,48,0.12), 0 2px 6px rgba(15,36,48,0.07);
-    --font-display:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
-    --font-body:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
-    --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --accent-soft:#E3F2FD;
+    --accent-strong:#1976D2;
+    --success:#1B5E20;
+    --success-soft:#C8E6C9;
+    --success-fill:#2E7D32;
+    --secondary:#9C27B0;
+    --secondary-contrast:#FFFFFF;
+    --warning:#E65100;
+    --warning-soft:#FFF3E0;
+    --danger:#D32F2F;
+    --danger-soft:#FFEBEE;
+    --danger-strong:#B71C1C;
+    --focus:#2196F3;
+    --en:#1976D2; --en-soft:#E3F2FD;
+    --he:#7B1FA2; --he-soft:#F3E5F5;
+    --ar:#C2185B; --ar-soft:#FCE4EC;
+    --shadow-1: 0 2px 1px -1px rgba(0,0,0,0.2), 0 1px 1px 0 rgba(0,0,0,0.14), 0 1px 3px 0 rgba(0,0,0,0.12);
+    --shadow-2: 0 3px 1px -2px rgba(0,0,0,0.2), 0 2px 2px 0 rgba(0,0,0,0.14), 0 1px 5px 0 rgba(0,0,0,0.12);
+    --shadow-4: 0 2px 4px -1px rgba(0,0,0,0.2), 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12);
+    --font-display:'Roboto',system-ui,-apple-system,sans-serif;
+    --font-body:'Roboto',system-ui,-apple-system,sans-serif;
+    --font-mono:'Roboto Mono',ui-monospace,'SF Mono',Menlo,monospace;
     --font-rtl:'IBM Plex Sans Hebrew','IBM Plex Sans Arabic',var(--font-body);
   }
   @media (prefers-color-scheme: dark){
@@ -80,7 +85,7 @@
   code{ font-family:var(--font-mono); background:var(--surface-2); padding:1px 5px; border-radius:4px; font-size:0.92em; }
 
   /* ---------- ISR system top navbar ---------- */
-  .isr-topnav{ grid-area:isrnav; display:flex; align-items:stretch; height:44px; background:#20265A; color:#EDEFF7; font-size:13px; padding:0 14px; gap:22px; min-width:0; }
+  .isr-topnav{ grid-area:isrnav; display:flex; align-items:stretch; height:44px; background:#1B2559; color:#EDEFF7; font-size:13px; padding:0 14px; gap:22px; min-width:0; }
   .isr-topnav-logo{ display:flex; align-items:center; color:#8B93C9; flex:none; }
   .isr-topnav-menu{ display:flex; align-items:stretch; gap:26px; flex:1; }
   .isr-topnav-item{ display:flex; align-items:center; gap:5px; background:none; border:none; color:#C7CCEC; font:inherit; font-weight:600; cursor:pointer; border-bottom:2px solid transparent; }
@@ -137,11 +142,27 @@
   .main{ grid-area:main; overflow-y:auto; overflow-x:hidden; padding:26px 30px 60px; min-width:0; }
   .panel{ display:none; max-width:1180px; }
   .panel.active{ display:block; }
-  .panel-head{ margin-bottom:18px; }
+  .panel-head{ margin-bottom:18px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   .panel-head h2{ font-size:19px; font-weight:600; }
   .panel-head p{ margin:4px 0 0; color:var(--text-muted); font-size:13px; max-width:66ch; }
+  .panel-head-actions{ display:flex; align-items:center; gap:12px; flex:none; }
 
-  .card{ background:var(--surface); border:1px solid var(--border); border-radius:12px; }
+  /* ---------- Search box (matches Figma reference) ---------- */
+  .search-box{ position:relative; max-width:320px; margin:14px 0 18px; }
+  .panel-head .search-box, .panel-head-actions .search-box{ margin:0; flex:none; width:280px; }
+  .search-box input{ width:100%; background:var(--surface); box-shadow:var(--shadow-1); border:none; border-bottom:1px solid rgba(0,0,0,0.42); border-radius:4px 4px 0 0; padding:9px 38px 7px 14px; font-family:var(--font-body); font-size:14px; letter-spacing:0.15px; color:var(--text); outline:none; transition:background .1s ease, border-color .1s ease, padding .1s ease; }
+  .search-box input::placeholder{ color:var(--text-faint); }
+  .search-box input:hover{ background:var(--surface); border-bottom-color:rgba(0,0,0,0.87); }
+  .search-box input:focus{ background:var(--surface); border-bottom:2px solid var(--accent); padding-bottom:6px; }
+  .search-box svg{ position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-faint); pointer-events:none; }
+  :root[data-theme="dark"] .search-box input{ border-bottom-color:rgba(255,255,255,0.5); }
+  :root[data-theme="dark"] .search-box input:hover{ border-bottom-color:rgba(255,255,255,0.87); }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .search-box input{ border-bottom-color:rgba(255,255,255,0.5); }
+    :root:not([data-theme="light"]) .search-box input:hover{ border-bottom-color:rgba(255,255,255,0.87); }
+  }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow-1); }
   .chip{ display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:600; line-height:1.7; white-space:nowrap; }
   .chip-dot{ width:6px; height:6px; border-radius:50%; flex:none; }
   .chip-neutral{ background:var(--surface-2); color:var(--text-muted); border:1px solid var(--border); }
@@ -151,6 +172,9 @@
   .chip-warning .chip-dot{ background:var(--warning); }
   .chip-accent{ background:var(--accent-soft); color:var(--accent-strong); }
   .chip-accent .chip-dot{ background:var(--accent); }
+  .chip-primary{ background:var(--accent); color:var(--accent-contrast); font-family:var(--font-body); font-size:13px; font-weight:400; line-height:18px; letter-spacing:0.16px; }
+  .chip-filled-success{ background:var(--success-fill); color:#FFFFFF; font-family:var(--font-body); font-size:13px; font-weight:400; line-height:18px; letter-spacing:0.16px; }
+  .chip-filled-secondary{ background:var(--secondary); color:var(--secondary-contrast); font-family:var(--font-body); font-size:13px; font-weight:400; line-height:18px; letter-spacing:0.16px; }
   .chip.en{ background:var(--en-soft); color:var(--en); }
   .chip.he{ background:var(--he-soft); color:var(--he); }
   .chip.ar{ background:var(--ar-soft); color:var(--ar); }
@@ -163,21 +187,42 @@
   .langtbl .lbl{ font-size:12px; font-weight:600; color:var(--text-muted); padding-top:8px; }
   .langtbl textarea.f{ min-height:52px; }
 
-  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:8px 14px; border-radius:8px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text); font-size:13px; font-weight:600; cursor:pointer; transition:background .12s ease, border-color .12s ease; white-space:nowrap; }
-  .btn:hover{ background:var(--surface-2); }
-  .btn:disabled{ opacity:0.45; cursor:not-allowed; }
-  .btn-primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-contrast); }
-  .btn-primary:hover{ background:var(--accent-strong); border-color:var(--accent-strong); }
-  .btn-sm{ padding:5px 10px; font-size:12px; border-radius:7px; }
-  .icon-btn{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:7px; border:1px solid var(--border); background:var(--surface); color:var(--text-muted); cursor:pointer; }
-  .icon-btn:hover{ background:var(--surface-2); color:var(--text); }
+  /* ---------- MUI Button (Figma Button component) ---------- */
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:4px 10px; min-height:30px; border-radius:4px; border:1px solid var(--border-strong); background:none; color:var(--text); font-family:var(--font-body); font-size:13px; font-weight:500; line-height:22px; text-transform:uppercase; letter-spacing:0.46px; cursor:pointer; transition:background .12s ease, border-color .12s ease, box-shadow .12s ease; white-space:nowrap; }
+  .btn:hover{ background:rgba(0,0,0,0.04); border-color:var(--text-muted); }
+  .btn:disabled{ border-color:rgba(0,0,0,0.12); color:rgba(0,0,0,0.26); background:none; box-shadow:none; cursor:not-allowed; }
+  .btn-primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-contrast); box-shadow:none; }
+  .btn-primary:hover{ background:var(--accent-strong); border-color:var(--accent-strong); box-shadow:none; }
+  .btn-primary:disabled{ background:rgba(0,0,0,0.12); border-color:transparent; color:rgba(0,0,0,0.26); box-shadow:none; }
+  .btn-danger-text{ border:none; background:none; color:var(--danger); box-shadow:none; }
+  .btn-danger-text:hover{ background:rgba(211,47,47,0.08); border-color:transparent; }
+  .btn-danger-text:disabled{ background:none; border:none; color:rgba(0,0,0,0.26); }
+  .btn-outlined-primary{ background:none; border-color:var(--accent); color:var(--accent); }
+  .btn-outlined-primary:hover{ background:var(--accent-soft); border-color:var(--accent-strong); color:var(--accent-strong); }
+  .btn-outlined-primary:disabled{ background:none; border-color:rgba(0,0,0,0.12); color:rgba(0,0,0,0.26); }
+  :root[data-theme="dark"] .btn:hover{ background:rgba(255,255,255,0.08); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn:hover{ background:rgba(255,255,255,0.08); } }
+  .btn-sm{ padding:2px 8px; min-height:24px; font-size:12px; line-height:20px; letter-spacing:0.4px; border-radius:4px; }
+  .icon-btn{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; border:none; background:none; color:var(--text-muted); cursor:pointer; }
+  .icon-btn:hover{ background:rgba(0,0,0,0.06); color:var(--text); }
   .icon-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 
   label.field-label{ display:block; font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:5px; letter-spacing:0.01em; }
   .field-hint{ font-size:11.5px; color:var(--text-faint); margin-top:4px; }
-  input.f, select.f, textarea.f{ width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text); }
-  input.f:focus, select.f:focus, textarea.f:focus{ border-color:var(--accent); }
-  textarea.f{ resize:vertical; min-height:60px; font-size:13px; }
+  /* ---------- MUI "Filled" text field (Figma TextField component) ---------- */
+  input.f, select.f, textarea.f{ width:100%; padding:9px 10px 7px; border-radius:4px 4px 0 0; border:none; border-bottom:1px solid rgba(0,0,0,0.42); background:var(--surface-2); color:var(--text); font-family:var(--font-body); font-size:13px; letter-spacing:0.15px; transition:background .1s ease, border-color .1s ease, padding .1s ease; }
+  input.f:hover, select.f:hover, textarea.f:hover{ background:rgba(0,0,0,0.09); border-bottom-color:rgba(0,0,0,0.87); }
+  input.f:focus, select.f:focus, textarea.f:focus{ border-bottom:2px solid var(--accent); padding-bottom:6px; background:rgba(0,0,0,0.09); outline:none; }
+  input.f:disabled, select.f:disabled, textarea.f:disabled{ background:rgba(0,0,0,0.04); border-bottom-style:dotted; color:var(--text-faint); cursor:not-allowed; }
+  :root[data-theme="dark"] input.f, :root[data-theme="dark"] select.f, :root[data-theme="dark"] textarea.f{ border-bottom-color:rgba(255,255,255,0.5); }
+  :root[data-theme="dark"] input.f:hover, :root[data-theme="dark"] select.f:hover, :root[data-theme="dark"] textarea.f:hover{ background:rgba(255,255,255,0.09); border-bottom-color:rgba(255,255,255,0.87); }
+  :root[data-theme="dark"] input.f:focus, :root[data-theme="dark"] select.f:focus, :root[data-theme="dark"] textarea.f:focus{ background:rgba(255,255,255,0.09); }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) input.f, :root:not([data-theme="light"]) select.f, :root:not([data-theme="light"]) textarea.f{ border-bottom-color:rgba(255,255,255,0.5); }
+    :root:not([data-theme="light"]) input.f:hover, :root:not([data-theme="light"]) select.f:hover, :root:not([data-theme="light"]) textarea.f:hover{ background:rgba(255,255,255,0.09); border-bottom-color:rgba(255,255,255,0.87); }
+    :root:not([data-theme="light"]) input.f:focus, :root:not([data-theme="light"]) select.f:focus, :root:not([data-theme="light"]) textarea.f:focus{ background:rgba(255,255,255,0.09); }
+  }
+  textarea.f{ resize:vertical; min-height:60px; font-size:13px; border-radius:4px 4px 0 0; }
   .field{ margin-bottom:14px; }
   .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .field-row-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
@@ -250,6 +295,8 @@
   .route-line-seg{ height:2px; background:var(--border-strong); flex:1; min-width:14px; margin-top:4.5px; }
   .route-line-label{ font-size:9.5px; color:var(--text-muted); margin-top:4px; text-align:center; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:64px; }
   .route-line-type{ font-size:8.5px; color:var(--text-faint); font-family:var(--font-mono); }
+  .route-line-edit{ display:flex; align-items:center; justify-content:center; margin-top:3px; color:var(--text-faint); }
+  .route-line-stop:hover .route-line-edit{ color:var(--accent-strong); }
   .route-card-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:6px; }
   .route-legend{ display:flex; gap:14px; align-items:center; font-size:11px; color:var(--text-faint); margin-top:2px; }
   .route-legend span{ display:inline-flex; align-items:center; gap:5px; }
@@ -258,7 +305,7 @@
   .route-stop-row:hover td{ background:var(--surface-2); }
   .route-stop-row.open td{ background:var(--accent-soft); }
 
-  /* ---------- Sonderziele ---------- */
+  /* ---------- Special Destinations ---------- */
   .sz-form{ padding:20px 22px; margin-bottom:20px; }
   table.sz-table{ width:100%; border-collapse:collapse; }
   table.sz-table th{ text-align:left; font-size:10.8px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-faint); font-weight:600; padding:0 10px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
@@ -317,7 +364,10 @@
   .modal-sub{ font-size:12px; color:var(--text-muted); margin:0 0 18px; line-height:1.5; }
 
   table.audio-table{ width:100%; border-collapse:collapse; }
-  table.audio-table th{ text-align:left; font-size:10.8px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-faint); font-weight:600; padding:0 10px 8px; border-bottom:1px solid var(--border); }
+  table.audio-table th{ text-align:left; font-size:13px; text-transform:none; letter-spacing:0.17px; color:var(--text-muted); font-weight:500; line-height:1.7; padding:10px 10px; border-bottom:1px solid var(--border); background:var(--surface-2); white-space:nowrap; }
+  table.audio-table thead th:first-child{ border-top-left-radius:8px; }
+  table.audio-table thead th:last-child{ border-top-right-radius:8px; }
+  table.audio-table th:not(:empty)::after{ content:""; display:inline-block; width:13px; height:13px; margin-left:4px; vertical-align:middle; opacity:0.55; background-repeat:no-repeat; background-size:contain; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-5 5 5M7 14l5 5 5-5'/%3E%3C/svg%3E"); }
   table.audio-table td{ padding:10px; border-bottom:1px solid var(--border); font-size:12.8px; vertical-align:middle; }
   table.audio-table tr:last-child td{ border-bottom:none; }
   tr.station-overview-row{ cursor:pointer; }
@@ -424,7 +474,7 @@
           </button>
           <button class="nav-item" data-tab="sonderziel">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 3v18M5 4h12l-3 4 3 4H5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-            <span>Sonderziele</span>
+            <span>Special Destinations</span>
             <span class="nav-count" id="navCountSz">0</span>
           </button>
           <button class="nav-item" data-tab="audiolib">
@@ -465,8 +515,11 @@
     <!-- ROUTES & ARCHIVES -->
     <section class="panel active" id="panel-archive">
       <div class="panel-head">
-        <h2>Routes &amp; Archives</h2>
-        <p>Generate a new archive for a period, then add routes to it — every route always lives inside exactly one archive.</p>
+        <div>
+          <h2>Routes &amp; Archives</h2>
+          <p>Generate a new archive for a period — every route from the timetable is imported automatically, and you can always add more by hand. Every route always lives inside exactly one archive.</p>
+        </div>
+        <div class="search-box"><input type="text" id="searchArchive" placeholder="Search archives, routes &amp; stations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
       <div class="section-label">Generate archive</div>
@@ -479,7 +532,7 @@
           <button class="btn btn-primary" id="exportBtn">Generate archive</button>
           <span class="field-hint" id="archiveSelectHint" style="color:var(--danger);"></span>
         </div>
-        <div class="field-hint" style="margin-top:8px;">Creates a new, empty archive for this period — add routes to it with each archive's own "+ New route" button.</div>
+        <div class="field-hint" style="margin-top:8px;">Automatically pulls in a route for every line in the timetable for this period — use each archive's own "+ New route" button to add more.</div>
       </div>
 
       <div class="section-label">Archives</div>
@@ -505,9 +558,9 @@
             <select class="f" id="routeAddType" style="width:170px;">
               <option value="H">Regular stop</option>
               <option value="B">Request stop</option>
-              <option value="D">Pass-through</option>
+              <option value="D">Via</option>
             </select>
-            <button class="btn btn-sm" id="routeAddBtn">Add stop</button>
+            <button class="btn btn-sm btn-outlined-primary" id="routeAddBtn">Add stop</button>
           </div>
         </div>
         <div class="field">
@@ -541,12 +594,15 @@
 
     <!-- STATION OVERVIEW -->
     <section class="panel" id="panel-stationoverview">
-      <div class="panel-head" style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+      <div class="panel-head">
         <div>
           <h2>Station Overview</h2>
           <p>All stations from the timetable export, at a glance. Click a row, or the pencil, to open it in Station Configuration.</p>
         </div>
-        <button class="btn btn-primary" id="goToStationConfigBtn">Station Configuration</button>
+        <div class="panel-head-actions">
+          <div class="search-box"><input type="text" id="searchStations" placeholder="Search stations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <button class="btn btn-primary" id="goToStationConfigBtn">Station Configuration</button>
+        </div>
       </div>
       <div class="card" style="padding:0;overflow-x:auto;">
         <table class="audio-table">
@@ -562,8 +618,11 @@
     <!-- SONDERZIELE -->
     <section class="panel" id="panel-sonderziel">
       <div class="panel-head">
-        <h2>Sonderziele</h2>
-        <p>Special destination texts, independent of any station or route. The driver selects one directly on the vehicle — e.g. for training runs, empty stock movements, or chartered services.</p>
+        <div>
+          <h2>Special Destinations</h2>
+          <p>Special destination texts, independent of any station or route. The driver selects one directly on the vehicle — e.g. for training runs, empty stock movements, or chartered services.</p>
+        </div>
+        <div class="search-box"><input type="text" id="searchSonderziel" placeholder="Search special destinations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
       <div class="card sz-form">
@@ -609,21 +668,24 @@
     <!-- AUDIO LIBRARY -->
     <section class="panel" id="panel-audiolib">
       <div class="panel-head">
-        <h2>Audio Library</h2>
-        <p>Upload raw clips once, here. Every announcement in Audio Archive — next-station, final-stop, welcome, via-station, and each special announcement — is built afterwards by combining clips from this library, since the same phrase (a station name, a platform number) gets reused across announcements.</p>
+        <div>
+          <h2>Audio Library</h2>
+          <p>Upload raw clips once, here. Every announcement in Audio Archive — next-station, final-stop, welcome, via-station, and each special announcement — is built afterwards by combining clips from this library, since the same phrase (a station name, a platform number) gets reused across announcements.</p>
+        </div>
+        <div class="search-box"><input type="text" id="searchAudioLib" placeholder="Search audio clips"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
       <div class="naming-rule">
         <div class="naming-rule-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg></div>
         <div>
-          <strong>Naming convention:</strong> before uploading, rename every MP3 to match its announcement code, in the form <code>XXX_en.mp3</code> — the code from the table below, followed by the language suffix. Example: a clip coded <code>PLT-CHG</code> is uploaded as <code>PLT-CHG_en.mp3</code>. The <code>_en</code> suffix leaves room to add the same clip in another language later under the same code. Files that don't match are flagged below so they can be renamed and re-uploaded.
+          <strong>Naming convention:</strong> before uploading, rename every MP3 to match its announcement code — now a plain number — in the form <code>N_en.mp3</code>, followed by the language suffix. Example: clip code <code>10</code> is uploaded as <code>10_en.mp3</code>. The <code>_en</code> suffix leaves room to add the same clip in another language later under the same code. Files that don't match are flagged below so they can be renamed and re-uploaded.
         </div>
       </div>
 
       <div class="dropzone" id="dropzone">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7 9m5-5l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <strong>Drop audio files here for quick bulk upload, or click to open the upload dialog</strong>
-        <span>MP3 / WAV / M4A &middot; named as <code>XXX_en.mp3</code> &middot; uploads stay in this browser session</span>
+        <span>MP3 / WAV / M4A &middot; named as <code>N_en.mp3</code> (code is a number) &middot; uploads stay in this browser session</span>
       </div>
       <div class="card" style="padding:6px 4px; overflow-x:auto;">
         <table class="audio-table">
@@ -654,11 +716,11 @@
             <option value="keep">Keep uploaded filename</option>
             <option value="generate">Generate new unique filename</option>
           </select>
-          <div class="field-hint" id="modalFilenameModeHint">Code and language are read from the filename, e.g. <code>PLT-CHG_en.mp3</code>.</div>
+          <div class="field-hint" id="modalFilenameModeHint">Code and language are read from the filename, e.g. <code>10_en.mp3</code>.</div>
         </div>
 
         <div class="field-row" id="modalManualCodeRow" style="display:none;">
-          <div class="field"><label class="field-label">Code</label><input class="f" id="modalCode" placeholder="e.g. PLT-CHG"></div>
+          <div class="field"><label class="field-label">Code</label><input class="f" type="number" inputmode="numeric" id="modalCode" placeholder="e.g. 12"></div>
           <div class="field"><label class="field-label">Language</label>
             <select class="f" id="modalLang">
               <option value="en">English</option>
@@ -683,13 +745,16 @@
     <!-- AUDIO ARCHIVE -->
     <section class="panel" id="panel-audio">
       <div class="panel-head">
-        <h2>Audio Archive</h2>
-        <p>Every announcement is a combination — an ordered sequence of clips picked from the Audio Library. Next-station, final-stop, welcome and via-station apply automatically to every station; special announcements are named combinations the driver triggers manually.</p>
+        <div>
+          <h2>Audio Archive</h2>
+          <p>Every announcement is a combination — an ordered sequence of clips picked from the Audio Library. Next-station, final-stop, welcome and via-station apply automatically to every station; special announcements are named combinations the driver triggers manually.</p>
+        </div>
+        <div class="search-box"><input type="text" id="searchAudio" placeholder="Search announcements"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
       <div class="section-label" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
         <span>Announcement templates (auto-applied to every station)</span>
-        <button class="btn btn-sm btn-primary" id="tplBuilderOpenBtn">+ New announcement template</button>
+        <button class="btn btn-sm btn-primary" id="tplBuilderOpenBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New announcement template</button>
       </div>
       <div class="card" id="tplBuilderCard" style="padding:18px 20px; margin-bottom:16px; display:none;">
         <div class="form-section-head" style="margin-bottom:14px;">
@@ -705,16 +770,9 @@
       <div id="templateList"></div>
 
       <div class="section-label">Special announcements (driver-triggered combinations)</div>
-      <div class="card" style="padding:18px 20px; margin-bottom:16px;">
-        <div class="field-row" style="align-items:end;">
-          <div class="field"><label class="field-label">Name</label><input class="f" id="saName" placeholder="e.g. Platform change"></div>
-          <div class="field"><label class="field-label">Description</label><input class="f" id="saDesc" placeholder="When the driver would use this"></div>
-        </div>
-        <button class="btn btn-primary" id="saAddBtn">+ New special announcement</button>
-      </div>
       <div id="specialList"></div>
 
-      <p class="field-hint" style="margin-top:14px;">Function announcements (fixed system messages) are hard-coded in the onboard unit and are not editable here.</p>
+      <p class="field-hint" style="margin-top:14px;">Special announcements are fixed by the system and imported automatically from the timetable — they can't be added or removed here, only assigned audio clips. Function announcements (fixed system messages) are hard-coded in the onboard unit and are not editable here.</p>
     </section>
 
   </main>
@@ -765,51 +823,92 @@
     }
   ];
 
+  // Every clip's code is a plain system number now (not a text tag) — still editable per clip,
+  // still used in the filename naming convention (e.g. code 7 -> "7_en.mp3").
   var AUDIO_LIBRARY_SEED = [
-    { id:"lib-next-pre", code:"NEXT-PRE",  name:"NEXT-PRE_en.mp3",  description:"“The next station is” prefix",                      duration:"0:02", size:34000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-next-suf", code:"NEXT-SUF",  name:"NEXT-SUF_en.mp3",  description:"“Please mind the gap” suffix",                      duration:"0:04", size:58000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-last-pre", code:"LAST-PRE",  name:"LAST-PRE_en.mp3",  description:"“This is the final stop,” prefix",                  duration:"0:02", size:36000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-last-suf", code:"LAST-SUF",  name:"LAST-SUF_en.mp3",  description:"“Please remember to take all your belongings” suffix", duration:"0:04", size:60000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-welc-pre", code:"WELC-PRE",  name:"WELC-PRE_en.mp3",  description:"“Welcome aboard, this train calls at all stations to” prefix", duration:"0:04", size:62000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-welc-suf", code:"WELC-SUF",  name:"WELC-SUF_en.mp3",  description:"“Please have your ticket ready for inspection” suffix", duration:"0:03", size:44000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-viapre",   code:"VIA-PRE",   name:"VIA-PRE_en.mp3",   description:"“This train travels via” prefix",                   duration:"0:03", size:48000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-stname",   code:"STATION-PH",name:"STATION-PH_en.mp3",description:"Placeholder — station name insert, shared across every announcement", duration:"0:02", size:32000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-viasuf",   code:"VIA-SUF",   name:"VIA-SUF_en.mp3",   description:"Via-station suffix / continuation",                 duration:"0:03", size:45000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-pltchg",   code:"PLT-CHG",   name:"PLT-CHG_en.mp3",   description:"Platform change for the next departure",            duration:"0:08", size:128000, uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-dlyapg",   code:"DLY-APG",   name:"DLY-APG_en.mp3",   description:"Apology for a delayed service",                      duration:"0:12", size:187000, uploadedAt:"sample library", sample:true, lang:"en" }
+    { id:"lib-next-pre", code:"1",  name:"1_en.mp3",  description:"“The next station is” prefix",                      duration:"0:02", size:34000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-next-suf", code:"2",  name:"2_en.mp3",  description:"“Please mind the gap” suffix",                      duration:"0:04", size:58000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-last-pre", code:"3",  name:"3_en.mp3",  description:"“This is the final stop,” prefix",                  duration:"0:02", size:36000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-last-suf", code:"4",  name:"4_en.mp3",  description:"“Please remember to take all your belongings” suffix", duration:"0:04", size:60000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-welc-pre", code:"5",  name:"5_en.mp3",  description:"“Welcome aboard, this train calls at all stations to” prefix", duration:"0:04", size:62000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-welc-suf", code:"6",  name:"6_en.mp3",  description:"“Please have your ticket ready for inspection” suffix", duration:"0:03", size:44000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-viapre",   code:"7",  name:"7_en.mp3",  description:"“This train travels via” prefix",                   duration:"0:03", size:48000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-stname",   code:"8",  name:"8_en.mp3",  description:"Placeholder — station name insert, shared across every announcement", duration:"0:02", size:32000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-viasuf",   code:"9",  name:"9_en.mp3",  description:"Via-station suffix / continuation",                 duration:"0:03", size:45000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-pltchg",   code:"10", name:"10_en.mp3", description:"Platform change for the next departure",            duration:"0:08", size:128000, uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-dlyapg",   code:"11", name:"11_en.mp3", description:"Apology for a delayed service",                      duration:"0:12", size:187000, uploadedAt:"sample library", sample:true, lang:"en" }
   ];
+  function nextAudioCode(){
+    var max = 0;
+    state.audioLibrary.forEach(function(a){ var n = parseInt(a.code,10); if(!isNaN(n) && n>max) max = n; });
+    return String(max+1);
+  }
 
   var LANGS = ["en","he","ar"];
   var LANG_LABEL = { en:"EN", he:"HE", ar:"AR" };
   var LANG_NAME = { en:"English", he:"Hebrew", ar:"Arabic" };
 
+  // Fixed backend tags an announcement can be marked with — the onboard unit auto-assembles
+  // stop-specific announcements (station name inserted) for whichever tag is set.
+  var ANNOUNCE_TAG_OPTIONS = [
+    { value:"",        num:null, label:"— No special tag —" },
+    { value:"NEXT",    num:1,    label:"Next station" },
+    { value:"LAST",    num:2,    label:"Final stop" },
+    { value:"WELCOME", num:3,    label:"Welcome / start" },
+    { value:"VIA",     num:4,    label:"Via station" }
+  ];
+  function announceIdOptionsHtml(selected){
+    return ANNOUNCE_TAG_OPTIONS.map(function(o){ return '<option value="'+o.value+'" '+(o.value===(selected||"")?'selected':'')+'>'+(o.num!=null?o.num:'—')+'</option>'; }).join("");
+  }
+  // The ID is fixed by the system for the 4 built-in announcement types — never user-chosen.
+  // Always shown zero-padded to at least 5 digits.
+  function announceIdDisplay(value){
+    var o = ANNOUNCE_TAG_OPTIONS.find(function(x){ return x.value===(value||""); });
+    return o && o.num!=null ? String(o.num).padStart(5,"0") : "—";
+  }
+
   var TEMPLATES_DEFAULT = {
-    next:   { label:"Next station",  desc:"Played approaching every non-final stop — a combination of clips, sharing the station-name placeholder", text:{
+    next:   { announceId:"NEXT",    label:"Next station",  desc:"Played approaching every non-final stop — a combination of clips, sharing the station-name placeholder", text:{
       en:"The next station is {station}. Please mind the gap between the train and the platform.",
       he:"התחנה הבאה היא {station}. אנא שימו לב לרווח בין הרכבת לרציף.",
       ar:"المحطة القادمة هي {station}. يرجى الانتباه إلى الفجوة بين القطار والرصيف."
     }, segments:["lib-next-pre","lib-stname","lib-next-suf"] },
-    last:   { label:"Final stop",    desc:"Played approaching the last station on the route — a combination of clips, sharing the station-name placeholder", text:{
+    last:   { announceId:"LAST",    label:"Final stop",    desc:"Played approaching the last station on the route — a combination of clips, sharing the station-name placeholder", text:{
       en:"This is the final stop, {station}. Please remember to take all your belongings.",
       he:"זוהי התחנה האחרונה, {station}. אנא זכרו לקחת את כל החפצים שלכם.",
       ar:"هذه هي المحطة الأخيرة، {station}. يرجى تذكر أخذ جميع أغراضكم."
     }, segments:["lib-last-pre","lib-stname","lib-last-suf"] },
-    welcome:{ label:"Welcome / start", desc:"Played when the service departs its first station — a combination of clips, sharing the station-name placeholder", text:{
+    welcome:{ announceId:"WELCOME", label:"Welcome / start", desc:"Played when the service departs its first station — a combination of clips, sharing the station-name placeholder", text:{
       en:"Welcome aboard. This train calls at all stations to {station}. Please have your ticket ready for inspection.",
       he:"ברוכים הבאים לרכבת. רכבת זו עוצרת בכל התחנות עד {station}. אנא הכינו את הכרטיס לביקורת.",
       ar:"أهلاً بكم على متن القطار. يتوقف هذا القطار في جميع المحطات حتى {station}. يرجى تجهيز التذكرة للتفتيش."
     }, segments:["lib-welc-pre","lib-stname","lib-welc-suf"] },
-    via:{ label:"Via station", desc:"Announces an intermediate interchange along the route — chained from several clips since the waypoint name changes per route", text:{
+    via:{ announceId:"VIA", label:"Via station", desc:"Announces an intermediate interchange along the route — chained from several clips since the waypoint name changes per route", text:{
       en:"This train travels via {station}.",
       he:"רכבת זו נוסעת דרך {station}.",
       ar:"يمر هذا القطار عبر {station}."
     }, segments:["lib-viapre","lib-stname","lib-viasuf"] }
   };
 
+  // Special announcements get their own system-assigned ID too, continuing on from the
+  // 4 fixed template tags above (1-4) — so the first special announcement is No. 5, etc.
+  // sysId is fixed once assigned and never changes, even if announcements are reordered or deleted.
   var SPECIAL_ANNOUNCEMENTS_SEED = [
-    { id:"sa-1", name:"Platform change", description:"Played when a departure platform changes at short notice", segments:["lib-pltchg"] },
-    { id:"sa-2", name:"Delay apology",   description:"Played to apologize for a delayed service",                segments:["lib-dlyapg"] }
+    { id:"sa-1", sysId:5, announceId:"", name:"Platform change", description:"Played when a departure platform changes at short notice", segments:["lib-pltchg"] },
+    { id:"sa-2", sysId:6, announceId:"", name:"Delay apology",   description:"Played to apologize for a delayed service",                segments:["lib-dlyapg"] }
   ];
+  function specialAnnounceIdDisplay(sa, i){
+    var n = sa.sysId!=null ? sa.sysId : (i+5);
+    return String(n).padStart(5,"0");
+  }
+  function nextSpecialAnnounceSysId(){
+    var maxId = 4;
+    state.specialAnnouncements.forEach(function(x, idx){
+      var n = x.sysId!=null ? x.sysId : (idx+5);
+      if(n>maxId) maxId = n;
+    });
+    return maxId+1;
+  }
 
   function mkLangText(en){ return { en:en, he:"", ar:"" }; }
 
@@ -817,7 +916,7 @@
     var seq = String(1000 + i);
     return {
       specialCode: "SC-"+seq,
-      gps:{ code:"GPS-"+s.code+"-"+seq, lat:s.lat, lng:s.lng, innerWindow:150, outerWindow:400 },
+      gps:{ code:"GPS-"+s.code+"-"+seq, lat:s.lat, lng:s.lng, innerLength:150, innerWidth:80, outerLength:400, outerWidth:200 },
       display:{ front:mkLangText(s.name), sideTop:mkLangText(s.name), sideBottom:mkLangText(""), tft:mkLangText(s.name), terminal:mkLangText(s.name) },
       specialAnnouncementId: ""
     };
@@ -846,27 +945,26 @@
     return stops;
   }
 
+  // Line definitions from the timetable export — every new archive is auto-populated with a
+  // route for each line, valid for the archive's period. Users can still add further routes by hand.
+  var TIMETABLE_ROUTES_SEED = [
+    { name:"Coastal Line 214",      stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6], ["TLV","H",30.5], ["TAH","H",3.1] ] },
+    { name:"Southern Line 318",     stops:[ ["TAH","H",0], ["LOD","H",18.7], ["BGN","B",6.4], ["ASK","H",41.2], ["BSV","H",29.9] ] },
+    { name:"Northern Local 108",    stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6] ] },
+    { name:"Airport Connector 512", stops:[ ["TAH","H",0], ["BGN","H",15.2] ] },
+    { name:"Central Peak 630",      stops:[ ["HRZ","H",0], ["TLV","H",11.3], ["TAH","H",3.1], ["LOD","B",18.7] ] }
+  ];
+  function routesFromTimetable(validFrom, validTo, idPrefix){
+    return TIMETABLE_ROUTES_SEED.map(function(line, i){
+      return {
+        id:idPrefix+"-"+(i+1), name:line.name, validFrom:validFrom, validTo:validTo, fromTimetable:true,
+        stops: assignGpsIndex(line.stops.map(function(s){ return mkStop(s[0], s[1], s[2]); }))
+      };
+    });
+  }
+
   (function seedExamples(){
-    state.routes.push({
-      id:"r-seed-1", name:"Coastal Line 214", validFrom:"2026-09-07", validTo:"2026-10-05",
-      stops: assignGpsIndex([ mkStop("NHR","H",0), mkStop("AKO","H",13.4), mkStop("HFA","H",22.1), mkStop("BNY","B",34.8), mkStop("HDR","D",9.2), mkStop("NTY","H",12.6), mkStop("TLV","H",30.5), mkStop("TAH","H",3.1) ])
-    });
-    state.routes.push({
-      id:"r-seed-2", name:"Southern Line 318", validFrom:"2026-09-07", validTo:"2026-10-05",
-      stops: assignGpsIndex([ mkStop("TAH","H",0), mkStop("LOD","H",18.7), mkStop("BGN","B",6.4), mkStop("ASK","H",41.2), mkStop("BSV","H",29.9) ])
-    });
-    state.routes.push({
-      id:"r-seed-3", name:"Northern Local 108", validFrom:"2026-09-07", validTo:"2026-10-05",
-      stops: assignGpsIndex([ mkStop("NHR","H",0), mkStop("AKO","H",13.4), mkStop("HFA","H",22.1), mkStop("BNY","B",34.8), mkStop("HDR","D",9.2), mkStop("NTY","H",12.6) ])
-    });
-    state.routes.push({
-      id:"r-seed-4", name:"Airport Connector 512", validFrom:"2026-09-07", validTo:"2026-10-05",
-      stops: assignGpsIndex([ mkStop("TAH","H",0), mkStop("BGN","H",15.2) ])
-    });
-    state.routes.push({
-      id:"r-seed-5", name:"Central Peak 630", validFrom:"2026-09-07", validTo:"2026-10-05",
-      stops: assignGpsIndex([ mkStop("HRZ","H",0), mkStop("TLV","H",11.3), mkStop("TAH","H",3.1), mkStop("LOD","B",18.7) ])
-    });
+    routesFromTimetable("2026-09-07", "2026-10-05", "r-seed").forEach(function(r){ state.routes.push(r); });
   })();
 
   function loadPersisted(){
@@ -925,7 +1023,7 @@
     archive:{ title:"Routes & Archives", sub:"Build routes; every route lives inside one archive" },
     station:{ title:"Station Configuration", sub:"Codes, GPS positioning & display texts" },
     stationoverview:{ title:"Station Overview", sub:"All stations from the timetable export, at a glance" },
-    sonderziel:{ title:"Sonderziele", sub:"Special destination texts, independent of stations" },
+    sonderziel:{ title:"Special Destinations", sub:"Special destination texts, independent of stations" },
     audiolib:{ title:"Audio Library", sub:"Upload clips once, reuse them everywhere" },
     audio:{ title:"Audio Archive", sub:"Announcement templates & special announcements" }
   };
@@ -980,17 +1078,21 @@
     }
     document.getElementById("archiveSelectHint").textContent = "";
     var newArchiveId = "arc-"+Date.now();
+    // Pull in a route per line from the timetable for this period — the user can still add more by hand.
+    var ttRoutes = routesFromTimetable(from, to, "r-"+Date.now());
+    ttRoutes.forEach(function(r){ state.routes.push(r); });
     state.archives.unshift({
       id:newArchiveId, from:from, to:to,
       when: new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),
-      routeIds: []
+      routeIds: ttRoutes.map(function(r){ return r.id; })
     });
     persist();
     updateNavCounts();
     justGeneratedArchiveIds = [newArchiveId];
     renderArchive();
-    // An archive should never be left empty — go straight into adding its first route.
-    openRouteBuilderForArchive(newArchiveId);
+    // Already populated from the timetable — scroll to it so the import is visible; "+ New route" stays available for anything extra.
+    var newCard = document.querySelector('[data-archive-id="'+newArchiveId+'"]');
+    if(newCard) newCard.scrollIntoView({ behavior:"smooth", block:"start" });
     setTimeout(function(){ justGeneratedArchiveIds = []; renderArchive(); }, 2000);
   });
 
@@ -1016,13 +1118,18 @@
         var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
         var archiveGroupKey = "arc:"+arc.id;
         var archiveCollapsed = !!collapsedGroups[archiveGroupKey];
+        // Route-count chip color: amber when empty, green once every timetable line has a route,
+        // purple when some routes exist but the archive is still short of the full timetable set.
+        var routeChipClass = routes.length===0 ? "chip-warning"
+          : routes.length>=TIMETABLE_ROUTES_SEED.length ? "chip-filled-success"
+          : "chip-filled-secondary";
         return '<div class="card archive-entry'+(justGeneratedArchiveIds.indexOf(arc.id)>-1?' just-generated':'')+'" data-archive-id="'+arc.id+'">'+
           '<div class="archive-entry-head">'+
             '<span class="archive-entry-title">Archive &middot; '+fmtRange(arc.from,arc.to)+'</span>'+
             '<span style="display:flex;align-items:center;gap:8px;">'+
-              '<span class="chip '+(routes.length===0?'chip-warning':'chip-neutral')+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' route'+(routes.length===1?'':'s')+'</span>'+
-              '<button class="btn btn-sm" data-new-route-for="'+arc.id+'" title="Create a new route inside this archive\'s validity period">+ New route</button>'+
-              '<button class="icon-btn" data-collapse-toggle="'+archiveGroupKey+'" title="'+(archiveCollapsed?'Expand archive':'Minimize archive')+'">'+(archiveCollapsed?'▾':'▴')+'</button>'+
+              '<span class="chip '+routeChipClass+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' route'+(routes.length===1?'':'s')+'</span>'+
+              '<button class="btn btn-sm btn-outlined-primary" data-new-route-for="'+arc.id+'" title="Create a new route inside this archive\'s validity period"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New route</button>'+
+              '<button class="icon-btn" data-collapse-toggle="'+archiveGroupKey+'" title="'+(archiveCollapsed?'Expand archive':'Minimize archive')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(archiveCollapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
             '</span>'+
           '</div>'+
           (archiveCollapsed ? '' :
@@ -1061,6 +1168,19 @@
           arc.routeIds = arc.routeIds.filter(function(id){ return id!==delId; });
         });
         persist(); renderArchive(); updateNavCounts();
+        return;
+      }
+      var addStopBtn = e.target.closest("[data-route-add-btn]");
+      if(addStopBtn){
+        var addRid = addStopBtn.dataset.routeAddBtn;
+        var addRoute = state.routes.find(function(r){ return r.id===addRid; });
+        var stationSel = container.querySelector('[data-route-add-station="'+addRid+'"]');
+        var typeSel = container.querySelector('[data-route-add-type="'+addRid+'"]');
+        if(addRoute && stationSel && typeSel){
+          addRoute.stops.push(mkStop(stationSel.value, typeSel.value, ""));
+          assignGpsIndex(addRoute.stops);
+          persist(); renderArchive(); updateNavCounts();
+        }
         return;
       }
       var stopDel = e.target.closest("[data-stop-remove]");
@@ -1190,10 +1310,24 @@
           '<div class="field"><label class="field-label">Latitude</label><input class="f tabular" id="fGpsLat" value="'+esc(st.gps.lat)+'" placeholder="32.0838"></div>'+
           '<div class="field"><label class="field-label">Longitude</label><input class="f tabular" id="fGpsLng" value="'+esc(st.gps.lng)+'" placeholder="34.7934"></div>'+
         '</div>'+
-        '<div class="field-row">'+
-          '<div class="field"><label class="field-label">Inner window (m)</label><input class="f tabular" id="fGpsInner" type="number" value="'+esc(st.gps.innerWindow)+'"><div class="field-hint">Radius that opens the approach announcement</div></div>'+
-          '<div class="field"><label class="field-label">Outer window (m)</label><input class="f tabular" id="fGpsOuter" type="number" value="'+esc(st.gps.outerWindow)+'"><div class="field-hint">Radius that arms the GPS trigger</div></div>'+
+        '<div class="field-hint" style="margin:2px 0 10px;">Each window is a rectangle — set separately for the inner (approach) and outer (arming) trigger zone.</div>'+
+        '<div class="field-row-3">'+
+          '<div></div>'+
+          '<div class="lbl" style="font-size:11px;font-weight:600;color:var(--text-muted);text-align:center;">Length (m)</div>'+
+          '<div class="lbl" style="font-size:11px;font-weight:600;color:var(--text-muted);text-align:center;">Width (m)</div>'+
         '</div>'+
+        '<div class="field-row-3">'+
+          '<div class="field" style="padding-top:8px;"><label class="field-label">Inner window</label></div>'+
+          '<div class="field"><input class="f tabular" id="fGpsInnerLen" type="number" value="'+esc(st.gps.innerLength)+'"></div>'+
+          '<div class="field"><input class="f tabular" id="fGpsInnerWidth" type="number" value="'+esc(st.gps.innerWidth)+'"></div>'+
+        '</div>'+
+        '<div class="field-hint" style="margin:-8px 0 10px;">Opens the approach announcement</div>'+
+        '<div class="field-row-3">'+
+          '<div class="field" style="padding-top:8px;"><label class="field-label">Outer window</label></div>'+
+          '<div class="field"><input class="f tabular" id="fGpsOuterLen" type="number" value="'+esc(st.gps.outerLength)+'"></div>'+
+          '<div class="field"><input class="f tabular" id="fGpsOuterWidth" type="number" value="'+esc(st.gps.outerWidth)+'"></div>'+
+        '</div>'+
+        '<div class="field-hint" style="margin:-8px 0 0;">Arms the GPS trigger</div>'+
       '</section>'+
 
       '<section class="form-section">'+
@@ -1242,8 +1376,10 @@
       st.gps.code = document.getElementById("fGpsCode").value;
       st.gps.lat = document.getElementById("fGpsLat").value;
       st.gps.lng = document.getElementById("fGpsLng").value;
-      st.gps.innerWindow = document.getElementById("fGpsInner").value;
-      st.gps.outerWindow = document.getElementById("fGpsOuter").value;
+      st.gps.innerLength = document.getElementById("fGpsInnerLen").value;
+      st.gps.innerWidth = document.getElementById("fGpsInnerWidth").value;
+      st.gps.outerLength = document.getElementById("fGpsOuterLen").value;
+      st.gps.outerWidth = document.getElementById("fGpsOuterWidth").value;
       ["front","terminal","sideTop","sideBottom","tft"].forEach(function(field){
         LANGS.forEach(function(l){
           var el = document.querySelector('[data-dispfield="'+field+'"][data-lang="'+l+'"]');
@@ -1255,7 +1391,7 @@
       updateNavCounts();
       document.getElementById("saveStatus").innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved';
     }
-    ["fSpecialCode","fGpsCode","fGpsLat","fGpsLng","fGpsInner","fGpsOuter","fSpecialAnnouncement"].forEach(function(id){
+    ["fSpecialCode","fGpsCode","fGpsLat","fGpsLng","fGpsInnerLen","fGpsInnerWidth","fGpsOuterLen","fGpsOuterWidth","fSpecialAnnouncement"].forEach(function(id){
       var el = document.getElementById(id);
       el.addEventListener("input", bindSave);
     });
@@ -1270,7 +1406,7 @@
 
   /* ---------------- Route Planner ---------------- */
 
-  var STOP_TYPE_LABEL = { H:"Regular stop", B:"Request stop", D:"Pass-through" };
+  var STOP_TYPE_LABEL = { H:"Regular stop", B:"Request stop", D:"Via" };
 
   function renderRouteBuilder(){
     var addSel = document.getElementById("routeAddStation");
@@ -1352,6 +1488,7 @@
             '</div>'+
             '<div class="route-line-label" title="'+s.name+'">'+s.code+'</div>'+
             '<div class="route-line-type">'+stop.type+'</div>'+
+            '<div class="route-line-edit" title="Click to view/edit this stop"><svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
           '</div>';
         }).join("")+
       '</div></div>'+
@@ -1453,12 +1590,15 @@
     var collapsed = !!collapsedGroups[groupKey];
     return '<div class="card route-card">'+
       '<div class="route-card-head">'+
-        '<span class="route-card-title">'+esc(r.name)+'</span>'+
+        '<span style="display:flex;align-items:center;gap:8px;">'+
+          '<span class="route-card-title">'+esc(r.name)+'</span>'+
+          (r.fromTimetable ? '<span class="from-timetable" title="Imported automatically from the timetable export"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</span>' : '')+
+        '</span>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           (opts.showDelete
             ? '<button class="icon-btn" data-del="'+r.id+'" title="Delete route">✕</button>'
             : '<span class="chip chip-success"><span class="chip-dot"></span>Included</span>')+
-          '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Minimize')+'">'+(collapsed?'▾':'▴')+'</button>'+
+          '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Minimize')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
       '</div>'+
       '<div class="route-card-validity tabular">'+(r.validFrom&&r.validTo? fmtRange(r.validFrom,r.validTo) : "No validity set")+'</div>'+
@@ -1474,6 +1614,7 @@
             '</div>'+
             '<div class="route-line-label" title="'+s.name+'">'+s.code+'</div>'+
             '<div class="route-line-type">'+stop.type+'</div>'+
+            '<div class="route-line-edit" title="Click to view/edit this stop"><svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
           '</div>';
         }).join("")+
       '</div></div>'+
@@ -1495,12 +1636,24 @@
                 Object.keys(STOP_TYPE_LABEL).map(function(k){ return '<option value="'+k+'" '+(k===stop.type?'selected':'')+'>'+STOP_TYPE_LABEL[k]+'</option>'; }).join("")+
               '</select></td>'+
               '<td class="tabular">'+dist+'</td>'+
-              '<td><span class="icon-btn" style="pointer-events:none;">'+(open?'▾':'▸')+'</span></td>'+
+              '<td><span class="icon-btn" style="pointer-events:none;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(open?'0deg':'-90deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td>'+
             '</tr>';
             return row + (open ? '<tr><td colspan="6" style="padding:0;border-bottom:none;">'+stopDetailHtml(r, i)+'</td></tr>' : '');
           }).join("")+
         '</tbody>'+
       '</table>'+
+      '<div class="field" style="margin-top:12px;">'+
+        '<label class="field-label">Add stop</label>'+
+        '<div style="display:flex; gap:8px;">'+
+          '<select class="f" data-route-add-station="'+r.id+'" style="flex:1;">'+
+            state.stations.map(function(s){ return '<option value="'+s.code+'">'+s.code+' — '+esc(s.name)+'</option>'; }).join("")+
+          '</select>'+
+          '<select class="f" data-route-add-type="'+r.id+'" style="width:150px;">'+
+            Object.keys(STOP_TYPE_LABEL).map(function(k){ return '<option value="'+k+'">'+STOP_TYPE_LABEL[k]+'</option>'; }).join("")+
+          '</select>'+
+          '<button class="btn btn-sm btn-outlined-primary" data-route-add-btn="'+r.id+'">Add stop</button>'+
+        '</div>'+
+      '</div>'+
       '<div class="route-card-foot"><span class="chip chip-neutral tabular">'+r.stops.length+' stops</span></div>'
       )+
     '</div>';
@@ -1548,7 +1701,7 @@
 
 
 
-  /* ---------------- Sonderziele ---------------- */
+  /* ---------------- Special Destinations ---------------- */
 
   function szLangCell(field){
     return LANGS.map(function(l){
@@ -1643,6 +1796,8 @@
             (desc ? '<span class="lang-seg-desc">'+esc(desc)+'</span>' : '')+
           '</span>'+
           '<span class="route-stop-actions">'+
+            '<button class="icon-btn" data-replace-seg="'+groupKey+'|'+lang+'|'+i+'" title="Replace this audio file"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M17 2l4 4-4 4M3 12a9 9 0 0 1 15-6.7L21 6M7 22l-4-4 4-4M21 12a9 9 0 0 1-15 6.7L3 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+            '<input type="file" accept="audio/*" style="display:none;" data-replace-input="'+groupKey+'|'+lang+'|'+i+'">'+
             '<button class="icon-btn" data-seg-up="'+groupKey+'|'+i+'" '+(i===0?'disabled':'')+' title="Move up">↑</button>'+
             '<button class="icon-btn" data-seg-down="'+groupKey+'|'+i+'" '+(i===segments.length-1?'disabled':'')+' title="Move down">↓</button>'+
             '<button class="icon-btn" data-seg-remove="'+groupKey+'|'+i+'" title="Remove">✕</button>'+
@@ -1665,6 +1820,7 @@
   }
 
   var collapsedGroups = {};
+  var editingAudioIds = {};
   function handleCollapseToggle(e){
     var btn = e.target.closest("[data-collapse-toggle]");
     if(!btn) return false;
@@ -1676,6 +1832,13 @@
 
   function handleChainClick(e){
     if(handleCollapseToggle(e)) return;
+    var replaceBtn = e.target.closest("[data-replace-seg]");
+    if(replaceBtn){
+      var row = replaceBtn.closest(".lang-seg-row");
+      var fileInput = row ? row.querySelector('[data-replace-input="'+replaceBtn.dataset.replaceSeg+'"]') : null;
+      if(fileInput) fileInput.click();
+      return;
+    }
     var langPlayBtn = e.target.closest("[data-langseg-play]");
     if(langPlayBtn){
       var lp = langPlayBtn.dataset.langsegPlay.split("|");
@@ -1713,6 +1876,42 @@
     var picker = e.target.closest("[data-chain-picker]"); if(!picker || !picker.value) return;
     var arr = chainArrayFor(picker.dataset.chainPicker);
     if(arr){ arr.push(picker.value); persist(); renderTemplateList(); renderSpecialList(); if(document.getElementById("panel-station").classList.contains("active")) renderStationDetail(); }
+  }
+  function handleReplaceFileChange(e){
+    var input = e.target.closest("[data-replace-input]"); if(!input) return false;
+    var file = input.files[0]; if(!file) return true;
+    var parts = input.dataset.replaceInput.split("|"), groupKey = parts[0], lang = parts[1], idx = parseInt(parts[2],10);
+    var segments = chainArrayFor(groupKey);
+    var segId = segments ? segments[idx] : null;
+    var refClip = segId ? libClip(segId) : null;
+    var code = refClip ? (refClip.code || refClip.name) : null;
+    if(!code) return true;
+    var url = URL.createObjectURL(file);
+    var existing = libClipFor(code, lang);
+    if(existing){
+      audioObjectUrls[existing.id] = url;
+      existing.name = file.name; existing.size = file.size; existing.sample = false; existing.duration = "—";
+      var audioEl1 = new Audio(url);
+      audioEl1.addEventListener("loadedmetadata", function(){
+        var mins = Math.floor(audioEl1.duration/60), secs = Math.round(audioEl1.duration%60);
+        existing.duration = mins + ":" + (secs<10?"0":"")+secs;
+        renderTemplateList(); renderSpecialList(); renderAudioTable();
+      });
+    } else {
+      var newId = "a-" + Date.now() + "-" + Math.random().toString(36).slice(2,7);
+      audioObjectUrls[newId] = url;
+      var entry = { id:newId, code:code, name:file.name, description:refClip.description||"", duration:"—", size:file.size, uploadedAt:"just now", sample:false, lang:lang };
+      state.audioLibrary.push(entry);
+      var audioEl2 = new Audio(url);
+      audioEl2.addEventListener("loadedmetadata", function(){
+        var mins = Math.floor(audioEl2.duration/60), secs = Math.round(audioEl2.duration%60);
+        entry.duration = mins + ":" + (secs<10?"0":"")+secs;
+        renderTemplateList(); renderSpecialList(); renderAudioTable();
+      });
+    }
+    updateNavCounts();
+    renderTemplateList(); renderSpecialList(); renderAudioTable();
+    return true;
   }
 
   var dragSeg = null;
@@ -1774,20 +1973,12 @@
           '<div><div class="template-title"><span class="chip chip-neutral tabular" style="margin-right:8px;">No. '+(i+1)+'</span>'+esc(t.label)+'</div><div class="template-sub">'+esc(t.desc)+'</div></div>'+
         '</div>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
+          '<span class="chip chip-neutral tabular" title="Fixed by the system">ID '+announceIdDisplay(t.announceId)+'</span>'+
           (t.custom ? '<button class="icon-btn" data-del-template="'+key+'" title="Delete this template">✕</button>' : '')+
-          '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'">'+(collapsed?'▾':'▴')+'</button>'+
+          '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
         '</div>'+
-        (collapsed ? '' :
-          segmentChainHtml(groupKey, t.segments)+
-          '<div class="langtbl" style="margin-top:10px;">'+
-            '<div></div>'+
-            LANGS.map(function(l){ return '<div class="h"><span class="chip '+l+'">'+LANG_NAME[l]+'</span></div>'; }).join('')+
-            '<div class="lbl">Text</div>'+
-            LANGS.map(function(l){ return '<textarea class="f'+(l!=='en'?' rtl':'')+'" data-tpl="'+key+'" data-lang="'+l+'" rows="2">'+esc(t.text[l]||'')+'</textarea>'; }).join('')+
-          '</div>'+
-          '<div class="field-hint">Use <code>{station}</code> — filled in automatically for each station.</div>'
-        )+
+        (collapsed ? '' : segmentChainHtml(groupKey, t.segments))+
       '</div>';
     }).join("");
   }
@@ -1807,7 +1998,7 @@
     }
     handleChainClick(e);
   });
-  document.getElementById("templateList").addEventListener("change", handleChainPickerChange);
+  document.getElementById("templateList").addEventListener("change", function(e){ if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
   bindChainDragEvents(document.getElementById("templateList"));
   document.getElementById("tplBuilderOpenBtn").addEventListener("click", function(){
     document.getElementById("tplBuilderCard").style.display = "block";
@@ -1820,7 +2011,8 @@
     var name = document.getElementById("tplName").value.trim();
     if(!name) return;
     var key = "custom-"+Date.now();
-    state.templates[key] = { label:name, desc:document.getElementById("tplDesc").value, text:{en:"",he:"",ar:""}, segments:[], custom:true };
+    // No system tag for custom templates — that ID is fixed by the system for the 4 built-in ones only.
+    state.templates[key] = { announceId:"", label:name, desc:document.getElementById("tplDesc").value, text:{en:"",he:"",ar:""}, segments:[], custom:true };
     document.getElementById("tplName").value = ""; document.getElementById("tplDesc").value = "";
     document.getElementById("tplBuilderCard").style.display = "none";
     persist(); renderTemplateList(); updateNavCounts();
@@ -1829,7 +2021,7 @@
   function renderSpecialList(){
     var wrap = document.getElementById("specialList");
     if(state.specialAnnouncements.length===0){
-      wrap.innerHTML = '<div class="card empty-state"><strong>No special announcements yet</strong>Create one above, then add clips to it.</div>';
+      wrap.innerHTML = '<div class="card empty-state"><strong>No special announcements yet</strong>These are imported automatically from the timetable.</div>';
       return;
     }
     wrap.innerHTML = state.specialAnnouncements.map(function(sa, i){
@@ -1840,33 +2032,19 @@
           '<div class="template-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 12h2l2.5-5 3 10 2.5-7 2 2H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
           '<div><div class="template-title"><span class="chip chip-neutral tabular" style="margin-right:8px;">No. '+(i+1)+'</span>'+esc(sa.name)+'</div><div class="template-sub">'+esc(sa.description)+'</div></div>'+
         '</div>'+
-        '<span style="display:flex;align-items:center;gap:4px;">'+
-          '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'">'+(collapsed?'▾':'▴')+'</button>'+
-          '<button class="icon-btn" data-del-special="'+sa.id+'" title="Delete announcement">✕</button>'+
+        '<span style="display:flex;align-items:center;gap:8px;">'+
+          '<span class="chip chip-neutral tabular" title="Fixed by the system">ID '+specialAnnounceIdDisplay(sa, i)+'</span>'+
+          '<span class="from-timetable" title="Fixed by the system, imported automatically from the timetable"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</span>'+
+          '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
         '</div>'+
         (collapsed ? '' : segmentChainHtml(groupKey, sa.segments))+
       '</div>';
     }).join("");
   }
-  document.getElementById("specialList").addEventListener("click", function(e){
-    var del = e.target.closest("[data-del-special]");
-    if(del){
-      state.specialAnnouncements = state.specialAnnouncements.filter(function(x){ return x.id!==del.dataset.delSpecial; });
-      persist(); renderSpecialList(); updateNavCounts();
-      return;
-    }
-    handleChainClick(e);
-  });
-  document.getElementById("specialList").addEventListener("change", handleChainPickerChange);
+  document.getElementById("specialList").addEventListener("click", function(e){ handleChainClick(e); });
+  document.getElementById("specialList").addEventListener("change", function(e){ if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
   bindChainDragEvents(document.getElementById("specialList"));
-  document.getElementById("saAddBtn").addEventListener("click", function(){
-    var name = document.getElementById("saName").value.trim();
-    if(!name) return;
-    state.specialAnnouncements.push({ id:"sa-"+Date.now(), name:name, description:document.getElementById("saDesc").value, segments:[] });
-    document.getElementById("saName").value = ""; document.getElementById("saDesc").value = "";
-    persist(); renderSpecialList(); updateNavCounts();
-  });
 
   var NAME_PATTERN = /^[A-Za-z0-9-]+_en\.mp3$/;
 
@@ -1884,19 +2062,25 @@
     }
     body.innerHTML = state.audioLibrary.map(function(a){
       var mismatched = !NAME_PATTERN.test(a.name);
+      var editing = !!editingAudioIds[a.id];
       return '<tr>'+
-        '<td style="padding-left:16px;"><input class="f" style="padding:5px 8px;font-size:12px;" data-code="'+a.id+'" value="'+esc(a.code||"")+'" placeholder="XXX"></td>'+
+        (editing
+          ? '<td style="padding-left:16px;"><input class="f" type="number" inputmode="numeric" style="padding:5px 8px;font-size:12px;width:70px;" data-code="'+a.id+'" value="'+esc(a.code||"")+'" placeholder="e.g. 12"></td>'
+          : '<td style="padding-left:16px;"><span class="chip chip-neutral tabular">'+esc(a.code||"—")+'</span></td>')+
         '<td><span class="audio-name"><span class="audio-name-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12h2l2.5-5 3 10 2.5-7 2 2H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
-            '<span><div>'+esc(a.name)+'</div>'+(mismatched ? '<div class="name-mismatch">⚠ Rename to '+esc((a.code||"XXX"))+'_en.mp3</div>' : '')+'</span>'+
+            '<span><div>'+esc(a.name)+'</div>'+(mismatched ? '<div class="name-mismatch">⚠ Rename to '+esc((a.code||"N"))+'_en.mp3</div>' : '')+'</span>'+
           '</span></td>'+
-        '<td><input class="f" style="padding:5px 8px;font-size:12px;" data-desc="'+a.id+'" value="'+esc(a.description||"")+'" placeholder="What does this say?"></td>'+
+        (editing
+          ? '<td><input class="f" style="padding:5px 8px;font-size:12px;" data-desc="'+a.id+'" value="'+esc(a.description||"")+'" placeholder="What does this say?"></td>'
+          : '<td>'+esc(a.description||"—")+'</td>')+
         '<td class="tabular" style="color:var(--text-faint);">'+fmtSize(a.size)+'</td>'+
         '<td style="color:var(--text-faint);">'+a.uploadedAt+'</td>'+
         '<td style="padding-right:16px;display:flex;gap:6px;align-items:center;">'+
           (a.sample
             ? '<span title="Sample entry — upload a file to enable playback" style="color:var(--text-faint);font-size:11.5px;">Sample</span>'
             : '<button class="btn btn-sm" data-play="'+a.id+'">▶ Play</button><audio id="aud-'+a.id+'" src="'+audioObjectUrls[a.id]+'" style="display:none;"></audio>')+
-          '<button class="icon-btn" data-del="'+a.id+'" title="Delete">✕</button>'+
+          '<button class="icon-btn" data-edit-audio="'+a.id+'" title="'+(editing?'Done editing':'Edit code &amp; description')+'">'+(editing?'✓':'✎')+'</button>'+
+          '<button class="icon-btn" data-del="'+a.id+'" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</td>'+
       '</tr>';
     }).join("");
@@ -1908,6 +2092,13 @@
       var el = document.getElementById("aud-"+play.dataset.play);
       if(el.paused){ el.play(); play.textContent="⏸ Pause"; } else { el.pause(); play.textContent="▶ Play"; }
       el.onended = function(){ play.textContent="▶ Play"; };
+      return;
+    }
+    var editBtn = e.target.closest("[data-edit-audio]");
+    if(editBtn){
+      var eid = editBtn.dataset.editAudio;
+      editingAudioIds[eid] = !editingAudioIds[eid];
+      renderAudioTable();
       return;
     }
     var del = e.target.closest("[data-del]");
@@ -1938,7 +2129,8 @@
       var base = file.name.replace(/\.[^.]+$/, "");
       var langMatch = base.match(/_(en|he|ar)$/i);
       var guessedLang = langMatch ? langMatch[1].toLowerCase() : "en";
-      var guessedCode = base.replace(/_(en|he|ar)$/i, "").toUpperCase();
+      var rawCode = base.replace(/_(en|he|ar)$/i, "");
+      var guessedCode = /^\d+$/.test(rawCode) ? rawCode : nextAudioCode();
       var entry = { id:id, code:guessedCode, name:file.name, description:"", duration:"—", size:file.size, uploadedAt:"just now", sample:false, lang:guessedLang };
       state.audioLibrary.push(entry);
       var audioEl = new Audio(url);
@@ -1989,16 +2181,18 @@
     audioObjectUrls[id] = url;
     var finalName, code, lang;
     if(mode==="generate"){
-      code = (document.getElementById("modalCode").value.trim() || "CLIP").toUpperCase();
+      var typedCode = document.getElementById("modalCode").value.trim();
+      code = /^\d+$/.test(typedCode) ? typedCode : nextAudioCode();
       lang = document.getElementById("modalLang").value;
       var ext = (file.name.match(/\.[^.]+$/)||[".mp3"])[0];
-      finalName = code.toLowerCase()+"_"+lang+"-"+Date.now()+ext;
+      finalName = code+"_"+lang+"-"+Date.now()+ext;
     } else {
       finalName = file.name;
       var base = finalName.replace(/\.[^.]+$/, "");
       var langMatch = base.match(/_(en|he|ar)$/i);
       lang = langMatch ? langMatch[1].toLowerCase() : "en";
-      code = base.replace(/_(en|he|ar)$/i, "").toUpperCase();
+      var rawBase = base.replace(/_(en|he|ar)$/i, "");
+      code = /^\d+$/.test(rawBase) ? rawBase : nextAudioCode();
     }
     var entry = { id:id, code:code, name:finalName, description:description, duration:"—", size:file.size, uploadedAt:"just now", sample:false, lang:lang };
     state.audioLibrary.push(entry);
@@ -2039,8 +2233,27 @@
     applyTheme(isDark ? "light" : "dark");
   });
 
+  /* ---------------- search boxes (filter existing lists, no server calls) ---------------- */
+  function wireListSearch(inputId, getItemEls){
+    var el = document.getElementById(inputId);
+    if(!el) return;
+    el.addEventListener("input", function(){
+      var q = el.value.trim().toLowerCase();
+      getItemEls().forEach(function(item){
+        var t = item.textContent.toLowerCase();
+        item.style.display = (!q || t.indexOf(q)>-1) ? "" : "none";
+      });
+    });
+  }
+  wireListSearch("searchArchive",   function(){ return Array.prototype.slice.call(document.querySelectorAll("#archiveHistoryList > *")); });
+  wireListSearch("searchStations",  function(){ return Array.prototype.slice.call(document.querySelectorAll("#stationOverviewBody > tr")); });
+  wireListSearch("searchSonderziel",function(){ return Array.prototype.slice.call(document.querySelectorAll("#szTableBody > tr")); });
+  wireListSearch("searchAudioLib",  function(){ return Array.prototype.slice.call(document.querySelectorAll("#audioTableBody > tr")); });
+  wireListSearch("searchAudio",     function(){ return Array.prototype.slice.call(document.querySelectorAll("#templateList > *, #specialList > *")); });
+
   /* ---------------- init ---------------- */
 
+  renderRouteBuilder();
   renderArchive();
   renderStationDetail();
   renderStationPicker();
