@@ -4,6 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     /* ---- ISR MUI reference palette (from Figma variables) ---- */
@@ -167,6 +168,7 @@
   .chip-success .chip-dot{ background:var(--success); }
   .chip-warning{ background:var(--warning-soft); color:var(--warning); }
   .chip-warning .chip-dot{ background:var(--warning); }
+  .chip.outlined{ background:none; border:1px solid var(--border-strong); color:var(--text-muted); font-weight:500; }
   .chip-accent{ background:var(--accent-soft); color:var(--accent-strong); }
   .chip-accent .chip-dot{ background:var(--accent); }
   .chip-primary{ background:var(--accent); color:var(--accent-contrast); font-family:var(--font-body); font-size:13px; font-weight:400; line-height:18px; letter-spacing:0.16px; }
@@ -202,6 +204,11 @@
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn:hover{ background:rgba(255,255,255,0.08); } }
   .btn-sm{ padding:2px 8px; min-height:24px; font-size:12px; line-height:20px; letter-spacing:0.4px; border-radius:4px; }
   .icon-btn{ width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; border:none; background:none; color:var(--text-muted); cursor:pointer; }
+  [data-tip]{ position:relative; }
+  [data-tip]::after{ content:attr(data-tip); position:absolute; bottom:calc(100% + 7px); left:50%; transform:translateX(-50%) translateY(2px); background:var(--text); color:var(--bg); font-family:var(--font-body); font-size:11px; font-weight:500; letter-spacing:0.1px; line-height:1.4; padding:5px 9px; border-radius:5px; white-space:nowrap; box-shadow:var(--shadow-2); opacity:0; pointer-events:none; transition:opacity .12s ease, transform .12s ease; z-index:60; }
+  [data-tip]::before{ content:""; position:absolute; bottom:calc(100% + 2px); left:50%; transform:translateX(-50%); border:5px solid transparent; border-top-color:var(--text); opacity:0; pointer-events:none; transition:opacity .12s ease; z-index:60; }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after{ opacity:1; transform:translateX(-50%) translateY(0); }
+  [data-tip]:hover::before, [data-tip]:focus-visible::before{ opacity:1; }
   .icon-btn:hover{ background:rgba(0,0,0,0.06); color:var(--text); }
   .icon-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 
@@ -545,7 +552,8 @@
 
       <div class="section-label">Generate archive</div>
       <div class="card" style="padding:20px 22px; margin-bottom:22px;">
-        <div class="field-row" style="align-items:end;">
+        <div class="field-row-3" style="align-items:end;">
+          <div class="field"><label class="field-label">Seasonal schedule</label><select class="f" id="seasonPicker"></select></div>
           <div class="field"><label class="field-label">Valid from</label><input class="f" type="date" id="validFrom" value="2026-09-07"></div>
           <div class="field"><label class="field-label">Valid to</label><input class="f" type="date" id="validTo" value="2026-10-05"></div>
         </div>
@@ -553,7 +561,7 @@
           <button class="btn btn-primary" id="exportBtn">Generate archive</button>
           <span class="field-hint" id="archiveSelectHint" style="color:var(--danger);"></span>
         </div>
-        <div class="field-hint" style="margin-top:8px;">Automatically pulls in a route for every line in the timetable for this period — use each archive's own "+ New route" button to add more.</div>
+        <div class="field-hint" style="margin-top:8px;">Pulls in a route for every line in the chosen season's timetable, then generates an .xlsx export for SBR — use each archive's own "+ New route" button to add more by hand.</div>
       </div>
 
       <div class="section-label">Archives</div>
@@ -954,8 +962,8 @@
     openDraftStop: undefined,
     openStopByRoute: {},
     archives: [
-      { id:"arc-seed-1", from:"2026-09-07", to:"2026-10-05", when:"07 Sep 2026, 04:12", routeIds:["r-seed-1","r-seed-2","r-seed-3","r-seed-4","r-seed-5"] },
-      { id:"arc-seed-2", from:"2026-10-06", to:"2026-11-02", when:"06 Oct 2026, 03:47", routeIds:["r-seed-1","r-seed-2","r-seed-3"] }
+      { id:"arc-seed-1", from:"2026-09-07", to:"2026-10-05", when:"07 Sep 2026, 04:12", seasonId:"winter-2026", routeIds:["r-seed-1","r-seed-2","r-seed-3","r-seed-4","r-seed-5"] },
+      { id:"arc-seed-2", from:"2026-10-06", to:"2026-11-02", when:"06 Oct 2026, 03:47", seasonId:"winter-2026", routeIds:["r-seed-1","r-seed-2","r-seed-3"] }
     ]
   };
 
@@ -967,17 +975,30 @@
     return stops;
   }
 
-  // Line definitions from the timetable export — every new archive is auto-populated with a
-  // route for each line, valid for the archive's period. Users can still add further routes by hand.
-  var TIMETABLE_ROUTES_SEED = [
-    { name:"Coastal Line 214",      stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6], ["TLV","H",30.5], ["TAH","H",3.1] ] },
-    { name:"Southern Line 318",     stops:[ ["TAH","H",0], ["LOD","H",18.7], ["BGN","B",6.4], ["ASK","H",41.2], ["BSV","H",29.9] ] },
-    { name:"Northern Local 108",    stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6] ] },
-    { name:"Airport Connector 512", stops:[ ["TAH","H",0], ["BGN","H",15.2] ] },
-    { name:"Central Peak 630",      stops:[ ["HRZ","H",0], ["TLV","H",11.3], ["TAH","H",3.1], ["LOD","B",18.7] ] }
+  // Seasonal timetable exports — each season carries its own set of lines. Every new archive is
+  // auto-populated with a route for each line in the chosen season, valid for the archive's period.
+  // Users can still add further routes by hand.
+  var SEASONAL_SCHEDULES = [
+    { id:"winter-2026", label:"Winter 2026/27", lines:[
+      { name:"Coastal Line 214",      stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6], ["TLV","H",30.5], ["TAH","H",3.1] ] },
+      { name:"Southern Line 318",     stops:[ ["TAH","H",0], ["LOD","H",18.7], ["BGN","B",6.4], ["ASK","H",41.2], ["BSV","H",29.9] ] },
+      { name:"Northern Local 108",    stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6] ] },
+      { name:"Airport Connector 512", stops:[ ["TAH","H",0], ["BGN","H",15.2] ] },
+      { name:"Central Peak 630",      stops:[ ["HRZ","H",0], ["TLV","H",11.3], ["TAH","H",3.1], ["LOD","B",18.7] ] }
+    ] },
+    { id:"summer-2027", label:"Summer 2027", lines:[
+      { name:"Southern Line 318",         stops:[ ["TAH","H",0], ["LOD","H",18.7], ["BGN","B",6.4], ["ASK","H",41.2], ["BSV","H",29.9] ] },
+      { name:"Airport Connector 512",      stops:[ ["TAH","H",0], ["BGN","H",15.2] ] },
+      { name:"Beach Express 240",          stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6], ["HRZ","H",10.4], ["TLV","H",7.5] ] },
+      { name:"Weekend Beach Special 777",  stops:[ ["TLV","H",0], ["HRZ","B",7.5], ["NTY","H",10.4], ["BSV","D",55.0] ] }
+    ] }
   ];
-  function routesFromTimetable(validFrom, validTo, idPrefix){
-    return TIMETABLE_ROUTES_SEED.map(function(line, i){
+  function seasonById(id){
+    return SEASONAL_SCHEDULES.find(function(s){ return s.id===id; }) || SEASONAL_SCHEDULES[0];
+  }
+  function routesFromTimetable(validFrom, validTo, idPrefix, seasonId){
+    var season = seasonById(seasonId || "winter-2026");
+    return season.lines.map(function(line, i){
       return {
         id:idPrefix+"-"+(i+1), name:line.name, validFrom:validFrom, validTo:validTo, fromTimetable:true,
         stops: assignGpsIndex(line.stops.map(function(s){ return mkStop(s[0], s[1], s[2]); }))
@@ -1092,19 +1113,50 @@
     document.getElementById("routeName").focus();
   }
 
+  // Builds a simple route/stop table for the given archive and downloads it as an .xlsx file for SBR export.
+  function exportArchiveToSbrXlsx(archiveId){
+    var arc = state.archives.find(function(a){ return a.id===archiveId; });
+    if(!arc) return;
+    var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
+    if(!routes.length){
+      alert("This archive has no routes yet — add at least one route before exporting to SBR.");
+      return;
+    }
+    if(typeof XLSX==="undefined"){
+      alert("The Excel export library didn't load — check your connection and try again.");
+      return;
+    }
+    var rows = [["Route","Valid from","Valid to","#","Stop code","Stop name","Type","Distance (km)","Arrival","Departure"]];
+    routes.forEach(function(r){
+      r.stops.forEach(function(s, i){
+        var st = state.stations.find(function(x){ return x.code===s.code; });
+        rows.push([
+          r.name, r.validFrom, r.validTo, i+1, s.code, st?st.name:"",
+          STOP_TYPE_LABEL[s.type]||s.type, s.distanceKm, s.arrivalOverride||"", s.departureOverride||""
+        ]);
+      });
+    });
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{wch:22},{wch:11},{wch:11},{wch:4},{wch:10},{wch:24},{wch:13},{wch:13},{wch:9},{wch:10}];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Routes");
+    XLSX.writeFile(wb, "SBR-export_"+arc.from+"_to_"+arc.to+".xlsx");
+  }
+
   document.getElementById("exportBtn").addEventListener("click", function(){
     var from = document.getElementById("validFrom").value, to = document.getElementById("validTo").value;
+    var seasonId = document.getElementById("seasonPicker").value || "winter-2026";
     if(!from || !to){
       document.getElementById("archiveSelectHint").textContent = "Pick both a start and end date.";
       return;
     }
     document.getElementById("archiveSelectHint").textContent = "";
     var newArchiveId = "arc-"+Date.now();
-    // Pull in a route per line from the timetable for this period — the user can still add more by hand.
-    var ttRoutes = routesFromTimetable(from, to, "r-"+Date.now());
+    // Pull in a route per line from the chosen season's timetable — the user can still add more by hand.
+    var ttRoutes = routesFromTimetable(from, to, "r-"+Date.now(), seasonId);
     ttRoutes.forEach(function(r){ state.routes.push(r); });
     state.archives.unshift({
-      id:newArchiveId, from:from, to:to,
+      id:newArchiveId, from:from, to:to, seasonId:seasonId,
       when: new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),
       routeIds: ttRoutes.map(function(r){ return r.id; })
     });
@@ -1116,11 +1168,14 @@
     var newCard = document.querySelector('[data-archive-id="'+newArchiveId+'"]');
     if(newCard) newCard.scrollIntoView({ behavior:"smooth", block:"start" });
     setTimeout(function(){ justGeneratedArchiveIds = []; renderArchive(); }, 2000);
+    exportArchiveToSbrXlsx(newArchiveId);
   });
 
   var justGeneratedArchiveIds = [];
 
   document.getElementById("archiveHistoryList").addEventListener("click", function(e){
+    var sbrBtn = e.target.closest("[data-export-sbr-for]");
+    if(sbrBtn){ exportArchiveToSbrXlsx(sbrBtn.dataset.exportSbrFor); return; }
     var btn = e.target.closest("[data-new-route-for]");
     if(!btn) return;
     var arc = state.archives.find(function(a){ return a.id===btn.dataset.newRouteFor; });
@@ -1140,16 +1195,19 @@
         var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
         var archiveGroupKey = "arc:"+arc.id;
         var archiveCollapsed = !!collapsedGroups[archiveGroupKey];
-        // Route-count chip color: amber when empty, green once every timetable line has a route,
-        // orange when some routes exist but the archive is still short of the full timetable set.
+        var archSeason = seasonById(arc.seasonId || "winter-2026");
+        var seasonLineCount = archSeason.lines.length;
+        // Route-count chip color: amber when empty, green once every line in this archive's season has a route,
+        // orange when some routes exist but the archive is still short of the full seasonal set.
         var routeChipClass = routes.length===0 ? "chip-warning"
-          : routes.length>=TIMETABLE_ROUTES_SEED.length ? "chip-filled-success"
+          : routes.length>=seasonLineCount ? "chip-filled-success"
           : "chip-filled-warning";
         return '<div class="card archive-entry'+(justGeneratedArchiveIds.indexOf(arc.id)>-1?' just-generated':'')+'" data-archive-id="'+arc.id+'">'+
           '<div class="archive-entry-head">'+
-            '<span class="archive-entry-title">Archive &middot; '+fmtRange(arc.from,arc.to)+'</span>'+
+            '<span class="archive-entry-title">Archive &middot; '+fmtRange(arc.from,arc.to)+' <span class="chip outlined" style="margin-left:8px;font-weight:500;">'+esc(archSeason.label)+'</span></span>'+
             '<span style="display:flex;align-items:center;gap:8px;">'+
-              '<span class="chip '+routeChipClass+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' route'+(routes.length===1?'':'s')+(routes.length>0 && routes.length<TIMETABLE_ROUTES_SEED.length ? ' · '+(TIMETABLE_ROUTES_SEED.length-routes.length)+' missing' : '')+'</span>'+
+              '<span class="chip '+routeChipClass+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' route'+(routes.length===1?'':'s')+(routes.length>0 && routes.length<seasonLineCount ? ' · '+(seasonLineCount-routes.length)+' missing' : '')+'</span>'+
+              '<button class="icon-btn" data-export-sbr-for="'+arc.id+'" data-tip="Export routes as .xlsx for SBR" aria-label="Export this archive\'s routes as an .xlsx file for SBR"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
               '<button class="btn btn-sm btn-outlined-primary" data-new-route-for="'+arc.id+'" title="Create a new route inside this archive\'s validity period"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New route</button>'+
               '<button class="icon-btn" data-collapse-toggle="'+archiveGroupKey+'" title="'+(archiveCollapsed?'Expand archive':'Minimize archive')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(archiveCollapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
             '</span>'+
@@ -1306,28 +1364,15 @@
     var lastText = langText(state.templates.last.text).replace("{station}", st.name);
 
     detail.innerHTML =
-      '<div class="station-detail-head"><div><h3>'+st.name+'</h3>'+
+      '<div class="station-detail-head"><div><h3><span class="tabular" style="font-weight:600;">'+esc(st.code)+'</span><span style="color:var(--text-faint);margin:0 6px;">—</span>'+st.name+'<span class="tabular" style="color:var(--text-faint);font-weight:400;font-size:13px;margin-left:8px;">'+esc(st.specialCode)+'</span></h3>'+
         '<div class="station-detail-meta">'+
-          '<span class="chip chip-neutral tabular">'+st.code+'</span>'+
           '<span class="chip chip-neutral">'+st.region+'</span>'+
           '<span class="chip chip-neutral">'+st.platforms+' platforms</span>'+
         '</div></div></div>'+
 
       '<section class="form-section">'+
-        '<div class="form-section-head"><div><h4>Station identity</h4><div class="desc">Read-only — provided by the timetable export</div></div></div>'+
-        '<div class="field-row">'+
-          '<div class="field"><label class="field-label">Station name</label><div class="readonly-field filled">'+st.name+
-            '<span class="from-timetable" style="margin-left:auto;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from export</span></div></div>'+
-          '<div class="field"><label class="field-label">Abbreviation</label><div class="readonly-field filled tabular">'+st.code+'</div></div>'+
-        '</div>'+
-      '</section>'+
-
-      '<section class="form-section">'+
         '<div class="form-section-head"><div><h4>Station code &amp; GPS positioning</h4><div class="desc">Identifies the stop and its geofence trigger for onboard systems</div></div></div>'+
-        '<div class="field-row">'+
-          '<div class="field"><label class="field-label">Special code</label><input class="f" id="fSpecialCode" value="'+esc(st.specialCode)+'" placeholder="SC-…"></div>'+
-          '<div class="field"><label class="field-label">GPS code</label><input class="f" id="fGpsCode" value="'+esc(st.gps.code)+'" placeholder="GPS-…"></div>'+
-        '</div>'+
+        '<div class="field"><label class="field-label">GPS code</label><input class="f" id="fGpsCode" value="'+esc(st.gps.code)+'" placeholder="GPS-…"></div>'+
         '<div class="field-row">'+
           '<div class="field"><label class="field-label">Latitude</label><input class="f tabular" id="fGpsLat" value="'+esc(st.gps.lat)+'" placeholder="32.0838"></div>'+
           '<div class="field"><label class="field-label">Longitude</label><input class="f tabular" id="fGpsLng" value="'+esc(st.gps.lng)+'" placeholder="34.7934"></div>'+
@@ -1394,7 +1439,6 @@
       '</div>';
 
     function bindSave(){
-      st.specialCode = document.getElementById("fSpecialCode").value;
       st.gps.code = document.getElementById("fGpsCode").value;
       st.gps.lat = document.getElementById("fGpsLat").value;
       st.gps.lng = document.getElementById("fGpsLng").value;
@@ -1413,7 +1457,7 @@
       updateNavCounts();
       document.getElementById("saveStatus").innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved';
     }
-    ["fSpecialCode","fGpsCode","fGpsLat","fGpsLng","fGpsInnerLen","fGpsInnerWidth","fGpsOuterLen","fGpsOuterWidth","fSpecialAnnouncement"].forEach(function(id){
+    ["fGpsCode","fGpsLat","fGpsLng","fGpsInnerLen","fGpsInnerWidth","fGpsOuterLen","fGpsOuterWidth","fSpecialAnnouncement"].forEach(function(id){
       var el = document.getElementById(id);
       el.addEventListener("input", bindSave);
     });
@@ -2275,6 +2319,14 @@
 
   /* ---------------- init ---------------- */
 
+  function renderSeasonPicker(){
+    var picker = document.getElementById("seasonPicker");
+    if(!picker) return;
+    picker.innerHTML = SEASONAL_SCHEDULES.map(function(s){
+      return '<option value="'+s.id+'">'+esc(s.label)+' ('+s.lines.length+' lines)</option>';
+    }).join("");
+  }
+  renderSeasonPicker();
   renderRouteBuilder();
   renderArchive();
   renderStationDetail();
