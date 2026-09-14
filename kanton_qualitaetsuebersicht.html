@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Q.Daba BAV – Gesamtübersicht Kanton</title>
+<style>
+  :root{
+    --navy:#072B7B;
+    --navy-dark:#051D54;
+    --navy-light:#2F54A0;
+    --cyan:#50C1E7;
+    --pale:#E1E9F4;
+    --pale-2:#F2F6FC;
+    --ink:#1A1A1A;
+    --ink-2:#3A3A3A;
+    --ink-3:#595959;
+    --line:#D7E0F0;
+    --green:#2E7D32;
+    --green-bg:#E8F3E9;
+    --amber:#ED6C02;
+    --amber-bg:#FDEEE1;
+    --red:#D32F2F;
+    --red-bg:#FBE9E9;
+    --radius-sm:4px;
+    --radius-md:8px;
+    --shadow-1:0 1px 2px rgba(7,43,123,.08), 0 1px 3px rgba(7,43,123,.10);
+    --shadow-2:0 2px 4px rgba(7,43,123,.08), 0 4px 10px rgba(7,43,123,.10);
+    /* MUI_ETC library tokens — confirmed from Figma (oxFsLcEnV3pGkCiGvMmYla) */
+    --mui-primary:#2196F3;
+    --mui-text-primary:rgba(0,0,0,.87);
+    --mui-text-secondary:rgba(0,0,0,.6);
+    --mui-text-disabled:rgba(0,0,0,.38);
+    --mui-divider:rgba(0,0,0,.12);
+    --mui-fill:rgba(0,0,0,.06);
+    --mui-success:#2E7D32;
+    --mui-error:#D32F2F;
+    --mui-warning:#ED6C02;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#F6F8FC;
+    color:var(--ink);
+    font-family:"Roboto","Segoe UI",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:1240px;margin:0 auto;padding:28px 24px 70px;}
+
+  /* top navigation bar — same shell as the Region-Hannover dashboard */
+  .navbar{background:#1C2848;color:#fff;height:52px;}
+  .navbar-inner{max-width:1240px;margin:0 auto;padding:0 20px;height:52px;display:flex;align-items:center;gap:0;}
+  .brand{display:flex;align-items:center;height:27px;flex:none;margin-inline-end:8px;}
+  .brand .mark{width:27px;height:27px;border-radius:6px;background:var(--cyan);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--navy-dark);}
+  .navlinks{display:flex;align-items:stretch;height:52px;flex:1;}
+  .navlinks a{display:flex;align-items:center;height:100%;padding:0 13px;color:rgba(255,255,255,.75);text-decoration:none;font-size:13.5px;font-weight:500;border-bottom:3px solid transparent;white-space:nowrap;transition:color .15s ease,border-color .15s ease;cursor:pointer;}
+  .navlinks a:hover{color:#fff;}
+  .navlinks a.active{color:#fff;border-bottom-color:#fff;}
+  .navbar-actions{display:flex;align-items:center;gap:8px;flex:none;height:30px;}
+  .topbar-lang{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.1);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.2);border-radius:6px;font-size:13px;font-weight:600;padding:5px 26px 5px 10px;height:27px;font-family:inherit;cursor:pointer;transition:background .15s ease,border-color .15s ease;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='white' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 9px center;}
+  .topbar-lang:hover{background:rgba(255,255,255,.16);}
+  .topbar-logout{display:flex;align-items:center;gap:5px;height:30px;padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:rgba(255,255,255,.75);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:color .15s ease,border-color .15s ease,background .15s ease;}
+  .topbar-logout:hover{color:#fff;border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.08);}
+
+  /* header / title */
+  .apptitle{display:flex;align-items:baseline;gap:12px;margin-bottom:4px;}
+  .apptitle h1{font-size:20px;font-weight:500;letter-spacing:.0075em;margin:0;color:var(--navy);}
+  .apptitle .sub{font-size:13px;color:var(--ink-3);}
+  .titlebar{height:3px;width:56px;background:var(--cyan);border-radius:2px;margin:10px 0 18px;}
+
+  /* filter row */
+  .filters{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:16px 18px;box-shadow:var(--shadow-1);margin-bottom:10px;}
+  .field{display:flex;flex-direction:column;gap:6px;min-width:120px;}
+  .field label{font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);}
+  /* <TextField_> Filled — MUI_ETC node 6570:47520 / 6570:47490 — applied to all filter fields, including chip fields */
+  .field{
+    background:var(--mui-fill);border-radius:4px 4px 0 0;border:none;
+    border-bottom:1px solid rgba(0,0,0,.42);padding:5px 10px 4px;gap:0;
+    transition:border-color .15s ease,border-width .1s ease;
+  }
+  .field:hover{border-bottom-color:rgba(0,0,0,.87);}
+  .field:focus-within{border-bottom:2px solid var(--mui-primary);padding-bottom:3px;}
+  .field label{
+    font-family:"Roboto",sans-serif;font-size:12px;font-weight:400;letter-spacing:.15px;
+    text-transform:none;color:var(--mui-text-secondary);line-height:12px;margin-bottom:2px;
+  }
+  select.native{appearance:none;-webkit-appearance:none;-moz-appearance:none;
+    background:var(--mui-fill);border:none;border-bottom:1px solid rgba(0,0,0,.42);
+    border-radius:4px 4px 0 0;padding:12px 26px 12px 12px;font-size:16px;color:var(--mui-text-secondary);
+    font-family:"Roboto",sans-serif;letter-spacing:.15px;min-width:100px;cursor:pointer;
+    transition:border-color .15s ease,border-width .1s ease;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(0,0,0,.54)' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 10px center;}
+  select.native:hover{border-bottom-color:rgba(0,0,0,.87);}
+  select.native:focus{outline:none;border-bottom:2px solid var(--mui-primary);padding-bottom:11px;}
+  /* nested inside a filled .field: the field itself is the box, so the select stays bare.
+     This variant has a real selected value (hasValue=True in the Figma spec), so text uses the primary/darker tone. */
+  .field select.native{
+    background:transparent;border:none;padding:0 22px 2px 0;min-width:100px;
+    color:var(--mui-text-primary);
+  }
+  .field select.native:focus{border:none;padding-bottom:2px;}
+  .chipfield{flex:1;min-width:220px;}
+  .chipbox{border:none;padding:0;display:flex;flex-wrap:wrap;gap:6px;min-height:26px;align-items:center;}
+  /* <Chip> — MUI_ETC node 166:73232 (primary variant: fill = primary blue) */
+  .chip{
+    display:inline-flex;align-items:center;gap:0;background:var(--mui-primary);color:#fff;
+    border-radius:100px;padding:3px 4px 3px 12px;
+    font-family:"Roboto",sans-serif;font-size:13px;font-weight:400;line-height:18px;letter-spacing:.16px;
+  }
+  .chip .x{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);font-size:12px;cursor:pointer;line-height:1;margin-inline-start:6px;transition:background .15s ease,transform .1s ease;}
+  .chip .x:hover{background:rgba(255,255,255,.3);}
+  .chip .x:active{transform:scale(.88);}
+
+  .breadcrumb{font-size:12.5px;color:var(--ink-3);margin:0 2px 18px;}
+  .breadcrumb b{color:var(--ink-2);font-weight:500;}
+
+  /* tabs */
+  .tabbar{display:flex;gap:0;border-bottom:1px solid var(--mui-divider);margin-bottom:22px;}
+  /* <Tabs>/<Tab> — MUI_ETC node 6579:45218 */
+  .tab{
+    padding:9px 16px;margin-right:0;font-family:"Roboto",sans-serif;
+    font-size:14px;font-weight:500;line-height:24px;letter-spacing:.4px;text-transform:uppercase;
+    color:var(--mui-text-secondary);cursor:pointer;border-bottom:2px solid transparent;user-select:none;
+    transition:color .15s ease,border-color .15s ease;
+  }
+  .tab:hover{color:var(--mui-text-primary);}
+  .tab.active{color:var(--mui-primary);border-bottom-color:var(--mui-primary);}
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;animation:fadeIn .2s ease;}
+  .qx-panel{display:none;}
+  .qx-panel.active{display:block;animation:fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.section{font-size:15px;font-weight:500;color:var(--navy);margin:0 0 14px;}
+  h3.groupname{font-size:13px;font-weight:500;color:var(--ink-2);margin:0;}
+
+  /* KPI bullet row */
+  .kpicard{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-1);padding:6px 18px;margin-bottom:22px;}
+  .kpirow{display:grid;grid-template-columns:230px 64px 1fr;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--pale-2);}
+  .kpirow:last-child{border-bottom:none;}
+  .kpirow .name{font-size:13.5px;color:var(--ink-2);}
+  .kpival{font-family:"Roboto",sans-serif;font-size:12px;font-weight:400;letter-spacing:.16px;text-align:center;border:1px solid var(--m-color);border-radius:100px;padding:0 10px 0 8px;line-height:18px;color:var(--m-color);background:#fff;display:inline-flex;align-items:center;justify-content:center;}
+  .kpival .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;flex:none;}
+  .gauge{position:relative;height:10px;border-radius:5px;overflow:visible;background:var(--line);}
+  .gauge .zone{position:absolute;top:0;height:100%;}
+  .gauge .marker{position:absolute;top:-4px;width:2px;height:18px;background:var(--ink);border-radius:1px;}
+  .gauge .marker::after{content:attr(data-v);position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10.5px;color:var(--ink-3);white-space:nowrap;}
+
+  /* accordion (trend) */
+  .accordion{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-1);overflow:hidden;margin-bottom:22px;}
+  .acc-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;user-select:none;}
+  .acc-head .t{font-size:13px;font-weight:500;color:var(--navy);}
+  .acc-head .chev{transition:transform .18s ease;color:var(--navy);}
+  .accordion.open .acc-head .chev{transform:rotate(180deg);}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .22s ease;}
+  .accordion.open .acc-body{max-height:360px;}
+  .acc-inner{padding:6px 16px 16px;border-top:1px solid var(--line);}
+  .trend-legend{display:flex;gap:16px;margin-top:8px;}
+  .trend-legend .item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-3);}
+  .trend-legend .dot{width:9px;height:9px;border-radius:2px;}
+
+  /* line-bundle collapsible groups */
+  .linebundle{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-1);margin-bottom:12px;overflow:hidden;}
+  .lb-head{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;background:var(--pale-2);}
+  .lb-head .chev{transition:transform .18s ease;color:var(--navy);}
+  .linebundle.open .lb-head .chev{transform:rotate(180deg);}
+  .lb-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .linebundle.open .lb-body{max-height:600px;}
+  .lb-inner{padding:2px 18px;}
+
+  /* DQI rows */
+  .dqistat{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;}
+  .dqistat .big{font-size:34px;font-weight:500;color:var(--navy);}
+  .dqistat .lbl{font-size:12px;color:var(--ink-3);}
+  .dqinote{font-size:12px;color:var(--ink-3);margin-bottom:16px;}
+  .dqirow{display:grid;grid-template-columns:26px 1fr 320px 64px;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--pale-2);}
+  .dqirow:last-child{border-bottom:none;}
+  .dqirow .num{width:20px;height:20px;border-radius:50%;background:var(--pale);color:var(--navy);font-size:10.5px;font-weight:600;display:flex;align-items:center;justify-content:center;}
+  .dqirow .label{font-size:12.5px;color:var(--ink-2);}
+  .dqibar{position:relative;height:8px;border-radius:4px;background:var(--pale-2);}
+  .dqibar .fill{position:absolute;top:0;left:0;height:100%;border-radius:4px;}
+  .dqibar .target{position:absolute;top:-3px;width:1.5px;height:14px;background:var(--ink-3);opacity:.6;}
+  .dqilegend{display:flex;gap:18px;margin:14px 0 6px;font-size:11.5px;color:var(--ink-3);}
+  .dqilegend .item{display:flex;align-items:center;gap:6px;}
+  .dqilegend .dot{width:9px;height:9px;border-radius:3px;}
+
+  /* dumbbell comparison */
+  .dumbbell-group{margin-bottom:26px;}
+  .dumbbell-row{display:grid;grid-template-columns:210px 1fr;align-items:center;gap:10px;padding:7px 0;}
+  .dumbbell-row .name{font-size:12px;color:var(--ink-2);text-align:right;}
+  .dumbbell-track{position:relative;height:16px;}
+  .dumbbell-line{position:absolute;top:7px;height:2px;background:var(--line);}
+  .dumbbell-dot{position:absolute;top:2px;width:12px;height:12px;border-radius:50%;transform:translateX(-50%);border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.08);cursor:default;}
+  .cmp-legend{display:flex;gap:18px;font-size:11.5px;color:var(--ink-3);margin:6px 0 22px 210px;}
+  .cmp-legend .item{display:flex;align-items:center;gap:6px;}
+  .cmp-legend .dot{width:10px;height:10px;border-radius:50%;}
+
+  footer.note{margin-top:20px;font-size:11.5px;color:#9AA6BE;text-align:right;}
+
+  /* Q-Explorer dropdown menu on the top nav item */
+  .navdrop{position:relative;}
+  .navdrop > a{gap:5px;cursor:pointer;}
+  .navdrop .caret{transition:transform .15s ease;}
+  .navdrop:hover .caret, .navdrop.open .caret{transform:rotate(180deg);}
+  .navdrop-menu{
+    position:absolute;top:100%;left:0;min-width:200px;
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-2);padding:6px;z-index:20;
+    opacity:0;visibility:hidden;transform:translateY(-4px);
+    transition:opacity .15s ease,transform .15s ease,visibility 0s linear .15s;
+  }
+  .navdrop:hover .navdrop-menu, .navdrop.open .navdrop-menu{
+    opacity:1;visibility:visible;transform:translateY(0);
+    transition:opacity .15s ease,transform .15s ease,visibility 0s;
+  }
+  .navdrop-menu a{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:6px;
+    font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;border-bottom:none;height:auto;cursor:pointer;
+    transition:background .12s ease,color .12s ease;
+  }
+  .navdrop-menu a:hover{background:var(--pale-2);color:var(--navy);}
+  .navdrop-menu a .label{flex:1;}
+  .icon-badge-wrap{position:relative;display:inline-flex;flex:none;}
+  .navdrop-badge{
+    position:absolute;top:-6px;left:10px;
+    font-size:9.5px;font-weight:700;color:#fff;background:var(--navy);
+    border-radius:8px;padding:0 4px;height:13px;min-width:13px;line-height:13px;text-align:center;
+    box-shadow:0 0 0 1.5px #fff;
+  }
+  .navdrop-menu a svg{flex:none;opacity:.8;}
+  .navdrop-divider{height:1px;background:var(--line);margin:5px 6px;}
+  .navdrop-menu-right{left:auto;right:0;}
+  .navbar-user > a{display:flex;align-items:center;gap:8px;padding:0 6px 0 10px;cursor:pointer;white-space:nowrap;}
+  .user-avatar{width:25px;height:25px;border-radius:50%;background:var(--navy-light);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none;}
+  .user-name{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;}
+  @media (max-width:1000px){.user-name{display:none;}}
+
+  /* view switching */
+  .view{display:none;}
+  .view.active{display:block;}
+  #view-explorer.active{display:flex;}
+  #view-login.active{display:flex;}
+
+  /* login view */
+  .login-view{min-height:calc(100vh - 52px);background:#F0F2F5;display:flex;flex-direction:column;align-items:center;padding:60px 20px 0;}
+  .login-wrap{display:flex;flex-direction:column;align-items:center;}
+  .ch-cross{margin-bottom:8px;}
+  .ch-legend{font-size:11px;color:#9AA6BE;text-align:center;line-height:1.5;margin-bottom:28px;}
+  .login-card{background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.09);padding:36px 40px;width:340px;}
+  .login-card h1{font-size:19px;font-weight:600;margin:0 0 2px;color:var(--ink);}
+  .login-sub{font-size:12.5px;color:var(--ink-3);margin-bottom:22px;}
+  .ll{display:block;font-size:12.5px;color:var(--ink-2);margin:0 0 6px;}
+  .li{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px 14px;font-size:14px;font-family:inherit;margin-bottom:16px;color:var(--ink);}
+  .li:focus{outline:none;border-color:var(--navy);}
+  .login-btn{width:100%;background:#1C2848;color:#fff;border:none;border-radius:6px;padding:11px 0;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:4px;transition:background .15s ease;}
+  .login-btn:hover{background:var(--navy-dark);}
+  .forgot{display:block;text-align:center;margin-top:14px;font-size:12.5px;color:#2E6BB8;text-decoration:none;cursor:pointer;}
+  .login-footer{margin-top:auto;padding:20px;display:flex;gap:24px;font-size:11.5px;color:#6B7280;}
+
+  /* Q-Explorer app view */
+  .qx-view{align-items:stretch;}
+  .qx-sidebar{width:200px;flex:none;background:#fff;border-right:1px solid var(--line);padding:16px 0;min-height:calc(100vh - 52px);}
+  .qx-nav{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13.5px;font-weight:500;color:var(--ink-2);text-decoration:none;border-left:3px solid transparent;}
+  .qx-nav:hover{background:var(--pale-2);}
+  .qx-nav.active{background:var(--pale);color:var(--navy);border-left-color:var(--navy);font-weight:600;}
+  .qx-content{flex:1;min-width:0;padding:24px 28px;max-width:1240px;margin:0 auto;width:100%;}
+  .qx-footer{
+    display:flex;flex-wrap:wrap;gap:8px 28px;
+    margin-top:32px;padding-top:16px;
+  }
+  .qx-footer a{
+    display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-3);
+    text-decoration:none;cursor:pointer;
+  }
+  .qx-footer a:hover{color:var(--navy);text-decoration:underline;}
+  .qx-footer a svg{opacity:.7;}
+  .qx-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+  .qx-title{font-size:19px;font-weight:500;color:var(--ink);margin:0;}
+  .qx-sub{font-size:12.5px;color:var(--ink-3);margin-top:2px;}
+  .qx-btn-primary{background:var(--navy);color:#fff;border:none;border-radius:6px;padding:9px 16px;font-size:13.5px;font-weight:500;font-family:inherit;cursor:pointer;transition:background .15s ease,transform .1s ease;}
+  .qx-btn-primary:hover{background:var(--navy-dark);}
+  .qx-btn-primary:active{transform:scale(.97);}
+  .qx-toolbar{display:flex;gap:10px;margin-bottom:18px;}
+  /* <TextField_> Filled — MUI_ETC node 6570:47490 (empty state) */
+  .qx-search{
+    flex:1;background:var(--mui-fill);border:none;border-bottom:1px solid rgba(0,0,0,.42);
+    border-radius:4px 4px 0 0;padding:11px 12px 9px;font-size:16px;font-family:"Roboto",sans-serif;
+    color:var(--mui-text-secondary);letter-spacing:.15px;transition:border-color .15s ease,border-width .1s ease;
+  }
+  .qx-search:hover{border-bottom-color:rgba(0,0,0,.87);}
+  .qx-search:focus{outline:none;border-bottom:2px solid var(--mui-primary);padding-bottom:8px;color:var(--mui-text-primary);}
+  .qx-group-title{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin:22px 0 8px;}
+  table.qx-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;font-size:13px;}
+  table.qx-table th{text-align:left;font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:9px 14px;border-bottom:1px solid var(--line);background:var(--pale-2);}
+  table.qx-table td{padding:10px 14px;border-bottom:1px solid var(--pale-2);color:var(--ink-2);}
+  table.qx-table tr:last-child td{border-bottom:none;}
+  /* Outlined <Chip> — MUI_ETC node 166:75191 (border + text in the status color, no fill) */
+  .qx-status{
+    display:inline-flex;align-items:center;
+    font-family:"Roboto",sans-serif;font-size:13px;font-weight:400;
+    line-height:18px;letter-spacing:.16px;
+    border:1px solid currentColor;border-radius:100px;padding:3px 10px;
+    background:#fff;
+  }
+  .qx-status .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:6px;flex:none;}
+  .qx-actions{display:flex;align-items:center;gap:4px;}
+  .qx-icon-btn{
+    width:28px;height:28px;border:none;background:transparent;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    color:var(--ink-3);transition:background .12s ease,color .12s ease;
+  }
+  .qx-icon-btn:hover{background:var(--pale-2);}
+  .qx-icon-btn.qx-icon-blue{color:#2E6BB8;}
+  .qx-icon-btn.qx-icon-blue:hover{background:#EAF1FA;}
+  .qx-action-slot{display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--pale-2);}
+  .qx-status.done{color:#2E7D32;}
+  .qx-status.progress{color:#ED6C02;animation:statusPulse 1.4s ease-in-out infinite;}
+  @keyframes statusPulse{
+    0%{box-shadow:0 0 0 0 rgba(237,108,2,.35);}
+    70%{box-shadow:0 0 0 4px rgba(237,108,2,0);}
+    100%{box-shadow:0 0 0 0 rgba(237,108,2,0);}
+  }
+  .qx-status.failed{color:#D32F2F;}
+  .qx-status.paused{color:var(--ink-3);}
+  .qx-note{font-size:11px;color:var(--red);margin-top:2px;}
+  .qx-typegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .qx-typecard{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-1);padding:16px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:box-shadow .15s ease,border-color .15s ease,transform .1s ease;}
+  .qx-typecard:active{transform:scale(.98);}
+  .qx-typecard:hover{box-shadow:var(--shadow-2);border-color:var(--navy-light);}
+  .qx-typecard .ic{width:32px;height:32px;border-radius:8px;background:var(--pale);color:var(--navy);display:flex;align-items:center;justify-content:center;}
+  .qx-typecard .tt{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .qx-typecard .dd{font-size:12px;color:var(--ink-3);}
+
+  /* New Evaluation — 3-step wizard */
+  .wiz-back{display:inline-block;font-size:13px;color:var(--ink-3);cursor:pointer;margin-bottom:10px;}
+  .wiz-back:hover{color:var(--navy);}
+  .wiz-steps{display:flex;gap:28px;margin:18px 0 26px;border-bottom:1px solid var(--line);padding-bottom:14px;}
+  .wiz-step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--ink-3);}
+  .wiz-num{width:20px;height:20px;border-radius:50%;background:var(--pale-2);color:var(--ink-3);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .wiz-step.done{color:#2E7D32;}
+  .wiz-step.done .wiz-num{background:#2E7D32;color:#fff;}
+  .wiz-step.active{color:var(--navy);}
+  .wiz-step.active .wiz-num{background:var(--navy);color:#fff;}
+  .wiz-panel{display:none;max-width:640px;}
+  .wiz-panel.active{display:block;animation:fadeIn .2s ease;}
+  .wiz-h{font-size:15px;font-weight:600;color:var(--ink);margin:0 0 2px;}
+  .wiz-sub{font-size:12.5px;color:var(--ink-3);margin-bottom:16px;}
+  .wiz-pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+  .wiz-pill{border:1px solid var(--line);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:500;color:var(--ink-2);background:#fff;cursor:pointer;transition:all .12s ease;}
+  .wiz-pill:hover{border-color:var(--navy-light);}
+  .wiz-pill.sel{border-color:var(--mui-primary);color:var(--mui-primary);background:#EAF4FE;}
+  .wiz-pill.day{padding:6px 12px;}
+  .wiz-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px;}
+  .wiz-input{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--ink);margin-bottom:20px;}
+  .wiz-input:focus{outline:none;border-color:var(--navy);}
+  .wiz-actions{display:flex;justify-content:space-between;margin-top:8px;}
+  .qx-btn-secondary{background:#fff;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:9px 16px;font-size:13.5px;font-weight:500;font-family:inherit;cursor:pointer;transition:background .15s ease;}
+  .qx-btn-secondary:hover{background:var(--pale-2);}
+  .wiz-filterbox{border:1px solid var(--line);border-radius:var(--radius-md);padding:6px 18px;margin-bottom:20px;background:#fff;}
+  .wiz-filterrow{display:grid;grid-template-columns:200px 1fr;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--pale-2);}
+  .wiz-filterrow:last-child{border-bottom:none;}
+  .wiz-filterrow label{font-size:13px;font-weight:500;color:var(--ink-2);}
+  .wiz-filterrow select.native{width:100%;}
+  .wiz-summary{background:var(--pale-2);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:20px;font-size:13px;}
+  .wiz-summary div{display:flex;gap:8px;padding:3px 0;}
+  .wiz-summary span{color:var(--ink-3);min-width:70px;}
+  .wiz-summary b{color:var(--ink);font-weight:600;}
+  .wiz-summary .wiz-dim{color:var(--ink-3);font-weight:400;}
+  .wiz-notify{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:14px;}
+  .wiz-notify-ic{width:32px;height:32px;border-radius:8px;background:var(--pale);color:var(--navy);display:flex;align-items:center;justify-content:center;flex:none;}
+  .wiz-notify-txt{flex:1;font-size:13px;color:var(--ink);}
+  .wiz-input-inline{border:none;border-bottom:1px solid var(--line);padding:3px 0;font-size:12.5px;color:var(--ink-3);width:200px;margin-top:4px;font-family:inherit;}
+  .wiz-input-inline:focus{outline:none;border-color:var(--navy);}
+  .wiz-switch{position:relative;width:36px;height:20px;flex:none;}
+  .wiz-switch input{opacity:0;width:0;height:0;}
+  .wiz-slider{position:absolute;inset:0;background:var(--line);border-radius:100px;cursor:pointer;transition:background .15s ease;}
+  .wiz-slider::before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:#fff;border-radius:50%;transition:transform .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .wiz-switch input:checked + .wiz-slider{background:var(--mui-primary);}
+  .wiz-switch input:checked + .wiz-slider::before{transform:translateX(16px);}
+  .wiz-check{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink-2);margin-bottom:8px;cursor:pointer;}
+  .wiz-check input{margin-top:3px;}
+  .wiz-check small{color:var(--ink-3);font-weight:400;}
+  .chart-tooltip{
+    position:fixed;z-index:60;background:#1C2848;color:#fff;font-size:12px;font-family:"Roboto",sans-serif;
+    padding:6px 10px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .1s ease;
+    box-shadow:var(--shadow-2);white-space:nowrap;
+  }
+  .chart-tooltip.show{opacity:1;}
+  .chart-tooltip b{font-weight:600;margin-right:5px;}
+  .wiz-toast{
+    position:fixed;top:66px;left:50%;transform:translateX(-50%) translateY(-12px);
+    background:#1C2848;color:#fff;padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:500;
+    box-shadow:var(--shadow-2);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:50;
+  }
+  .wiz-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* Evaluation result detail */
+  .detail-crumb{font-size:12.5px;color:var(--ink-3);margin-bottom:6px;}
+  .detail-crumb a{color:var(--ink-3);cursor:pointer;text-decoration:none;}
+  .detail-crumb a:hover{color:var(--navy);text-decoration:underline;}
+  .detail-chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 18px;}
+  .detail-chip{border:1px solid var(--line);border-radius:100px;padding:4px 12px;font-size:12px;color:var(--ink-2);background:#fff;}
+  .detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .detail-breakdown{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);font-weight:500;}
+  .detail-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+  .detail-kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-1);padding:14px 16px;}
+  .dk-label{font-size:10.5px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);margin-bottom:6px;}
+  .dk-value{font-size:24px;font-weight:600;color:#D32F2F;}
+  .dk-value2{font-size:22px;font-weight:600;color:var(--ink);}
+  .dk-note{font-size:11px;color:var(--ink-3);margin-top:4px;}
+  #det-table td, #det-table th{text-align:right;}
+  #det-table td:first-child, #det-table th:first-child{text-align:left;}
+  #det-table .det-value{color:#2E7D32;font-weight:600;}
+  #det-table .det-total td{font-weight:700;background:var(--pale-2);}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-inner">
+    <div class="brand">
+      <svg width="27" height="27" viewBox="0 0 40 44">
+        <path d="m38.5778 3.2s-7.2-3.2-19.3-3.2c-12.00002 0-19.2000222 3.2-19.2000222 3.2s-.6999998 14.1 2.1000022 22.1c4.8 14 17.20002 18 17.20002 18s12.3-3.9 17.2-18c2.6-8 2-22.1 2-22.1z" fill="#ff0000"/>
+        <path d="m32.0779 15.4v7.8h-9v9.1h-7.7v-9.1h-8.99997v-7.8h8.99997v-9.09995h7.7v9.09995z" fill="#fff"/>
+      </svg>
+    </div>
+    <nav class="navlinks">
+      <a class="active" data-nav="dashboard" onclick="setActiveNav('dashboard');showView('dashboard');return false;">Dashboard</a>
+      <div class="navdrop">
+        <a data-nav="explorer" onclick="openExplorerTab('evaluations');return false;">Q-Explorer
+          <svg class="caret" width="9" height="6" viewBox="0 0 9 6"><path d="M1 1l3.5 3.5L8 1" stroke="rgba(255,255,255,.75)" stroke-width="1.4" fill="none"/></svg>
+        </a>
+        <div class="navdrop-menu">
+          <a onclick="openExplorerTab('evaluations');return false;">
+            <span class="icon-badge-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M12 19V5M20 19v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span class="navdrop-badge" id="badge-evaluations"></span>
+            </span>
+            <span class="label">Auswertungen</span>
+          </a>
+          <a onclick="openExplorerTab('new');return false;">
+            <span class="icon-badge-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M12 19V5M20 19v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18 3v6M15 6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span class="navdrop-badge" id="badge-new"></span>
+            </span>
+            <span class="label">Neue Auswertung</span>
+          </a>
+          <a onclick="openExplorerTab('reports');return false;">
+            <span class="icon-badge-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="navdrop-badge" id="badge-reports"></span>
+            </span>
+            <span class="label">Geplante Berichte</span>
+          </a>
+        </div>
+      </div>
+      <a onclick="return false;">Q-Reports</a>
+      <a onclick="return false;">Fotoalbum</a>
+      <a onclick="return false;">Q-Messungen</a>
+      <a onclick="return false;">Q-Management</a>
+      <a onclick="return false;">Administrator</a>
+    </nav>
+    <div class="navbar-actions">
+      <select class="topbar-lang"><option>DE</option><option>EN</option><option>FR</option></select>
+      <div class="navdrop navbar-user">
+        <a onclick="return false;">
+          <span class="user-avatar">AH</span>
+          <span class="user-name">Aida Homayouni</span>
+          <svg class="caret" width="9" height="6" viewBox="0 0 9 6"><path d="M1 1l3.5 3.5L8 1" stroke="rgba(255,255,255,.75)" stroke-width="1.4" fill="none"/></svg>
+        </a>
+        <div class="navdrop-menu navdrop-menu-right">
+          <a onclick="return false;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Profil
+          </a>
+          <a onclick="return false;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity="0"/><path d="M22 6 12 13 2 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/></svg>
+            Kontakt
+          </a>
+          <div class="navdrop-divider"></div>
+          <a onclick="showView('login');return false;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M16 17l5-5-5-5M21 12H9M13 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Abmelden
+          </a>
+        </div>
+      </div>
+      <button class="topbar-logout" onclick="showView('login');">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Anmelden</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="view-dashboard" class="view active">
+  <div class="app">
+
+  <div class="apptitle"><h1>Gesamtübersicht — Kanton</h1><span class="sub">Q.Daba BAV</span></div>
+  <div class="titlebar"></div>
+
+  <div class="filters">
+    <div class="field">
+      <label>Jahr</label>
+      <select class="native"><option>2026</option><option>2025</option></select>
+    </div>
+    <div class="field">
+      <label>TU</label>
+      <select class="native"><option>SBB</option><option>BLS</option><option>RhB</option><option>PostAuto AG</option><option>AAGL</option><option>VBZ</option></select>
+    </div>
+    <div class="field chipfield">
+      <label>Verkehrsmittel</label>
+      <div class="chipbox">
+        <span class="chip">Bus <span class="x">×</span></span>
+        <span class="chip">Zug <span class="x">×</span></span>
+      </div>
+
+    </div>
+    <div class="field chipfield">
+      <label>Linienbündel</label>
+      <div class="chipbox">
+        <span class="chip">20 <span class="x">×</span></span>
+        <span class="chip">21 <span class="x">×</span></span>
+        <span class="chip">22 <span class="x">×</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="breadcrumb">Sicht: <b>Kanton</b> · Jahr: <b>2026</b> · TU: <b>SBB</b> · Verkehrsmittel: <b>alle</b> · Linienbündel: <b>3/3</b></div>
+
+  <div class="tabbar">
+    <div class="tab active" data-tab="mss">MSS — Testkundenmessungen</div>
+    <div class="tab" data-tab="dpm">DPM — Pünktlichkeit</div>
+    <div class="tab" data-tab="dqi">DQI — Datenqualität</div>
+    <div class="tab" data-tab="ch">CH-Vergleich</div>
+  </div>
+
+  <!-- MSS TAB -->
+  <div class="tabpanel active" id="panel-mss">
+    <h2 class="section">Gesamt — SBB</h2>
+    <div class="kpicard" id="mss-gesamt"></div>
+
+    <div class="accordion" id="acc-mss">
+      <div class="acc-head" onclick="document.getElementById('acc-mss').classList.toggle('open')">
+        <span class="t">Monatlicher Trend mit Toleranzbereichen — Aufenthaltsqualität Haltestelle</span>
+        <svg class="chev" width="14" height="9" viewBox="0 0 14 9"><path d="M1 1l6 6 6-6" stroke="#072B7B" stroke-width="1.6" fill="none"/></svg>
+      </div>
+      <div class="acc-body"><div class="acc-inner">
+        <canvas id="trend-mss" width="1160" height="180" style="width:100%;height:180px;"></canvas>
+        <div class="trend-legend">
+          <span class="item"><span class="dot" style="background:var(--green-bg)"></span>Grün – Ziel erreicht</span>
+          <span class="item"><span class="dot" style="background:var(--amber-bg)"></span>Gelb – Toleranz</span>
+          <span class="item"><span class="dot" style="background:var(--red-bg)"></span>Rot – ungenügend</span>
+        </div>
+      </div></div>
+    </div>
+
+    <h2 class="section">Je Linienbündel</h2>
+    <div id="mss-bundles"></div>
+  </div>
+
+  <!-- DPM TAB -->
+  <div class="tabpanel" id="panel-dpm">
+    <h2 class="section">Gesamt — SBB</h2>
+    <div class="kpicard" id="dpm-gesamt"></div>
+    <div class="accordion" id="acc-dpm">
+      <div class="acc-head" onclick="document.getElementById('acc-dpm').classList.toggle('open')">
+        <span class="t">Monatlicher Trend mit Toleranzbereichen — Pünktlichkeit Zug</span>
+        <svg class="chev" width="14" height="9" viewBox="0 0 14 9"><path d="M1 1l6 6 6-6" stroke="#072B7B" stroke-width="1.6" fill="none"/></svg>
+      </div>
+      <div class="acc-body"><div class="acc-inner">
+        <canvas id="trend-dpm" width="1160" height="180" style="width:100%;height:180px;"></canvas>
+        <div class="trend-legend">
+          <span class="item"><span class="dot" style="background:var(--green-bg)"></span>Grün – Ziel erreicht</span>
+          <span class="item"><span class="dot" style="background:var(--amber-bg)"></span>Gelb – Toleranz</span>
+          <span class="item"><span class="dot" style="background:var(--red-bg)"></span>Rot – ungenügend</span>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- DQI TAB -->
+  <div class="tabpanel" id="panel-dqi">
+    <h2 class="section">Datenqualitätsindex (DQI)</h2>
+    <div class="dqistat"><span class="big" id="dqi-total">98.6</span><span class="lbl">DQI gesamt (gewähltes TU)</span></div>
+    <div class="dqinote">Jahreswert je Indikator (Mittel über alle Monate) — Ziel: ≥ 95 %.</div>
+    <div class="kpicard" id="dqi-list" style="padding:6px 18px 4px;"></div>
+    <div class="dqilegend">
+      <span class="item"><span class="dot" style="background:var(--green)"></span>Ziel erreicht (≥ 95 %)</span>
+      <span class="item"><span class="dot" style="background:var(--red)"></span>unter Ziel</span>
+    </div>
+  </div>
+
+  <!-- CH-VERGLEICH TAB -->
+  <div class="tabpanel" id="panel-ch">
+    <h2 class="section">Vergleich mit dem Schweizer Durchschnitt</h2>
+    <p style="font-size:12.5px;color:var(--ink-3);margin:-8px 0 18px;">Jahreswert des TU SBB (über alle Linienbündel) gegenüber dem Mittel aller Transportunternehmen — Jahr 2026.</p>
+    <h3 class="groupname" style="margin-bottom:6px;">MSS — Testkundenmessungen</h3>
+    <div class="dumbbell-group" id="ch-mss"></div>
+    <h3 class="groupname" style="margin-bottom:6px;">DPM — Pünktlichkeit</h3>
+    <div class="dumbbell-group" id="ch-dpm"></div>
+    <div class="cmp-legend">
+      <span class="item"><span class="dot" style="background:var(--navy)"></span>SBB</span>
+      <span class="item"><span class="dot" style="background:#9AA6BE"></span>Schweizer Durchschnitt</span>
+    </div>
+  </div>
+
+  <footer class="note">Trendkurven &amp; CH-Vergleichswerte illustrativ · Statusfarben nach hinterlegten Zielbändern</footer>
+  </div>
+</div><!-- /view-dashboard -->
+
+<!-- LOGIN VIEW -->
+<div id="view-login" class="view login-view">
+  <div class="login-wrap">
+    <svg class="ch-cross" width="64" height="70" viewBox="0 0 40 44">
+      <path d="m38.5778 3.2s-7.2-3.2-19.3-3.2c-12.00002 0-19.2000222 3.2-19.2000222 3.2s-.6999998 14.1 2.1000022 22.1c4.8 14 17.20002 18 17.20002 18s12.3-3.9 17.2-18c2.6-8 2-22.1 2-22.1z" fill="#ff0000"/>
+      <path d="m32.0779 15.4v7.8h-9v9.1h-7.7v-9.1h-8.99997v-7.8h8.99997v-9.09995h7.7v9.09995z" fill="#fff"/>
+    </svg>
+    <div class="ch-legend">Schweizerische Eidgenossenschaft<br>Confédération suisse<br>Confederazione Svizzera<br>Confederaziun svizra</div>
+    <div class="login-card">
+      <h1>Anmelden</h1>
+      <div class="login-sub">QMS RPV CH · Q-Explorer</div>
+      <label class="ll">E-Mail</label>
+      <input class="li" type="email" placeholder="name@organisation.ch">
+      <label class="ll">Passwort</label>
+      <input class="li" type="password" placeholder="········" value="········">
+      <button class="login-btn" onclick="setActiveNav('dashboard');showView('dashboard');">Anmelden</button>
+      <a class="forgot" onclick="return false;">Passwort vergessen?</a>
+    </div>
+  </div>
+  <div class="login-footer">
+    <span>Impressum</span><span>Dokumente</span><span>Kontaktdaten</span><span>Support</span>
+  </div>
+</div>
+
+<!-- Q-EXPLORER APP VIEW -->
+<div id="view-explorer" class="view qx-view">
+  <div class="qx-content">
+
+    <!-- Evaluations -->
+    <div id="qx-evaluations" class="qx-panel active">
+      <div class="qx-head">
+        <div><h2 class="qx-title">Auswertungen</h2><div class="qx-sub">28 Auswertungen</div></div>
+        <button class="qx-btn-primary" onclick="showQxTab('new')">+ Neue Auswertung</button>
+      </div>
+      <div class="qx-toolbar">
+        <input class="qx-search" placeholder="Auswertungen suchen…">
+        <select class="native">
+          <option>Alle Typen</option>
+          <option>Pünktlichkeit DPM</option>
+          <option>Rohdaten-Export DPM</option>
+          <option>Linienanalyse DPM</option>
+          <option>Datenqualitätsindex (DQI) DPM</option>
+          <option>Anschlusspünktlichkeit</option>
+          <option>Fahrtausfälle DPM</option>
+        </select>
+        <select class="native">
+          <option>Alle Status</option>
+          <option>Abgeschlossen</option>
+          <option>In Bearbeitung</option>
+          <option>Fehlgeschlagen</option>
+        </select>
+      </div>
+      <div id="qx-eval-groups"></div>
+    </div>
+
+    <!-- New Evaluation -->
+    <div id="qx-new" class="qx-panel">
+      <div id="qx-new-select">
+        <h2 class="qx-title">Neue Auswertung</h2>
+        <div class="qx-sub" style="margin-bottom:18px;">Auswertungstyp auswählen</div>
+        <div class="qx-typegrid" id="qx-new-grid"></div>
+      </div>
+
+      <div id="qx-new-wizard" style="display:none;">
+        <a class="wiz-back" onclick="wizExit();return false;">← Zurück</a>
+        <h2 class="qx-title" id="wiz-type-title"></h2>
+        <div class="qx-sub">Auswertung konfigurieren</div>
+
+        <div class="wiz-steps">
+          <div class="wiz-step" data-step="1"><span class="wiz-num">1</span> Zeitraum</div>
+          <div class="wiz-step" data-step="2"><span class="wiz-num">2</span> Filter</div>
+          <div class="wiz-step" data-step="3"><span class="wiz-num">3</span> Ausführen</div>
+        </div>
+
+        <!-- Step 1: Zeitraum -->
+        <div class="wiz-panel active" id="wiz-panel-1">
+          <h3 class="wiz-h">Zeitraum festlegen</h3>
+          <div class="wiz-sub">Zeitraum für die Auswertung wählen</div>
+          <div class="wiz-pillrow" id="wiz-period-pills"></div>
+          <div class="wiz-label">WOCHENTAGE</div>
+          <div class="wiz-pillrow" id="wiz-days">
+          </div>
+          <div class="wiz-label">NAME DER AUSWERTUNG</div>
+          <input class="wiz-input" id="wiz-name-1" type="text">
+          <div class="wiz-actions">
+            <span></span>
+            <button class="qx-btn-primary" onclick="wizGoto(2)">Weiter →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Filter -->
+        <div class="wiz-panel" id="wiz-panel-2">
+          <h3 class="wiz-h">Bereich eingrenzen</h3>
+          <div class="wiz-sub">Alle Filter sind optional. Ohne Einschränkung werden alle Daten ausgewertet.</div>
+          <div class="wiz-filterbox">
+            <div class="wiz-filterrow"><label>Tarifverbund</label><select class="native"><option>Alle</option><option>Tarifverbund A</option><option>Tarifverbund B</option><option>ZVV</option></select></div>
+            <div class="wiz-filterrow"><label>Verkehrsmittel</label><select class="native"><option>Alle Verkehrsmittel</option><option>Zug</option><option>Bus</option><option>Tram</option></select></div>
+            <div class="wiz-filterrow"><label>Kantone</label><select class="native"><option>Alle Kantone</option><option>Zürich</option><option>Bern</option><option>Basel-Stadt</option><option>Genf</option></select></div>
+            <div class="wiz-filterrow"><label>Transportunternehmen (TU)</label><select class="native"><option>Alle TU</option><option>SBB</option><option>BLS</option><option>RhB</option><option>PostAuto AG</option><option>AAGL</option><option>VBZ</option></select></div>
+            <div class="wiz-filterrow"><label>Linien</label><select class="native"><option>Alle Linien</option><option>S1</option><option>S2</option><option>S5</option><option>IC1</option><option>IC5</option><option>IC8</option><option>RE7</option></select></div>
+            <div class="wiz-filterrow"><label>Haltestellen</label><select class="native"><option>Alle Haltestellen</option><option>Zürich HB</option><option>Bern</option><option>Basel SBB</option></select></div>
+          </div>
+          <div class="wiz-actions">
+            <button class="qx-btn-secondary" onclick="wizGoto(1)">← Zurück</button>
+            <button class="qx-btn-primary" onclick="wizGoto(3)">Weiter →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Ausführen -->
+        <div class="wiz-panel" id="wiz-panel-3">
+          <h3 class="wiz-h">Auswertung ausführen</h3>
+          <div class="wiz-sub">Konfiguration prüfen und Auswertung starten</div>
+          <div class="wiz-summary">
+            <div><span>Typ:</span><b id="wiz-sum-type"></b></div>
+            <div><span>Zeitraum:</span><b id="wiz-sum-period"></b></div>
+            <div><span>Filter:</span><b class="wiz-dim">Keine Filter — alle Daten</b></div>
+          </div>
+          <div class="wiz-label">NAME DER AUSWERTUNG</div>
+          <input class="wiz-input" id="wiz-name-2" type="text">
+          <div class="wiz-notify">
+            <div class="wiz-notify-ic">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 22a2.2 2.2 0 0 0 2.2-2.2H9.8A2.2 2.2 0 0 0 12 22Zm7-6.2V11a7 7 0 0 0-5.6-6.86V3a1.4 1.4 0 1 0-2.8 0v1.14A7 7 0 0 0 5 11v4.8L3 17.8v1H21v-1l-2-2Z" fill="currentColor"/></svg>
+            </div>
+            <div class="wiz-notify-txt">
+              <div>Per E-Mail benachrichtigen, sobald bereit</div>
+              <input class="wiz-input-inline" type="email" value="analyst@company.ch">
+            </div>
+            <label class="wiz-switch"><input type="checkbox" checked><span class="wiz-slider"></span></label>
+          </div>
+          <label class="wiz-check">
+            <input type="checkbox">
+            <span>Als geplanten Bericht einrichten<br><small>Erstellt einen automatisierten Bericht. Daten stehen mit 2 Tagen Verzögerung bereit.</small></span>
+          </label>
+          <div class="wiz-actions">
+            <button class="qx-btn-secondary" onclick="wizGoto(2)">← Zurück</button>
+            <button class="qx-btn-primary" onclick="wizRun()">▶ Jetzt ausführen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wiz-toast" id="wiz-toast">✓ Auswertung gestartet — läuft jetzt</div>
+
+    <!-- Reports -->
+    <div id="qx-reports" class="qx-panel">
+      <div class="qx-head">
+        <div><h2 class="qx-title">Geplante Berichte</h2><div class="qx-sub" id="qx-reports-count"></div></div>
+        <button class="qx-btn-primary" onclick="showToast('Berichtsplanung wird geöffnet …')">+ Bericht planen</button>
+      </div>
+      <div class="qx-toolbar">
+        <input class="qx-search" placeholder="Zeitpläne suchen…">
+        <select class="native">
+          <option>Alle Frequenzen</option>
+          <option>Täglich</option>
+          <option>Wöchentlich</option>
+          <option>Monatlich</option>
+          <option>Jährlich</option>
+        </select>
+        <select class="native">
+          <option>Alle Status</option>
+          <option>Aktiv</option>
+          <option>Pausiert</option>
+        </select>
+      </div>
+      <table class="qx-table" id="qx-reports-table"></table>
+    </div>
+
+    <!-- Evaluation result detail -->
+    <div id="qx-eval-detail" class="qx-panel">
+      <div class="detail-crumb"><a onclick="showQxTab('evaluations');return false;">Auswertungen</a> &gt; <span id="det-group"></span></div>
+      <h2 class="qx-title" id="det-title"></h2>
+      <div class="qx-sub" id="det-sub"></div>
+      <div class="detail-chips" id="det-chips"></div>
+
+      <div class="detail-head">
+        <div class="detail-breakdown">
+          <span>Aufschlüsseln nach</span>
+          <select class="native"><option>TU (konzessioniert)</option><option>Linie</option><option>Verkehrsmittel</option><option>Kanton</option><option>Richtung</option></select>
+          <select class="native"><option>Linie</option><option>TU (konzessioniert)</option><option>Verkehrsmittel</option><option>Kanton</option></select>
+          <select class="native"><option>Verkehrsmittel</option><option>TU (konzessioniert)</option><option>Linie</option><option>Kanton</option></select>
+        </div>
+        <button class="qx-btn-secondary" onclick="showToast('CSV-Export gestartet …')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="margin-right:6px;vertical-align:-3px;"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          CSV-Export
+        </button>
+      </div>
+
+      <div class="detail-kpis">
+        <div class="detail-kpi">
+          <div class="dk-label">PÜNKTLICHKEIT, ALLE FAHRTEN</div>
+          <div class="dk-value" id="det-kpi-main"></div>
+          <div class="dk-note" id="det-kpi-note"></div>
+        </div>
+        <div class="detail-kpi">
+          <div class="dk-label">GEPLANT</div>
+          <div class="dk-value2" id="det-kpi-planned"></div>
+          <div class="dk-note">Geplante Fahrten in diesem Zeitraum</div>
+        </div>
+        <div class="detail-kpi">
+          <div class="dk-label">TATSÄCHLICH</div>
+          <div class="dk-value2" id="det-kpi-actual"></div>
+          <div class="dk-note">Tatsächlich durchgeführte Fahrten</div>
+        </div>
+        <div class="detail-kpi">
+          <div class="dk-label">DIFFERENZ (GEPLANT − TATSÄCHLICH)</div>
+          <div class="dk-value2" id="det-kpi-delta"></div>
+          <div class="dk-note">Ausgefallene Fahrten</div>
+        </div>
+      </div>
+
+      <table class="qx-table" id="det-table"></table>
+    </div>
+
+    <div class="qx-footer">
+      <a onclick="return false;">Impressum <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M8 7h9v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a onclick="return false;" id="doc-link">Dokumente</a>
+      <a onclick="return false;">Support <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M8 7h9v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a onclick="return false;">Kontakt <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M7 17 17 7M8 7h9v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ---- data captured from the live dashboard (SBB, Jahr 2026) ----
+const MSS_ROWS = [
+  {name:"Aufenthaltsqualität Haltestelle", value:86.87, red:85.98, green:88.98},
+  {name:"Kundeninformation Haltestelle",   value:86.03, red:82.00, green:88.00},
+  {name:"Aufenthaltsqualität Zug",         value:91.31, red:89.99, green:92.99},
+  {name:"Aufenthaltsqualität Bus",         value:93.37, red:93.26, green:96.26},
+  {name:"Kundeninformation Personal",      value:93.56, red:92.00, green:98.00},
+  {name:"Kundeninformation Fahrzeug",      value:91.86, red:89.00, green:95.00},
+];
+const MSS_BUNDLES = {
+  "20": [89.78, 88.90, 94.15, null, 95.78, 95.05],
+  "21": [86.80, 85.97, 91.23, 93.37, 94.05, 91.75],
+  "22": [84.02, 83.22, 88.55, 90.85, null, null],
+};
+const DPM_ROWS = [
+  {name:"Pünktlichkeit Zug", value:92.33, red:93.00, green:96.00},
+  {name:"Pünktlichkeit Bus", value:88.07, red:89.00, green:92.00},
+];
+const DQI_ROWS = [
+  {name:"Zuordnung Ist-Daten zu publizierten Fahrten", value:92.7},
+  {name:"Vollständigkeit der relevanten Datensätze", value:96.9},
+  {name:"Anteil Datensätze mit Status REAL (Priorität), PROGNOSE oder GESCHAETZT", value:89.0},
+  {name:"Abweichung Ist- von Soll-Abfahrtszeit", value:97.6},
+  {name:"Abweichung Ist- von Soll-Ankunftszeit", value:92.5},
+  {name:"Ankunft vor Abfahrt", value:94.5},
+  {name:"Geplante Abfahrtszeit in Echtzeitdaten identisch mit Fahrplan", value:98.8},
+  {name:"Geplante Ankunftszeit in Echtzeitdaten identisch mit Fahrplan", value:98.0},
+  {name:"Fahrt aus Fahrplan kommt in Istdaten nur einmal vor", value:87.5},
+  {name:"Anteil Datensätze mit Status REAL", value:89.6},
+];
+// illustrative CH-average points (dashboard shows dots only, no labels)
+const CH_MSS = MSS_ROWS.map(r => ({...r, ch: r.value + (r.value < 90 ? 5.5 : -1.4)}));
+const CH_DPM = DPM_ROWS.map(r => ({...r, ch: r.value + 1.0}));
+
+function statusColor(value, red, green){
+  if(value >= green) return {c:'#2E7D32', label:'Grün'};
+  if(value >= red)   return {c:'#ED6C02', label:'Gelb'};
+  return {c:'#D32F2F', label:'Rot'};
+}
+
+function renderKpiCard(container, rows){
+  container.innerHTML = rows.filter(r=>r.value !== null).map(r=>{
+    const st = statusColor(r.value, r.red, r.green);
+    // zone widths across a fixed 0-100 axis scaled to a readable 75-100 window
+    const lo = 75, hi = 100, span = hi-lo;
+    const pct = v => Math.max(0, Math.min(100, ((v-lo)/span)*100));
+    const redW = pct(r.red);
+    const greenStart = pct(r.green);
+    return `
+      <div class="kpirow">
+        <div class="name">${r.name}</div>
+        <div class="kpival" style="--m-color:${st.c};color:${st.c};"><span class="dot"></span>${r.value.toFixed(2).replace('.',',')}</div>
+        <div class="gauge">
+          <span class="zone" style="left:0;width:${redW}%;background:var(--red-bg)"></span>
+          <span class="zone" style="left:${redW}%;width:${greenStart-redW}%;background:var(--amber-bg)"></span>
+          <span class="zone" style="left:${greenStart}%;width:${100-greenStart}%;background:var(--green-bg)"></span>
+          <span class="marker" data-v="${r.value.toFixed(2)}" style="left:${pct(r.value)}%;"></span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+renderKpiCard(document.getElementById('mss-gesamt'), MSS_ROWS);
+renderKpiCard(document.getElementById('dpm-gesamt'), DPM_ROWS);
+
+// Je Linienbündel (MSS)
+const bundlesEl = document.getElementById('mss-bundles');
+Object.entries(MSS_BUNDLES).forEach(([id, values], i)=>{
+  const rows = MSS_ROWS.map((r,idx)=>({...r, value: values[idx]}));
+  const div = document.createElement('div');
+  div.className = 'linebundle' + (i===0 ? ' open' : '');
+  const uid = 'lb-'+id;
+  div.innerHTML = `
+    <div class="lb-head" onclick="document.getElementById('${uid}').classList.toggle('open')">
+      <svg class="chev" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" stroke="#072B7B" stroke-width="1.6" fill="none"/></svg>
+      <h3 class="groupname">Linienbündel ${id}</h3>
+    </div>
+    <div class="lb-body"><div class="lb-inner"><div class="kpicard" style="border:none;box-shadow:none;margin-bottom:0;" id="${uid}-card"></div></div></div>`;
+  div.id = uid;
+  bundlesEl.appendChild(div);
+  renderKpiCard(div.querySelector(`#${uid}-card`), rows);
+});
+
+// DQI list
+const dqiEl = document.getElementById('dqi-list');
+dqiEl.innerHTML = DQI_ROWS.map((r,i)=>{
+  const good = r.value >= 95;
+  const color = good ? '#2E7D32' : '#D32F2F';
+  return `
+    <div class="dqirow">
+      <div class="num">${i+1}</div>
+      <div class="label">${r.name}</div>
+      <div class="dqibar"><span class="fill" style="width:${r.value}%;background:${color}"></span><span class="target" style="left:95%;"></span></div>
+      <div class="kpival" style="--m-color:${color};color:${color};"><span class="dot"></span>${r.value.toFixed(1).replace('.',',')}</div>
+    </div>`;
+}).join('');
+
+// CH comparison (dumbbell)
+function renderDumbbell(container, rows){
+  const lo=75, hi=100, span=hi-lo;
+  const pct = v => Math.max(2, Math.min(98, ((v-lo)/span)*100));
+  container.innerHTML = rows.map(r=>{
+    const x1 = pct(r.value), x2 = pct(r.ch);
+    const left = Math.min(x1,x2), right = Math.max(x1,x2);
+    const vFmt = r.value.toFixed(2).replace('.',',');
+    const chFmt = r.ch.toFixed(2).replace('.',',');
+    return `
+      <div class="dumbbell-row">
+        <div class="name">${r.name}</div>
+        <div class="dumbbell-track" title="${r.name}: SBB ${vFmt}% · Schweizer Durchschnitt ${chFmt}%">
+          <span class="dumbbell-line" style="left:${left}%;width:${right-left}%;"></span>
+          <span class="dumbbell-dot" style="left:${x1}%;background:var(--navy);" title="SBB: ${vFmt}%"></span>
+          <span class="dumbbell-dot" style="left:${x2}%;background:#9AA6BE;" title="Schweizer Durchschnitt: ${chFmt}%"></span>
+        </div>
+      </div>`;
+  }).join('');
+}
+renderDumbbell(document.getElementById('ch-mss'), CH_MSS);
+renderDumbbell(document.getElementById('ch-dpm'), CH_DPM);
+
+// banded trend chart (canvas)
+const MONTH_LABELS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+function drawBandedTrend(canvasId, series, redT, greenT){
+  try{
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const w = rect.width, h = rect.height, padL=34, padR=10, padT=8, padB=20;
+  const min=75, max=100;
+  const y = v => padT + (1-((v-min)/(max-min))) * (h-padT-padB);
+  const x = i => padL + (i/(series.length-1)) * (w-padL-padR);
+  // bands
+  const bands = [[min,redT,'#FBE9E9'],[redT,greenT,'#FDEEE1'],[greenT,max,'#E8F3E9']];
+  bands.forEach(([a,b,color])=>{
+    ctx.fillStyle=color;
+    ctx.fillRect(padL, y(b), w-padL-padR, y(a)-y(b));
+  });
+  // dashed threshold lines
+  ctx.setLineDash([3,3]); ctx.strokeStyle='#B7C3DE'; ctx.lineWidth=1;
+  [redT, greenT].forEach(t=>{ ctx.beginPath(); ctx.moveTo(padL,y(t)); ctx.lineTo(w-padR,y(t)); ctx.stroke(); });
+  ctx.setLineDash([]);
+  // axis labels
+  ctx.fillStyle='#595959'; ctx.font='10px Roboto, sans-serif'; ctx.textAlign='right';
+  [75,80,85,90,95,100].forEach(v=>{ ctx.fillText(v, padL-6, y(v)+3); });
+  // line
+  ctx.beginPath(); ctx.strokeStyle='#1A1A1A'; ctx.lineWidth=2;
+  series.forEach((v,i)=> i===0? ctx.moveTo(x(i),y(v)) : ctx.lineTo(x(i),y(v)) );
+  ctx.stroke();
+  ctx.fillStyle='#1A1A1A';
+  series.forEach((v,i)=>{ ctx.beginPath(); ctx.arc(x(i),y(v),2.5,0,Math.PI*2); ctx.fill(); });
+
+  // store point positions (CSS px) for hover hit-testing
+  canvas._points = series.map((v,i)=>({ x: x(i), y: y(v), v, label: MONTH_LABELS[i] || ('Monat '+(i+1)) }));
+  attachChartTooltip(canvas);
+  }catch(e){ /* canvas not available in this environment — chart simply stays blank */ }
+}
+
+function attachChartTooltip(canvas){
+  if(canvas._tipBound) return;
+  canvas._tipBound = true;
+  let tip = document.getElementById('chart-tooltip');
+  if(!tip){
+    tip = document.createElement('div');
+    tip.id = 'chart-tooltip';
+    tip.className = 'chart-tooltip';
+    document.body.appendChild(tip);
+  }
+  canvas.addEventListener('mousemove', (e)=>{
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let nearest = null, minDist = Infinity;
+    (canvas._points || []).forEach(p=>{
+      const d = Math.abs(p.x - mx);
+      if(d < minDist){ minDist = d; nearest = p; }
+    });
+    if(nearest && minDist < 22){
+      tip.innerHTML = `<b>${nearest.label}</b> ${nearest.v.toFixed(2).replace('.',',')}%`;
+      tip.style.left = (e.clientX + 12) + 'px';
+      tip.style.top = (e.clientY - 14) + 'px';
+      tip.classList.add('show');
+      canvas.style.cursor = 'pointer';
+    } else {
+      tip.classList.remove('show');
+      canvas.style.cursor = 'default';
+    }
+  });
+  canvas.addEventListener('mouseleave', ()=>{ tip.classList.remove('show'); });
+}
+drawBandedTrend('trend-mss', [86.1,86.4,86.5,86.6,86.7,86.87], 85.98, 88.98);
+drawBandedTrend('trend-dpm', [90.5,91.0,91.4,91.8,92.1,92.33], 93.00, 96.00);
+
+// tabs
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ---- Q-Explorer: evaluations/new/reports (captured from the live prototype) ----
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+}
+function setActiveNav(which){
+  document.querySelectorAll('.navlinks > a, .navlinks .navdrop > a').forEach(a=>a.classList.remove('active'));
+  const el = document.querySelector('.navlinks > a[data-nav="'+which+'"], .navlinks .navdrop > a[data-nav="'+which+'"]');
+  if(el) el.classList.add('active');
+}
+function openExplorerTab(tab){
+  setActiveNav('explorer');
+  showView('explorer');
+  showQxTab(tab);
+}
+function openExplorer(){
+  openExplorerTab('evaluations');
+}
+function showQxTab(name){
+  document.querySelectorAll('.qx-nav').forEach(a=>a.classList.remove('active'));
+  const navEl = document.querySelector('.qx-nav[data-qx="'+name+'"]');
+  if(navEl) navEl.classList.add('active');
+  document.querySelectorAll('.qx-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('qx-'+name).classList.add('active');
+  if(name === 'new' && typeof wizExit === 'function') wizExit();
+}
+
+const EVAL_GROUPS = [
+  {name:"Pünktlichkeit DPM", rows:[
+    {name:"Pünktlichkeit – Letzte 7 Tage, SBB", period:"19.05–25.05.2026", created:"25.05.2026", status:"progress", label:"In Bearbeitung"},
+    {name:"Pünktlichkeit – Letzter Monat, Kanton ZH", period:"01.04–30.04.2026", created:"03.05.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Pünktlichkeit – Letzte 30 Tage, Tarifverbund A", period:"26.04–25.05.2026", created:"26.05.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Pünktlichkeit – Aktuelles Jahr, BLS", period:"01.01–26.05.2026", created:"24.05.2026", status:"failed", label:"Fehlgeschlagen", note:"Datenquelle war nicht erreichbar"},
+    {name:"Pünktlichkeit – Letzte 7 Tage, ZVV, Bus", period:"19.05–25.05.2026", created:"25.05.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Pünktlichkeit – Letztes Jahr, alle Kantone", period:"01.01–31.12.2025", created:"08.01.2026", status:"done", label:"Abgeschlossen", action:"view"},
+  ]},
+  {name:"Rohdaten-Export DPM", rows:[
+    {name:"Rohdaten Export – Gestern", period:"24.05.2026", created:"25.05.2026", status:"done", label:"Abgeschlossen", action:"download"},
+    {name:"Rohdaten Export – SBB Vollexport Mai 2026", period:"01.05–23.05.2026", created:"25.05.2026", status:"progress", label:"In Bearbeitung"},
+    {name:"Rohdaten Export – Letzte Woche", period:"11.05–17.05.2026", created:"20.05.2026", status:"done", label:"Abgeschlossen", action:"download"},
+    {name:"Rohdaten Export – April 2026 komplett", period:"01.04–30.04.2026", created:"05.05.2026", status:"done", label:"Abgeschlossen", action:"download"},
+  ]},
+  {name:"Linienanalyse DPM", rows:[
+    {name:"Linienanalyse DPM – Letztes Jahr, Kanton BE", period:"01.01–31.12.2025", created:"24.05.2026", status:"done", label:"Abgeschlossen"},
+    {name:"Linienanalyse DPM – Letzter Monat, S 1, S 5", period:"01.04–30.04.2026", created:"03.05.2026", status:"done", label:"Abgeschlossen"},
+    {name:"Linienanalyse DPM – Letzte 30 Tage, IC 1, IC 5, IC 8", period:"26.04–25.05.2026", created:"26.05.2026", status:"failed", label:"Fehlgeschlagen", note:"Zeitüberschreitung nach 30 Minuten"},
+    {name:"Linienanalyse DPM – Aktueller Monat, RE 7, BLS", period:"01.05–26.05.2026", created:"26.05.2026", status:"done", label:"Abgeschlossen"},
+  ]},
+  {name:"Datenqualitätsindex (DQI) DPM", rows:[
+    {name:"Datenqualitätsindex DPM – Letzte 3 Monate", period:"01.02–30.04.2026", created:"22.05.2026", status:"failed", label:"Fehlgeschlagen", note:"Keine Daten für diesen Zeitraum geliefert"},
+    {name:"Datenqualitätsindex DPM – Letzter Monat, alle TU", period:"01.04–30.04.2026", created:"03.05.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Datenqualitätsindex DPM – Aktuelles Jahr, Tarifverbund B", period:"01.01–26.05.2026", created:"26.05.2026", status:"progress", label:"In Bearbeitung"},
+    {name:"Datenqualitätsindex DPM – Letztes Jahr, SBB, BLS, ZVV", period:"01.01–31.12.2025", created:"12.01.2026", status:"done", label:"Abgeschlossen", action:"view"},
+  ]},
+  {name:"Anschlusspünktlichkeit", rows:[
+    {name:"Anschlusspünktlichkeit – Letzte 30 Tage", period:"01.04–30.04.2026", created:"20.05.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Anschlusspünktlichkeit – Aktueller Monat", period:"01.05–24.05.2026", created:"25.05.2026", status:"progress", label:"In Bearbeitung"},
+    {name:"Anschlusspünktlichkeit – Q1 2026", period:"01.01–31.03.2026", created:"08.04.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Anschlusspünktlichkeit – ZH Wochentage", period:"01.03–31.03.2026", created:"15.04.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Anschlusspünktlichkeit – Bern Anschlüsse 2025", period:"01.01–31.12.2025", created:"10.02.2026", status:"failed", label:"Fehlgeschlagen", note:"Datenquelle war nicht erreichbar"},
+  ]},
+  {name:"Fahrtausfälle DPM", rows:[
+    {name:"Fahrtausfälle DPM – Letzte 30 Tage, alle Linien", period:"01.04–30.04.2026", created:"25.05.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Fahrtausfälle DPM – Letzte 7 Tage, SBB", period:"19.05–25.05.2026", created:"25.05.2026", status:"done", label:"Abgeschlossen", action:"view"},
+    {name:"Fahrtausfälle DPM – Aktueller Monat, ZVV", period:"01.05–26.05.2026", created:"26.05.2026", status:"progress", label:"In Bearbeitung"},
+    {name:"Fahrtausfälle DPM – Letzter Monat, BLS, Kanton BE", period:"01.04–30.04.2026", created:"15.05.2026", status:"done", label:"Abgeschlossen"},
+    {name:"Fahrtausfälle DPM – Letztes Jahr, Bahn Normalspur", period:"01.01–31.12.2025", created:"10.01.2026", status:"done", label:"Abgeschlossen"},
+  ]},
+];
+
+const ICONS = {
+  view: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>',
+  download: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  retry: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  trash: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0-.8 12.1a2 2 0 0 1-2 1.9H8.8a2 2 0 0 1-2-1.9L6 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+function renderActionIcons(r, gi, ri){
+  if(r.status === 'progress'){
+    return `<span class="qx-action-slot" title="Läuft noch – Aktionen folgen nach Abschluss"></span>`;
+  }
+  if(r.status === 'failed'){
+    return `<button class="qx-icon-btn qx-icon-blue" title="Erneut versuchen" onclick="evalRetry(${gi},${ri})">${ICONS.retry}</button><button class="qx-icon-btn" title="Löschen" onclick="evalDelete(${gi},${ri})">${ICONS.trash}</button>`;
+  }
+  const primary = r.action ? `<button class="qx-icon-btn qx-icon-blue" title="${r.action==='download'?'Download':'Ansehen'}" onclick="${r.action==='download'?`showToast('Download gestartet …')`:`evalView(${gi},${ri})`}">${ICONS[r.action]}</button>` : '';
+  return `${primary}<button class="qx-icon-btn" title="Löschen" onclick="evalDelete(${gi},${ri})">${ICONS.trash}</button>`;
+}
+function renderEvalGroups(){
+  const el = document.getElementById('qx-eval-groups');
+  el.innerHTML = EVAL_GROUPS.map((g,gi)=>`
+    <div class="qx-group-title">${g.name} · ${g.rows.length} Auswertungen</div>
+    <table class="qx-table">
+      <tr><th>Name</th><th>Zeitraum</th><th>Erstellt</th><th>Status</th><th>Aktionen</th></tr>
+      ${g.rows.map((r,ri)=>`
+        <tr>
+          <td>${r.name}${r.note ? `<div class="qx-note">${r.note}</div>` : ''}</td>
+          <td>${r.period}</td>
+          <td>${r.created}</td>
+          <td><span class="qx-status ${r.status}"><span class="dot"></span>${r.label}</span></td>
+          <td><div class="qx-actions">${renderActionIcons(r, gi, ri)}</div></td>
+        </tr>`).join('')}
+    </table>`).join('');
+  const total = EVAL_GROUPS.reduce((n,g)=>n+g.rows.length,0);
+  const sub = document.querySelector('#qx-evaluations .qx-sub');
+  if(sub) sub.textContent = total + ' Auswertungen';
+  const badge = document.getElementById('badge-evaluations');
+  if(badge) badge.textContent = total;
+}
+function evalDelete(gi, ri){
+  EVAL_GROUPS[gi].rows.splice(ri,1);
+  renderEvalGroups();
+  showToast('Auswertung gelöscht');
+}
+function evalRetry(gi, ri){
+  const row = EVAL_GROUPS[gi].rows[ri];
+  row.status = 'progress'; row.label = 'In Bearbeitung'; delete row.note;
+  renderEvalGroups();
+  showToast('Auswertung wird erneut ausgeführt …');
+  setTimeout(()=>{
+    row.status = 'done'; row.label = 'Abgeschlossen'; row.action = 'view';
+    renderEvalGroups();
+  }, 1800);
+}
+
+// ---- Evaluation result detail (opened via the "Ansehen" action) ----
+const DET_TU_ROWS = [
+  {name:"AAGL", sched:5113, act:5080, delta:33, value:92.70},
+  {name:"AAGR", sched:3585, act:3369, delta:216, value:84.06},
+  {name:"AAGS", sched:9259, act:8999, delta:260, value:90.59},
+  {name:"AAGU", sched:3759, act:3702, delta:57, value:95.35},
+  {name:"AB",   sched:4447, act:4431, delta:16, value:92.28},
+  {name:"ABI",  sched:1515, act:1515, delta:0,  value:89.50},
+  {name:"AFA",  sched:451,  act:451,  delta:0,  value:90.91},
+  {name:"ARAG", sched:5771, act:5650, delta:121,value:76.39},
+];
+function fmtNum(n){ return n.toLocaleString('de-CH').replace(/,/g,'.'); }
+function evalView(gi, ri){
+  const group = EVAL_GROUPS[gi];
+  const row = group.rows[ri];
+  document.getElementById('det-group').textContent = group.name;
+  document.getElementById('det-title').textContent = row.name;
+  const now = new Date();
+  const stamp = String(now.getDate()).padStart(2,'0')+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+now.getFullYear();
+  document.getElementById('det-sub').textContent = `Zeitraum ${row.period} · erstellt ${row.created}`;
+  document.getElementById('det-chips').innerHTML = [row.period, 'Mo–So', 'RPV', 'Konzession', '37 TU', '17 Kantone', 'alle Linien']
+    .map(c=>`<span class="detail-chip">${c}</span>`).join('');
+
+  const totalSched = DET_TU_ROWS.reduce((s,r)=>s+r.sched,0);
+  const totalAct = DET_TU_ROWS.reduce((s,r)=>s+r.act,0);
+  const totalDelta = totalSched - totalAct;
+  const totalValue = (totalAct/totalSched*100);
+
+  document.getElementById('det-kpi-main').textContent = totalValue.toFixed(2).replace('.',',')+' %';
+  document.getElementById('det-kpi-note').textContent = totalValue < 90 ? '⚠ Zielwert: 90 %' : '✓ Zielwert erreicht (90 %)';
+  document.getElementById('det-kpi-main').style.color = totalValue < 90 ? '#D32F2F' : '#2E7D32';
+  document.getElementById('det-kpi-planned').textContent = fmtNum(totalSched);
+  document.getElementById('det-kpi-actual').textContent = fmtNum(totalAct);
+  document.getElementById('det-kpi-delta').textContent = fmtNum(totalDelta);
+
+  document.getElementById('det-table').innerHTML = `
+    <tr><th>TU (konzessioniert)</th><th>Geplant</th><th>Tatsächlich</th><th>Differenz</th><th>Wert</th></tr>
+    <tr class="det-total"><td>Gesamtes Netz</td><td>${fmtNum(totalSched)}</td><td>${fmtNum(totalAct)}</td><td>${fmtNum(totalDelta)}</td><td class="det-value">${totalValue.toFixed(2).replace('.',',')}%</td></tr>
+    ${DET_TU_ROWS.map(r=>`<tr><td>${r.name}</td><td>${fmtNum(r.sched)}</td><td>${fmtNum(r.act)}</td><td>${fmtNum(r.delta)}</td><td class="det-value">${r.value.toFixed(2).replace('.',',')}%</td></tr>`).join('')}
+  `;
+
+  document.querySelectorAll('.qx-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('qx-eval-detail').classList.add('active');
+}
+function showToast(msg){
+  const toast = document.getElementById('wiz-toast');
+  toast.textContent = '✓ ' + msg;
+  toast.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>toast.classList.remove('show'), 2600);
+}
+renderEvalGroups();
+
+const NEW_EVAL_TYPES = [
+  {title:"Pünktlichkeit DPM", desc:"Gesamtpünktlichkeit nach Kanton und Transportunternehmen", icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 9v4l3 2M10 2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+  {title:"Rohdaten-Export DPM", desc:"Rohdaten für externe Analyse exportieren (CSV)", icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'},
+  {title:"Datenqualitätsindex (DQI) DPM", desc:"Qualitätsindikatoren nach Region und Transportunternehmen", icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg>'},
+  {title:"Anschlusspünktlichkeit", desc:"Anschlussquote zwischen Verbindungen", icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="2" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v4l-3 3v4M12 11l3 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+  {title:"Fahrtausfälle DPM", desc:"Analyse ausgefallener Fahrten nach Ursache und Linie", icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+  {title:"Linienanalyse DPM", desc:"Detaillierte Pünktlichkeitsanalyse nach Linie", icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M12 19V5M20 19v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+];
+document.getElementById('qx-new-grid').innerHTML = NEW_EVAL_TYPES.map((t,i)=>`
+  <div class="qx-typecard" onclick="wizOpen(${i})">
+    <div class="ic">${t.icon}</div>
+    <div class="tt">${t.title}</div>
+    <div class="dd">${t.desc}</div>
+  </div>`).join('');
+
+// ---- New Evaluation: 3-step wizard ----
+const WIZ_PERIODS = ["Letzte 7 Tage","Aktueller Monat","Letzter Monat","Aktuelles Jahr","Letztes Jahr","Benutzerdefiniert"];
+const WIZ_DAYS = ["Mo","Di","Mi","Do","Fr","Sa","So"];
+let wizTypeIdx = 0, wizPeriod = "Aktueller Monat", wizDays = new Set(WIZ_DAYS), wizStep = 1;
+
+function wizRenderPeriods(){
+  document.getElementById('wiz-period-pills').innerHTML = WIZ_PERIODS.map(p=>
+    `<span class="wiz-pill${p===wizPeriod?' sel':''}" onclick="wizSetPeriod('${p}')">${p}</span>`).join('');
+}
+function wizRenderDays(){
+  document.getElementById('wiz-days').innerHTML = WIZ_DAYS.map(d=>
+    `<span class="wiz-pill day${wizDays.has(d)?' sel':''}" onclick="wizToggleDay('${d}')">${d}</span>`).join('');
+}
+function wizSetPeriod(p){ wizPeriod = p; wizRenderPeriods(); wizUpdateName(); }
+function wizToggleDay(d){ wizDays.has(d) ? wizDays.delete(d) : wizDays.add(d); wizRenderDays(); }
+function wizUpdateName(){
+  const t = NEW_EVAL_TYPES[wizTypeIdx];
+  const name = `${t.title} – ${wizPeriod}, alle Linien`;
+  document.getElementById('wiz-name-1').value = name;
+  document.getElementById('wiz-name-2').value = name;
+}
+function wizOpen(idx){
+  wizTypeIdx = idx; wizPeriod = "Aktueller Monat"; wizDays = new Set(WIZ_DAYS); wizStep = 1;
+  document.getElementById('qx-new-select').style.display = 'none';
+  document.getElementById('qx-new-wizard').style.display = 'block';
+  document.getElementById('wiz-type-title').textContent = NEW_EVAL_TYPES[idx].title;
+  wizRenderPeriods(); wizRenderDays(); wizUpdateName();
+  wizGoto(1);
+}
+function wizExit(){
+  document.getElementById('qx-new-wizard').style.display = 'none';
+  document.getElementById('qx-new-select').style.display = 'block';
+}
+function wizGoto(step){
+  wizStep = step;
+  document.querySelectorAll('.wiz-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('wiz-panel-'+step).classList.add('active');
+  document.querySelectorAll('.wiz-step').forEach(s=>{
+    const n = parseInt(s.dataset.step);
+    s.classList.remove('active','done');
+    if(n < step) s.classList.add('done');
+    else if(n === step) s.classList.add('active');
+  });
+  if(step === 3){
+    document.getElementById('wiz-sum-type').textContent = NEW_EVAL_TYPES[wizTypeIdx].title;
+    document.getElementById('wiz-sum-period').textContent = wizPeriod;
+    wizUpdateName();
+  }
+}
+function wizRun(){
+  wizExit();
+  showQxTab('evaluations');
+  showToast('Auswertung gestartet — läuft jetzt');
+}
+
+const REPORTS_ROWS = [
+  {name:"Rohdaten Export – Täglich", freq:"Daily", next:"– Paused", last:"25.05.2026", status:"paused", label:"Pausiert"},
+  {name:"Jahresbericht Pünktlichkeit 2025", freq:"Yearly", next:"– Paused", last:"15.01.2026", status:"paused", label:"Pausiert"},
+  {name:"Fahrtausfälle DPM – Wöchentlich", freq:"Weekly (Monday)", next:"01.06.2026", last:"25.05.2026", status:"active", label:"Aktiv"},
+  {name:"Pünktlichkeit – Kanton ZH, Monatlich", freq:"Monthly (1st)", next:"01.06.2026", last:"01.05.2026", status:"active", label:"Aktiv"},
+  {name:"Linienanalyse – SBB Monatlich", freq:"Monthly", next:"01.06.2026", last:"01.05.2026", status:"active", label:"Aktiv"},
+  {name:"Datenqualitätsindex – Wöchentlich BE/FR", freq:"Weekly", next:"02.06.2026", last:"26.05.2026", status:"active", label:"Aktiv"},
+];
+const ICONS_REPORT = {
+  play: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/><path d="M10 8.5v7l6-3.5-6-3.5Z" fill="currentColor"/></svg>',
+  pause: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/><path d="M9.7 8.5v7M14.3 8.5v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  edit: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a1.9 1.9 0 0 1 2.7 2.7L7.8 17.6l-3.8.8.8-3.8L16.5 3.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+};
+function renderReports(){
+  document.getElementById('qx-reports-table').innerHTML = `
+    <tr><th>Name</th><th>Frequenz</th><th>Nächster Lauf</th><th>Letzter Lauf</th><th>Status</th><th>Aktionen</th></tr>
+    ${REPORTS_ROWS.map((r,i)=>`
+      <tr>
+        <td>${r.name}</td>
+        <td>${r.freq}</td>
+        <td>${r.next}</td>
+        <td>${r.last}</td>
+        <td><span class="qx-status ${r.status==='active'?'done':'paused'}"><span class="dot"></span>${r.label}</span></td>
+        <td><div class="qx-actions">
+          <button class="qx-icon-btn ${r.status==='paused'?'qx-icon-blue':''}" title="${r.status==='paused'?'Fortsetzen':'Pausieren'}" onclick="reportToggle(${i})">${r.status==='paused'?ICONS_REPORT.play:ICONS_REPORT.pause}</button>
+          <button class="qx-icon-btn" title="Bearbeiten" onclick="showToast('Zeitplan bearbeiten …')">${ICONS_REPORT.edit}</button>
+          <button class="qx-icon-btn" title="Löschen" onclick="reportDelete(${i})">${ICONS.trash}</button>
+        </div></td>
+      </tr>`).join('')}`;
+}
+function reportToggle(i){
+  const r = REPORTS_ROWS[i];
+  if(r.status === 'active'){ r.status = 'paused'; r.label = 'Pausiert'; r.next = '– Pausiert'; }
+  else { r.status = 'active'; r.label = 'Aktiv'; }
+  renderReports();
+  const activeCount = REPORTS_ROWS.filter(x=>x.status==='active').length;
+  document.getElementById('qx-reports-count').textContent = activeCount + ' aktive Zeitpläne';
+  showToast(r.status === 'active' ? 'Zeitplan fortgesetzt' : 'Zeitplan pausiert');
+}
+function reportDelete(i){
+  REPORTS_ROWS.splice(i,1);
+  renderReports();
+  showToast('Zeitplan gelöscht');
+}
+document.getElementById('qx-reports-count').textContent = '3 aktive Zeitpläne';
+renderReports();
+
+// Q-Explorer nav dropdown badges
+const totalEvaluations = EVAL_GROUPS.reduce((n,g)=>n+g.rows.length,0);
+document.getElementById('badge-evaluations').textContent = totalEvaluations;
+document.getElementById('badge-new').textContent = NEW_EVAL_TYPES.length;
+document.getElementById('badge-reports').textContent = '3'; // matches the page's own "3 active schedules" subtitle
+</script>
+</body>
+</html>
