@@ -219,6 +219,7 @@
   .field-hint{ font-size:11.5px; color:var(--text-faint); margin-top:4px; }
   /* ---------- MUI "Filled" text field (Figma TextField component) ---------- */
   input.f, select.f, textarea.f{ width:100%; padding:9px 10px 7px; border-radius:4px 4px 0 0; border:none; border-bottom:1px solid rgba(0,0,0,0.42); background:var(--surface-2); color:var(--text); font-family:var(--font-body); font-size:13px; letter-spacing:0.15px; transition:background .1s ease, border-color .1s ease, padding .1s ease; }
+  input.f, select.f{ height:37px; }
   input.f:hover, select.f:hover, textarea.f:hover{ background:rgba(0,0,0,0.09); border-bottom-color:rgba(0,0,0,0.87); }
   input.f:focus, select.f:focus, textarea.f:focus{ border-bottom:2px solid var(--accent); padding-bottom:6px; background:rgba(0,0,0,0.09); outline:none; }
   input.f:disabled, select.f:disabled, textarea.f:disabled{ background:rgba(0,0,0,0.04); border-bottom-style:dotted; color:var(--text-faint); cursor:not-allowed; }
@@ -257,8 +258,8 @@
   .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .field-row-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
   .field-row-5{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:14px; }
-  .group-box{ min-height:38px; display:flex; flex-wrap:wrap; align-items:flex-start; gap:6px; padding:9px 10px 7px; border-radius:4px 4px 0 0; background:var(--surface-2); border:none; border-bottom:1px solid rgba(0,0,0,0.42); color:var(--text-faint); font-family:var(--font-body); font-size:13px; }
-  .readonly-field{ display:flex; align-items:center; gap:8px; padding:8.5px 12px; border-radius:4px; background:var(--surface); border:1px solid var(--border-strong); color:var(--text); font-family:var(--font-body); font-size:13px; font-weight:400; letter-spacing:0.15px; }
+  .group-box{ height:37px; min-height:37px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:9px 10px 7px; border-radius:4px 4px 0 0; background:var(--surface-2); border:none; border-bottom:1px solid rgba(0,0,0,0.42); color:var(--text-faint); font-family:var(--font-body); font-size:13px; }
+  .readonly-field{ height:37px; display:flex; align-items:center; gap:8px; padding:8.5px 12px; border-radius:4px; background:var(--surface); border:1px solid var(--border-strong); color:var(--text); font-family:var(--font-body); font-size:13px; font-weight:400; letter-spacing:0.15px; }
 
   section.form-section{ border-top:1px solid var(--border); padding-top:16px; margin-top:16px; }
   section.form-section:first-child{ border-top:none; padding-top:0; margin-top:0; }
@@ -653,7 +654,7 @@
           <select class="f" id="stationPicker"></select>
         </div>
       </div>
-      <div class="card station-detail" id="stationDetail" style="max-width:900px;"></div>
+      <div class="card station-detail" id="stationDetail"></div>
     </section>
 
     <!-- STATION OVERVIEW -->
@@ -661,18 +662,18 @@
       <div class="panel-head">
         <div>
           <h2>Station Overview</h2>
-          <p>All stations from the timetable export, at a glance. Click a row, or the pencil, to open it in Station Configuration.</p>
+          <p>All stations from the timetable export, at a glance. Click a row, or the view/edit icons, to open it in Station Configuration.</p>
         </div>
         <div class="panel-head-actions">
           <div class="search-box"><input type="text" id="searchStations" placeholder="Search stations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <button class="btn btn-primary" id="goToStationConfigBtn">Station Configuration</button>
+          <button class="btn btn-primary" id="addStationBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Add station</button>
         </div>
       </div>
       <div class="card" style="padding:0;overflow-x:auto;">
         <table class="audio-table">
           <thead><tr>
-            <th>Code</th><th>Name</th>
-            <th>Special code</th><th>GPS code</th><th>Lat</th><th>Lng</th><th>Languages</th><th></th>
+            <th>Name</th><th>Name (EN)</th><th>Name (HE)</th><th>Name (AR)</th>
+            <th>Station ID</th><th>MOT Station Name</th><th>MOT Station ID</th><th>Platforms</th><th></th>
           </tr></thead>
           <tbody id="stationOverviewBody"></tbody>
         </table>
@@ -1415,32 +1416,60 @@
   }
   document.getElementById("stationPicker").addEventListener("change", function(e){ selectStation(e.target.value); });
 
+  function stationInUse(code){
+    return state.routes.some(function(r){ return r.stops.some(function(stp){ return stp.code===code; }); });
+  }
+
   function renderStationOverview(){
     var body = document.getElementById("stationOverviewBody");
     body.innerHTML = state.stations.map(function(s){
-      var chips = LANGS.map(function(l){
-        var has = !!(s.display && s.display.front && (s.display.front[l]||"").trim());
-        return '<span class="chip '+l+(has?'':' missing')+'" title="'+LANG_NAME[l]+(has?' — translated':' — missing translation')+'">'+LANG_LABEL[l]+(has?'':' ×')+'</span>';
-      }).join("");
       return '<tr class="station-overview-row" data-overview-row="'+s.code+'" title="Click to open in Station Configuration">'+
-        '<td class="tabular">'+s.code+'</td>'+
         '<td>'+esc(s.name)+'</td>'+
-        '<td class="tabular">'+esc(s.specialCode)+'</td>'+
-        '<td class="tabular">'+esc(s.gps.code)+'</td>'+
-        '<td class="tabular">'+esc(s.gps.lat)+'</td>'+
-        '<td class="tabular">'+esc(s.gps.lng)+'</td>'+
-        '<td><div class="lang-chip-group">'+chips+'</div></td>'+
-        '<td><button class="icon-btn pencil" title="Edit this station">✎</button></td>'+
+        '<td'+(s.display.front.en?'':' style="color:var(--text-faint);"')+'>'+esc(s.display.front.en||'—')+'</td>'+
+        '<td class="rtl"'+(s.display.front.he?'':' style="color:var(--text-faint);"')+'>'+esc(s.display.front.he||'—')+'</td>'+
+        '<td class="rtl"'+(s.display.front.ar?'':' style="color:var(--text-faint);"')+'>'+esc(s.display.front.ar||'—')+'</td>'+
+        '<td class="tabular">'+esc(s.code)+'</td>'+
+        '<td>'+esc(s.motStationName||'—')+'</td>'+
+        '<td class="tabular">'+esc(s.motStationId||'—')+'</td>'+
+        '<td class="tabular">'+s.platforms+'</td>'+
+        '<td style="white-space:nowrap;">'+
+          '<button class="icon-btn" data-overview-view="'+s.code+'" title="View this station"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/></svg></button>'+
+          '<button class="icon-btn pencil" data-overview-edit="'+s.code+'" title="Edit this station">✎</button>'+
+          '<button class="icon-btn" data-overview-delete="'+s.code+'" title="Delete this station"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+        '</td>'+
       '</tr>';
     }).join("");
   }
   document.getElementById("stationOverviewBody").addEventListener("click", function(e){
+    var del = e.target.closest("[data-overview-delete]");
+    if(del){
+      var code = del.dataset.overviewDelete;
+      if(stationInUse(code)){
+        alert("This station is used as a stop on at least one Route — remove it from those Routes first.");
+        return;
+      }
+      if(!window.confirm("Delete this station? This can't be undone.")) return;
+      state.stations = state.stations.filter(function(s){ return s.code!==code; });
+      if(state.selectedStation===code) state.selectedStation = state.stations.length ? state.stations[0].code : undefined;
+      persist(); renderStationOverview(); updateNavCounts();
+      return;
+    }
     var row = e.target.closest("[data-overview-row]");
     if(!row) return;
     selectStation(row.dataset.overviewRow);
     switchTab("station");
   });
-  document.getElementById("goToStationConfigBtn").addEventListener("click", function(){
+  document.getElementById("addStationBtn").addEventListener("click", function(){
+    var seq = 1;
+    var code;
+    do { code = "NEW"+seq; seq++; } while(state.stations.some(function(s){ return s.code===code; }));
+    var newStation = Object.assign(
+      { code:code, name:"New station", region:"", platforms:0, ibnr:"", lat:0, lng:0 },
+      defaultStationConfig({ code:code, name:"New station", lat:0, lng:0 }, state.stations.length)
+    );
+    state.stations.push(newStation);
+    persist(); updateNavCounts(); renderStationOverview(); renderStationPicker();
+    selectStation(code);
     switchTab("station");
   });
 
@@ -1515,24 +1544,6 @@
           '<div class="lbl">TFT</div>'+
           LANGS.map(function(l){ return '<input class="f'+(l!=='en'?' rtl':'')+'" data-dispfield="tft" data-lang="'+l+'" value="'+esc(st.display.tft[l]||'')+'">'; }).join('')+
         '</div>'+
-      '</section>'+
-
-      '<section class="form-section">'+
-        '<div class="form-section-head"><div><h4>Announcements (automatic)</h4><div class="desc">Generated from the templates in Audio Archive — not edited per station</div></div>'+
-          '<button class="btn btn-sm" id="goToAudio">Edit templates</button>'+
-        '</div>'+
-        '<div class="announce-preview">'+
-          '<div class="announce-row"><span class="tag">Next</span><p>'+esc(nextText)+'</p></div>'+
-          '<div class="announce-row"><span class="tag">Final</span><p>'+esc(lastText)+'</p></div>'+
-        '</div>'+
-        '<div class="field" style="margin-top:12px;max-width:360px;">'+
-          '<label class="field-label">Station announcement — special announcement no.</label>'+
-          '<select class="f" id="fSpecialAnnouncement">'+
-            '<option value="">— None —</option>'+
-            state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===st.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
-          '</select>'+
-          '<div class="field-hint">Choose by number which special announcement plays for this station, if any.</div>'+
-        '</div>'+
       '</section>';
 
     var panelHtml = stationDetailTab==="devices" ? devicesPanel
@@ -1541,7 +1552,13 @@
       : baseDataPanel;
 
     detail.innerHTML =
-      '<div class="station-detail-head"><div><h3>'+st.name+'</h3></div></div>'+
+      '<div class="station-detail-head">'+
+        '<div><h3>'+st.name+'</h3></div>'+
+        '<div style="display:flex;align-items:center;gap:12px;">'+
+          '<span class="save-status" id="saveStatus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved automatically</span>'+
+          '<button class="btn btn-primary" id="fSaveBtn">Save station</button>'+
+        '</div>'+
+      '</div>'+
 
       '<div class="field-row-5">'+
         '<div class="field"><label class="field-label">Station No.*</label><div class="readonly-field filled tabular">'+esc(st.ibnr)+'</div></div>'+
@@ -1569,12 +1586,7 @@
       '</div>'+
 
       tabsHtml+
-      panelHtml+
-
-      '<div class="save-bar">'+
-        '<span class="save-status" id="saveStatus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved automatically</span>'+
-        '<button class="btn btn-primary" id="fSaveBtn">Save station</button>'+
-      '</div>';
+      panelHtml;
 
     function bindSave(){
       var elShortNameHe = document.getElementById("fShortNameHe");
@@ -1607,14 +1619,12 @@
           if(el) st.display[field][l] = el.value;
         });
       });
-      var elSpecialAnnouncement = document.getElementById("fSpecialAnnouncement");
-      if(elSpecialAnnouncement) st.specialAnnouncementId = elSpecialAnnouncement.value;
       persist();
       updateNavCounts();
       var statusEl = document.getElementById("saveStatus");
       if(statusEl) statusEl.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved';
     }
-    ["fShortNameHe","fShortNameEn","fShortNameAr","fMotStationName","fMotStationId","fGpsCode","fGpsLat","fGpsLng","fGpsInnerLen","fGpsInnerWidth","fGpsOuterLen","fGpsOuterWidth","fSpecialAnnouncement"].forEach(function(id){
+    ["fShortNameHe","fShortNameEn","fShortNameAr","fMotStationName","fMotStationId","fGpsCode","fGpsLat","fGpsLng","fGpsInnerLen","fGpsInnerWidth","fGpsOuterLen","fGpsOuterWidth"].forEach(function(id){
       var el = document.getElementById(id);
       if(el) el.addEventListener("input", bindSave);
     });
