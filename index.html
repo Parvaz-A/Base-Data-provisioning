@@ -1,5 +1,8 @@
-<!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Base Data Provisioning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -253,10 +256,13 @@
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .readonly-field.filled{ border-bottom-color:rgba(255,255,255,0.5); } }
   .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   .field-row-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .field-row-5{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:14px; }
+  .group-box{ min-height:38px; display:flex; flex-wrap:wrap; align-items:flex-start; gap:6px; padding:9px 10px 7px; border-radius:4px 4px 0 0; background:var(--surface-2); border:none; border-bottom:1px solid rgba(0,0,0,0.42); color:var(--text-faint); font-family:var(--font-body); font-size:13px; }
   .readonly-field{ display:flex; align-items:center; gap:8px; padding:8.5px 12px; border-radius:4px; background:var(--surface); border:1px solid var(--border-strong); color:var(--text); font-family:var(--font-body); font-size:13px; font-weight:400; letter-spacing:0.15px; }
 
   section.form-section{ border-top:1px solid var(--border); padding-top:16px; margin-top:16px; }
   section.form-section:first-child{ border-top:none; padding-top:0; margin-top:0; }
+  .detail-tabs + section.form-section{ border-top:none; padding-top:0; margin-top:0; }
   .form-section-head{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; gap:12px; }
   .form-section-head h4{ font-size:13px; font-weight:600; }
   .form-section-head .desc{ font-size:11.5px; color:var(--text-faint); margin-top:2px; }
@@ -283,6 +289,10 @@
   .station-detail-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
   .station-detail-head h3{ font-size:17px; font-weight:600; }
   .station-detail-meta{ display:flex; align-items:center; gap:8px; margin-top:5px; flex-wrap:wrap; }
+  .detail-tabs{ display:flex; gap:26px; margin:18px 0 20px; overflow-x:auto; }
+  .detail-tab{ background:none; border:none; padding:10px 1px; margin-bottom:-1px; font-family:var(--font-body); font-size:12px; font-weight:600; letter-spacing:0.4px; text-transform:uppercase; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; }
+  .detail-tab:hover{ color:var(--text); }
+  .detail-tab.active{ color:var(--accent); border-bottom-color:var(--accent); }
   .from-timetable{ display:inline-flex; align-items:center; gap:5px; font-size:10.8px; color:var(--text-faint); font-weight:500; }
 
   .save-bar{ display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
@@ -398,6 +408,10 @@
   table.audio-table thead th:last-child{ border-top-right-radius:8px; }
   table.audio-table th:not(:empty)::after{ content:""; display:inline-block; width:13px; height:13px; margin-left:4px; vertical-align:middle; opacity:0.55; background-repeat:no-repeat; background-size:contain; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-5 5 5M7 14l5 5 5-5'/%3E%3C/svg%3E"); }
   table.audio-table td{ padding:10px; border-bottom:1px solid var(--border); font-size:12.8px; vertical-align:middle; }
+  .fahrten-table th, .fahrten-table td{ border-right:1px solid var(--border); }
+  .fahrten-table th:last-child, .fahrten-table td:last-child{ border-right:none; }
+  .fahrten-table td input.f{ background:var(--surface); border:1px solid var(--border-strong); border-radius:4px; padding:5px 8px; }
+  .fahrten-table td input.f:focus{ border:1px solid var(--accent); padding:5px 8px; }
   table.audio-table tr:last-child td{ border-bottom:none; }
   tr.station-overview-row{ cursor:pointer; }
   tr.station-overview-row:hover td{ background:var(--surface-2); }
@@ -442,6 +456,7 @@
     .station-list{ max-height:280px; }
     .station-detail{ order:2; padding:18px 16px; }
     .field-row, .field-row-3{ grid-template-columns:1fr; }
+    .field-row-5{ grid-template-columns:1fr 1fr; }
     .langtbl{ grid-template-columns:90px repeat(3,minmax(180px,1fr)); overflow-x:auto; padding-bottom:2px; }
     .isr-topnav{ padding:0 10px; gap:14px; overflow-x:auto; }
     .isr-topnav-menu{ gap:14px; }
@@ -467,14 +482,16 @@
     table.audio-table th, table.audio-table td, table.sz-table th, table.sz-table td{ padding:8px 6px; font-size:11.8px; }
     .btn{ padding:8px 11px; font-size:12.5px; }
     .field-row-3{ grid-template-columns:1fr; }
+    .field-row-5{ grid-template-columns:1fr; }
   }
 </style>
-</head><body>
+</head>
+<body>
 
 <div class="app-shell">
   <div class="topbar">
     <div class="topbar-title">
-      <h1 id="topbarTitle">Export Archive</h1>
+      <h1 id="topbarTitle">Routes</h1>
       <div class="sub" id="topbarSub">Generate base data for a validity period</div>
     </div>
   </div>
@@ -492,7 +509,7 @@
         <nav class="nav-dropdown" id="navList">
           <button class="nav-item active" data-tab="archive">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="6" r="2.2" stroke="currentColor" stroke-width="1.8"/><circle cx="19" cy="18" r="2.2" stroke="currentColor" stroke-width="1.8"/><path d="M5 8v3a4 4 0 0 0 4 4h6a4 4 0 0 1 4 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-            <span>Routes &amp; Archives</span>
+            <span>Routes</span>
             <span class="nav-count" id="navCountArchive">0</span>
           </button>
           <button class="nav-item" data-tab="stationoverview">
@@ -544,13 +561,13 @@
     <section class="panel active" id="panel-archive">
       <div class="panel-head">
         <div>
-          <h2>Routes &amp; Archives</h2>
-          <p>Generate a new archive for a period — every route from the timetable is imported automatically, and you can always add more by hand. Every route always lives inside exactly one archive.</p>
+          <h2>Routes</h2>
+          <p>Generate a new route for a period — every Fahrt from the timetable is imported automatically, and you can always add more by hand. Every Fahrt always lives inside exactly one route.</p>
         </div>
-        <div class="search-box"><input type="text" id="searchArchive" placeholder="Search archives, routes &amp; stations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="search-box"><input type="text" id="searchArchive" placeholder="Search routes, Fahrten &amp; stations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
-      <div class="section-label">Generate archive</div>
+      <div class="section-label">Generate route</div>
       <div class="card" style="padding:20px 22px; margin-bottom:22px;">
         <div class="field-row-3" style="align-items:end;">
           <div class="field"><label class="field-label">Seasonal schedule</label><select class="f" id="seasonPicker"></select></div>
@@ -558,23 +575,23 @@
           <div class="field"><label class="field-label">Valid to</label><input class="f" type="date" id="validTo" value="2026-10-05"></div>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
-          <button class="btn btn-primary" id="exportBtn">Generate archive</button>
+          <button class="btn btn-primary" id="exportBtn">Generate route</button>
           <span class="field-hint" id="archiveSelectHint" style="color:var(--danger);"></span>
         </div>
-        <div class="field-hint" style="margin-top:8px;">Pulls in a route for every line in the chosen season's timetable, then generates an .xlsx export for SBR — use each archive's own "+ New route" button to add more by hand.</div>
+        <div class="field-hint" style="margin-top:8px;">Pulls in a Fahrt for every line in the chosen season's timetable, then generates an .xlsx export for SBR — use each route's own "+ New Fahrt" button to add more by hand.</div>
       </div>
 
-      <div class="section-label">Archives</div>
+      <div class="section-label">Routes</div>
       <div id="archiveHistoryList"></div>
 
       <div class="card route-builder" id="routeBuilderCard" style="display:none;">
         <div class="form-section-head" style="margin-bottom:14px;">
-          <h4 style="font-size:13.5px;font-weight:600;">New route</h4>
+          <h4 style="font-size:13.5px;font-weight:600;">New Fahrt</h4>
           <button class="icon-btn" id="routeBuilderCloseBtn" title="Close">✕</button>
         </div>
         <div class="field-row">
-          <div class="field"><label class="field-label">Route name</label><input class="f" id="routeName" placeholder="e.g. Coastal Express 214"></div>
-          <div class="field"><label class="field-label">Archive</label><select class="f" id="routeArchiveSelect"></select><div class="field-hint">Every route belongs to an archive — pick one, or create a new one below.</div></div>
+          <div class="field"><label class="field-label">Fahrt name</label><input class="f" id="routeName" placeholder="e.g. Coastal Express 214"></div>
+          <div class="field"><label class="field-label">Route</label><select class="f" id="routeArchiveSelect"></select><div class="field-hint">Every Fahrt belongs to a route — pick one, or create a new one below.</div></div>
         </div>
         <div class="field-row" id="routeNewArchiveDates" style="display:none;">
           <div class="field"><label class="field-label">Valid from</label><input class="f" type="date" id="routeValidFrom" value="2026-09-07"></div>
@@ -601,6 +618,22 @@
           <button class="btn btn-primary" id="routeSaveBtn">Save route</button>
         </div>
       </div>
+    </section>
+
+    <!-- FAHRT EDITOR -->
+    <section class="panel" id="panel-fahrt">
+      <div class="breadcrumbs" id="fahrtBreadcrumb">
+        <button class="breadcrumb-link" data-tab-jump="archive">Routes</button>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current" id="fahrtBreadcrumbCurrent">—</span>
+      </div>
+      <div class="panel-head">
+        <div>
+          <h2 id="fahrtEditorTitle">Route</h2>
+          <p>Stops, Fahrten and announcement connections for this Route.</p>
+        </div>
+      </div>
+      <div class="card" id="fahrtEditorCard" style="padding:20px 22px;"></div>
     </section>
 
     <!-- STATION CONFIG -->
@@ -945,8 +978,21 @@
       specialCode: "SC-"+seq,
       gps:{ code:"GPS-"+s.code+"-"+seq, lat:s.lat, lng:s.lng, innerLength:150, innerWidth:80, outerLength:400, outerWidth:200 },
       display:{ front:mkLangText(s.name), sideTop:mkLangText(s.name), sideBottom:mkLangText(""), tft:mkLangText(s.name), terminal:mkLangText(s.name) },
-      specialAnnouncementId: ""
+      specialAnnouncementId: "",
+      shortName: mkLangText(""),
+      motStationName: s.name,
+      motStationId: ""
     };
+  }
+
+  // Decimal degrees -> D°M'S.s" string, e.g. 33.0060 -> 33°0'21.6"
+  function toDMS(deg){
+    var abs = Math.abs(deg);
+    var d = Math.floor(abs);
+    var mFloat = (abs-d)*60;
+    var m = Math.floor(mFloat);
+    var sVal = ((mFloat-m)*60).toFixed(1);
+    return d+"°"+m+"'"+sVal+'"';
   }
 
   var state = {
@@ -958,6 +1004,7 @@
     specialAnnouncements: JSON.parse(JSON.stringify(SPECIAL_ANNOUNCEMENTS_SEED)),
     routes: [],
     selectedStation: STATIONS_SEED[0].code,
+    selectedRouteId: undefined,
     routeDraft: { stops:[] },
     openDraftStop: undefined,
     openStopByRoute: {},
@@ -968,11 +1015,21 @@
   };
 
   function mkStop(code, type, distanceKm){
-    return { code:code, type:type, distanceKm:distanceKm, gpsIndex:"", languages:"he, en", stationText:"", arrivalOverride:"", lastOverride:"", departureOverride:"", viaEnabled:false, viaText:"" };
+    return { code:code, type:type, distanceKm:distanceKm, gpsIndex:"", languages:"he, en", stationText:"", arrivalOverride:"", lastOverride:"", departureOverride:"", viaEnabled:false, viaText:"", specialAnnouncementId:"" };
   }
   function assignGpsIndex(stops){
     stops.forEach(function(s,i){ s.gpsIndex = String((i+1)*100); });
     return stops;
+  }
+
+  // A Fahrt is one scheduled trip running on a Route: a train number, a validity period, and which
+  // weekdays it runs — matching the Zugnummer / Gültig ab / Gültig bis / Mo..So model used in DatNet.
+  var DAY_KEYS = ["mo","di","mi","do","fr","sa","so"];
+  var DAY_LABEL = { mo:"Mo", di:"Di", mi:"Mi", do:"Do", fr:"Fr", sa:"Sa", so:"So" };
+  function mkFahrt(zugnummer, validFrom, validTo){
+    var days = {};
+    DAY_KEYS.forEach(function(k){ days[k] = true; });
+    return { id:"fz-"+Date.now()+"-"+Math.random().toString(36).slice(2,6), zugnummer:zugnummer||"", validFrom:validFrom||"", validTo:validTo||"", days:days };
   }
 
   // Seasonal timetable exports — each season carries its own set of lines. Every new archive is
@@ -999,9 +1056,12 @@
   function routesFromTimetable(validFrom, validTo, idPrefix, seasonId){
     var season = seasonById(seasonId || "winter-2026");
     return season.lines.map(function(line, i){
+      var zugMatch = line.name.match(/(\d+)\s*$/);
+      var baseZug = zugMatch ? zugMatch[1] : String(17500+i);
       return {
         id:idPrefix+"-"+(i+1), name:line.name, validFrom:validFrom, validTo:validTo, fromTimetable:true,
-        stops: assignGpsIndex(line.stops.map(function(s){ return mkStop(s[0], s[1], s[2]); }))
+        stops: assignGpsIndex(line.stops.map(function(s){ return mkStop(s[0], s[1], s[2]); })),
+        fahrten: [ mkFahrt(baseZug, validFrom, validTo) ]
       };
     });
   }
@@ -1048,6 +1108,8 @@
     }catch(e){ /* storage unavailable — state still works in memory */ }
   }
   loadPersisted();
+  // self-heal: routes saved before the Fahrten table existed won't have this array yet
+  state.routes.forEach(function(r){ if(!r.fahrten) r.fahrten = []; });
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); }
   function langText(obj){
     if(!obj) return "";
@@ -1063,7 +1125,8 @@
   /* ---------------- tab navigation ---------------- */
 
   var TAB_META = {
-    archive:{ title:"Routes & Archives", sub:"Build routes; every route lives inside one archive" },
+    archive:{ title:"Routes", sub:"Build routes; every Fahrt lives inside one route" },
+    fahrt:{ title:"Route", sub:"Stops, Fahrten & announcement connections for this Route" },
     station:{ title:"Station Configuration", sub:"Codes, GPS positioning & display texts" },
     stationoverview:{ title:"Station Overview", sub:"All stations from the timetable export, at a glance" },
     sonderziel:{ title:"Special Destinations", sub:"Special destination texts, independent of stations" },
@@ -1077,6 +1140,7 @@
     document.getElementById("topbarTitle").textContent = TAB_META[tab].title;
     document.getElementById("topbarSub").textContent = TAB_META[tab].sub;
     if(tab==="archive"){ renderRouteBuilder(); renderArchive(); }
+    if(tab==="fahrt") renderFahrtEditor();
     if(tab==="sonderziel") renderSzTable();
     if(tab==="audiolib") renderAudioTable();
     if(tab==="audio"){ renderTemplateList(); renderSpecialList(); }
@@ -1119,14 +1183,14 @@
     if(!arc) return;
     var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
     if(!routes.length){
-      alert("This archive has no routes yet — add at least one route before exporting to SBR.");
+      alert("This route has no Fahrten yet — add at least one Fahrt before exporting to SBR.");
       return;
     }
     if(typeof XLSX==="undefined"){
       alert("The Excel export library didn't load — check your connection and try again.");
       return;
     }
-    var rows = [["Route","Valid from","Valid to","#","Stop code","Stop name","Type","Distance (km)","Arrival","Departure"]];
+    var rows = [["Fahrt","Valid from","Valid to","#","Stop code","Stop name","Type","Distance (km)","Arrival","Departure"]];
     routes.forEach(function(r){
       r.stops.forEach(function(s, i){
         var st = state.stations.find(function(x){ return x.code===s.code; });
@@ -1139,7 +1203,7 @@
     var ws = XLSX.utils.aoa_to_sheet(rows);
     ws["!cols"] = [{wch:22},{wch:11},{wch:11},{wch:4},{wch:10},{wch:24},{wch:13},{wch:13},{wch:9},{wch:10}];
     var wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Routes");
+    XLSX.utils.book_append_sheet(wb, ws, "Fahrten");
     XLSX.writeFile(wb, "SBR-export_"+arc.from+"_to_"+arc.to+".xlsx");
   }
 
@@ -1189,7 +1253,7 @@
   function renderArchive(){
     var histList = document.getElementById("archiveHistoryList");
     if(state.archives.length===0){
-      histList.innerHTML = '<div class="card empty-state"><strong>No archives yet</strong>Save a route above, or generate one below, to create the first one.</div>';
+      histList.innerHTML = '<div class="card empty-state"><strong>No routes yet</strong>Save a Fahrt above, or generate one below, to create the first one.</div>';
     } else {
       histList.innerHTML = state.archives.map(function(arc){
         var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
@@ -1204,18 +1268,18 @@
           : "chip-filled-warning";
         return '<div class="card archive-entry'+(justGeneratedArchiveIds.indexOf(arc.id)>-1?' just-generated':'')+'" data-archive-id="'+arc.id+'">'+
           '<div class="archive-entry-head">'+
-            '<span class="archive-entry-title">Archive &middot; '+fmtRange(arc.from,arc.to)+' <span class="chip outlined" style="margin-left:8px;font-weight:500;">'+esc(archSeason.label)+'</span></span>'+
+            '<span class="archive-entry-title">Route &middot; '+fmtRange(arc.from,arc.to)+' <span class="chip outlined" style="margin-left:8px;font-weight:500;">'+esc(archSeason.label)+'</span></span>'+
             '<span style="display:flex;align-items:center;gap:8px;">'+
-              '<span class="chip '+routeChipClass+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' route'+(routes.length===1?'':'s')+(routes.length>0 && routes.length<seasonLineCount ? ' · '+(seasonLineCount-routes.length)+' missing' : '')+'</span>'+
-              '<button class="icon-btn" data-export-sbr-for="'+arc.id+'" data-tip="Export routes as .xlsx for SBR" aria-label="Export this archive\'s routes as an .xlsx file for SBR"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
-              '<button class="btn btn-sm btn-outlined-primary" data-new-route-for="'+arc.id+'" title="Create a new route inside this archive\'s validity period"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New route</button>'+
-              '<button class="icon-btn" data-collapse-toggle="'+archiveGroupKey+'" title="'+(archiveCollapsed?'Expand archive':'Minimize archive')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(archiveCollapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+              '<span class="chip '+routeChipClass+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' '+(routes.length===1?'Route':'Routes')+(routes.length>0 && routes.length<seasonLineCount ? ' · '+(seasonLineCount-routes.length)+' missing' : '')+'</span>'+
+              '<button class="icon-btn" data-export-sbr-for="'+arc.id+'" data-tip="Export Fahrten as .xlsx for SBR" aria-label="Export this route\'s Fahrten as an .xlsx file for SBR"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+              '<button class="btn btn-sm btn-outlined-primary" data-new-route-for="'+arc.id+'" title="Create a new Route for this period"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New Route</button>'+
+              '<button class="icon-btn" data-collapse-toggle="'+archiveGroupKey+'" title="'+(archiveCollapsed?'Expand route':'Minimize route')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(archiveCollapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
             '</span>'+
           '</div>'+
           (archiveCollapsed ? '' :
           '<div class="archive-entry-when">Generated '+arc.when+'</div>'+
           '<div class="route-grid" style="margin-top:12px;">'+
-            (routes.length ? routes.map(function(r){ return routeCardHtml(r, { showDelete:true }); }).join("") : '<div class="empty-state" style="grid-column:1/-1;padding:16px;"><strong>No routes in this archive yet</strong>Use "+ New route" above to add one.</div>')+
+            (routes.length ? routes.map(function(r){ return routeCardHtml(r, { showDelete:true }); }).join("") : '<div class="empty-state" style="grid-column:1/-1;padding:16px;"><strong>No Routes in this route yet</strong>Use "+ New Route" above to add one.</div>')+
           '</div>'
           )+
         '</div>';
@@ -1223,21 +1287,15 @@
     }
   }
 
-  function bindRouteCardEvents(container){
+  function bindRouteCardEvents(container, onChange){
+    onChange = onChange || renderArchive;
     container.addEventListener("click", function(e){
       if(e.target.closest("select,input,textarea")) return;
       var collapseBtn = e.target.closest("[data-collapse-toggle]");
       if(collapseBtn){
         var ck = collapseBtn.dataset.collapseToggle;
         collapsedGroups[ck] = !collapsedGroups[ck];
-        renderArchive();
-        return;
-      }
-      var toggle = e.target.closest("[data-stop-toggle]");
-      if(toggle){
-        var pt = toggle.dataset.stopToggle.split("|"), rid = pt[0], idx = parseInt(pt[1],10);
-        state.openStopByRoute[rid] = (state.openStopByRoute[rid]===idx) ? undefined : idx;
-        renderArchive();
+        onChange();
         return;
       }
       var del = e.target.closest("[data-del]");
@@ -1247,7 +1305,21 @@
         state.archives.forEach(function(arc){
           arc.routeIds = arc.routeIds.filter(function(id){ return id!==delId; });
         });
-        persist(); renderArchive(); updateNavCounts();
+        persist(); updateNavCounts();
+        if(state.selectedRouteId===delId){ state.selectedRouteId=undefined; switchTab("archive"); }
+        else { onChange(); }
+        return;
+      }
+      var openBtn = e.target.closest("[data-open-fahrt]");
+      if(openBtn){
+        openFahrtEditor(openBtn.dataset.openFahrt);
+        return;
+      }
+      var toggle = e.target.closest("[data-stop-toggle]");
+      if(toggle){
+        var pt = toggle.dataset.stopToggle.split("|"), rid = pt[0], idx = parseInt(pt[1],10);
+        state.openStopByRoute[rid] = (state.openStopByRoute[rid]===idx) ? undefined : idx;
+        onChange();
         return;
       }
       var addStopBtn = e.target.closest("[data-route-add-btn]");
@@ -1259,7 +1331,7 @@
         if(addRoute && stationSel && typeSel){
           addRoute.stops.push(mkStop(stationSel.value, typeSel.value, ""));
           assignGpsIndex(addRoute.stops);
-          persist(); renderArchive(); updateNavCounts();
+          persist(); onChange(); updateNavCounts();
         }
         return;
       }
@@ -1271,7 +1343,7 @@
           rte.stops.splice(sidx,1);
           assignGpsIndex(rte.stops);
           state.openStopByRoute[rid2] = undefined;
-          persist(); renderArchive(); updateNavCounts();
+          persist(); onChange(); updateNavCounts();
         }
       }
     });
@@ -1280,7 +1352,7 @@
       if(vt){
         var pv = vt.dataset.stopfieldToggle.split("|");
         var route = state.routes.find(function(r){ return r.id===pv[0]; });
-        if(route && route.stops[parseInt(pv[1],10)]){ route.stops[parseInt(pv[1],10)][pv[2]] = vt.checked; persist(); renderArchive(); }
+        if(route && route.stops[parseInt(pv[1],10)]){ route.stops[parseInt(pv[1],10)][pv[2]] = vt.checked; persist(); onChange(); }
       }
     });
     container.addEventListener("input", function(e){
@@ -1290,7 +1362,7 @@
       if(!route || !route.stops[parseInt(p[1],10)]) return;
       route.stops[parseInt(p[1],10)][p[2]] = el.value;
       persist();
-      if(p[2]==="type"){ renderArchive(); }
+      if(p[2]==="type"){ onChange(); }
     });
   }
   bindRouteCardEvents(document.getElementById("archiveHistoryList"));
@@ -1305,6 +1377,13 @@
 
   /* ---------------- Station Config ---------------- */
 
+  document.getElementById("stationDetail").addEventListener("click", function(e){
+    var t = e.target.closest("[data-detail-tab]");
+    if(!t) return;
+    stationDetailTab = t.dataset.detailTab;
+    renderStationDetail();
+  });
+
   function selectStation(code){
     state.selectedStation = code;
     renderStationDetail();
@@ -1313,6 +1392,16 @@
     document.getElementById("stationBreadcrumbCurrent").textContent = st ? st.name : "—";
   }
   document.getElementById("stationBreadcrumb").addEventListener("click", function(e){
+    var link = e.target.closest("[data-tab-jump]");
+    if(!link) return;
+    switchTab(link.dataset.tabJump);
+  });
+
+  function openFahrtEditor(routeId){
+    state.selectedRouteId = routeId;
+    switchTab("fahrt");
+  }
+  document.getElementById("fahrtBreadcrumb").addEventListener("click", function(e){
     var link = e.target.closest("[data-tab-jump]");
     if(!link) return;
     switchTab(link.dataset.tabJump);
@@ -1355,6 +1444,14 @@
     switchTab("station");
   });
 
+  var stationDetailTab = "basedata";
+  var STATION_DETAIL_TABS = [
+    { id:"devices",   label:"Devices" },
+    { id:"tracks",    label:"Tracks" },
+    { id:"gpswindow", label:"GPS Window" },
+    { id:"basedata",  label:"Base Data" }
+  ];
+
   function renderStationDetail(){
     var st = state.stations.find(function(s){ return s.code===state.selectedStation; });
     var detail = document.getElementById("stationDetail");
@@ -1363,13 +1460,17 @@
     var nextText = langText(state.templates.next.text).replace("{station}", st.name);
     var lastText = langText(state.templates.last.text).replace("{station}", st.name);
 
-    detail.innerHTML =
-      '<div class="station-detail-head"><div><h3><span class="tabular" style="font-weight:600;">'+esc(st.code)+'</span><span style="color:var(--text-faint);margin:0 6px;">—</span>'+st.name+'<span class="tabular" style="color:var(--text-faint);font-weight:400;font-size:13px;margin-left:8px;">'+esc(st.specialCode)+'</span></h3>'+
-        '<div class="station-detail-meta">'+
-          '<span class="chip chip-neutral">'+st.region+'</span>'+
-          '<span class="chip chip-neutral">'+st.platforms+' platforms</span>'+
-        '</div></div></div>'+
+    var tabsHtml = '<div class="detail-tabs">'+
+      STATION_DETAIL_TABS.map(function(t){ return '<button class="detail-tab'+(stationDetailTab===t.id?' active':'')+'" data-detail-tab="'+t.id+'">'+t.label+'</button>'; }).join("")+
+    '</div>';
 
+    var devicesPanel =
+      '<div class="empty-state"><strong>No devices configured</strong>Onboard/platform device management for this station isn\'t part of this prototype yet.</div>';
+
+    var tracksPanel =
+      '<div class="empty-state"><strong>No tracks configured</strong>Track &amp; platform management for this station isn\'t part of this prototype yet.</div>';
+
+    var gpsWindowPanel =
       '<section class="form-section">'+
         '<div class="form-section-head"><div><h4>Station code &amp; GPS positioning</h4><div class="desc">Identifies the stop and its geofence trigger for onboard systems</div></div></div>'+
         '<div class="field"><label class="field-label">GPS code</label><input class="f" id="fGpsCode" value="'+esc(st.gps.code)+'" placeholder="GPS-…"></div>'+
@@ -1395,8 +1496,9 @@
           '<div class="field"><input class="f tabular" id="fGpsOuterWidth" type="number" value="'+esc(st.gps.outerWidth)+'"></div>'+
         '</div>'+
         '<div class="field-hint" style="margin:-8px 0 0;">Arms the GPS trigger</div>'+
-      '</section>'+
+      '</section>';
 
+    var baseDataPanel =
       '<section class="form-section">'+
         '<div class="form-section-head"><div><h4>Display texts</h4><div class="desc">Station name as shown on each on-board and platform display — all three languages are always shown together</div></div></div>'+
         '<div class="langtbl">'+
@@ -1431,7 +1533,43 @@
           '</select>'+
           '<div class="field-hint">Choose by number which special announcement plays for this station, if any.</div>'+
         '</div>'+
-      '</section>'+
+      '</section>';
+
+    var panelHtml = stationDetailTab==="devices" ? devicesPanel
+      : stationDetailTab==="tracks" ? tracksPanel
+      : stationDetailTab==="gpswindow" ? gpsWindowPanel
+      : baseDataPanel;
+
+    detail.innerHTML =
+      '<div class="station-detail-head"><div><h3>'+st.name+'</h3></div></div>'+
+
+      '<div class="field-row-5">'+
+        '<div class="field"><label class="field-label">Station No.*</label><div class="readonly-field filled tabular">'+esc(st.ibnr)+'</div></div>'+
+        '<div class="field"><label class="field-label">Full Name (Hebrew)*</label><div class="readonly-field filled rtl">'+esc(st.display.front.he||'—')+'</div></div>'+
+        '<div class="field"><label class="field-label">Full Name (English)*</label><div class="readonly-field filled">'+esc(st.display.front.en||'—')+'</div></div>'+
+        '<div class="field"><label class="field-label">Full Name (Arabic)*</label><div class="readonly-field filled rtl">'+esc(st.display.front.ar||'—')+'</div></div>'+
+        '<div class="field"><label class="field-label">Group</label><div class="group-box">No groups assigned</div></div>'+
+      '</div>'+
+      '<div class="field-row-5">'+
+        '<div class="field"><label class="field-label">Coordinate*</label><div class="readonly-field filled tabular" style="font-size:12px;">'+toDMS(st.lat)+'N '+toDMS(st.lng)+'E</div></div>'+
+        '<div class="field"><label class="field-label">Short Name (Hebrew)</label><input class="f rtl" id="fShortNameHe" value="'+esc(st.shortName.he||'')+'"></div>'+
+        '<div class="field"><label class="field-label">Short Name (English)</label><input class="f" id="fShortNameEn" value="'+esc(st.shortName.en||'')+'"></div>'+
+        '<div class="field"><label class="field-label">Short Name (Arabic)</label><input class="f rtl" id="fShortNameAr" value="'+esc(st.shortName.ar||'')+'"></div>'+
+        '<div class="field"><label class="field-label">Station Code*</label><div class="readonly-field filled tabular">'+esc(st.code)+'</div></div>'+
+      '</div>'+
+      '<div class="field-row-3">'+
+        '<div class="field"><label class="field-label">MOT Station Name*</label><input class="f" id="fMotStationName" value="'+esc(st.motStationName||'')+'"></div>'+
+        '<div class="field"><label class="field-label">MOT Station ID*</label><input class="f tabular" id="fMotStationId" value="'+esc(st.motStationId||'')+'"></div>'+
+        '<div></div>'+
+      '</div>'+
+      '<div class="field-row-3">'+
+        '<div class="field"><label class="field-label">Region</label><div class="readonly-field filled">'+esc(st.region)+'</div></div>'+
+        '<div class="field"><label class="field-label">Platforms</label><div class="readonly-field filled tabular">'+st.platforms+'</div></div>'+
+        '<div></div>'+
+      '</div>'+
+
+      tabsHtml+
+      panelHtml+
 
       '<div class="save-bar">'+
         '<span class="save-status" id="saveStatus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved automatically</span>'+
@@ -1439,33 +1577,53 @@
       '</div>';
 
     function bindSave(){
-      st.gps.code = document.getElementById("fGpsCode").value;
-      st.gps.lat = document.getElementById("fGpsLat").value;
-      st.gps.lng = document.getElementById("fGpsLng").value;
-      st.gps.innerLength = document.getElementById("fGpsInnerLen").value;
-      st.gps.innerWidth = document.getElementById("fGpsInnerWidth").value;
-      st.gps.outerLength = document.getElementById("fGpsOuterLen").value;
-      st.gps.outerWidth = document.getElementById("fGpsOuterWidth").value;
+      var elShortNameHe = document.getElementById("fShortNameHe");
+      if(elShortNameHe) st.shortName.he = elShortNameHe.value;
+      var elShortNameEn = document.getElementById("fShortNameEn");
+      if(elShortNameEn) st.shortName.en = elShortNameEn.value;
+      var elShortNameAr = document.getElementById("fShortNameAr");
+      if(elShortNameAr) st.shortName.ar = elShortNameAr.value;
+      var elMotStationName = document.getElementById("fMotStationName");
+      if(elMotStationName) st.motStationName = elMotStationName.value;
+      var elMotStationId = document.getElementById("fMotStationId");
+      if(elMotStationId) st.motStationId = elMotStationId.value;
+      var elGpsCode = document.getElementById("fGpsCode");
+      if(elGpsCode) st.gps.code = elGpsCode.value;
+      var elGpsLat = document.getElementById("fGpsLat");
+      if(elGpsLat) st.gps.lat = elGpsLat.value;
+      var elGpsLng = document.getElementById("fGpsLng");
+      if(elGpsLng) st.gps.lng = elGpsLng.value;
+      var elInnerLen = document.getElementById("fGpsInnerLen");
+      if(elInnerLen) st.gps.innerLength = elInnerLen.value;
+      var elInnerWidth = document.getElementById("fGpsInnerWidth");
+      if(elInnerWidth) st.gps.innerWidth = elInnerWidth.value;
+      var elOuterLen = document.getElementById("fGpsOuterLen");
+      if(elOuterLen) st.gps.outerLength = elOuterLen.value;
+      var elOuterWidth = document.getElementById("fGpsOuterWidth");
+      if(elOuterWidth) st.gps.outerWidth = elOuterWidth.value;
       ["front","terminal","sideTop","sideBottom","tft"].forEach(function(field){
         LANGS.forEach(function(l){
           var el = document.querySelector('[data-dispfield="'+field+'"][data-lang="'+l+'"]');
           if(el) st.display[field][l] = el.value;
         });
       });
-      st.specialAnnouncementId = document.getElementById("fSpecialAnnouncement").value;
+      var elSpecialAnnouncement = document.getElementById("fSpecialAnnouncement");
+      if(elSpecialAnnouncement) st.specialAnnouncementId = elSpecialAnnouncement.value;
       persist();
       updateNavCounts();
-      document.getElementById("saveStatus").innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved';
+      var statusEl = document.getElementById("saveStatus");
+      if(statusEl) statusEl.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved';
     }
-    ["fGpsCode","fGpsLat","fGpsLng","fGpsInnerLen","fGpsInnerWidth","fGpsOuterLen","fGpsOuterWidth","fSpecialAnnouncement"].forEach(function(id){
+    ["fShortNameHe","fShortNameEn","fShortNameAr","fMotStationName","fMotStationId","fGpsCode","fGpsLat","fGpsLng","fGpsInnerLen","fGpsInnerWidth","fGpsOuterLen","fGpsOuterWidth","fSpecialAnnouncement"].forEach(function(id){
       var el = document.getElementById(id);
-      el.addEventListener("input", bindSave);
+      if(el) el.addEventListener("input", bindSave);
     });
     document.querySelectorAll('[data-dispfield]').forEach(function(el){
       el.addEventListener("input", bindSave);
     });
     document.getElementById("fSaveBtn").addEventListener("click", bindSave);
-    document.getElementById("goToAudio").addEventListener("click", function(){
+    var goToAudioBtn = document.getElementById("goToAudio");
+    if(goToAudioBtn) goToAudioBtn.addEventListener("click", function(){
       switchTab("audio");
     });
   }
@@ -1484,8 +1642,8 @@
   function populateRouteArchiveSelect(preselectId){
     var sel = document.getElementById("routeArchiveSelect");
     var keep = preselectId || sel.value;
-    sel.innerHTML = state.archives.map(function(a){ return '<option value="'+a.id+'">Archive · '+fmtRange(a.from,a.to)+'</option>'; }).join("") +
-      '<option value="__new__">+ New archive…</option>';
+    sel.innerHTML = state.archives.map(function(a){ return '<option value="'+a.id+'">Route · '+fmtRange(a.from,a.to)+'</option>'; }).join("") +
+      '<option value="__new__">+ New route…</option>';
     var hasKeep = keep && [].slice.call(sel.options).some(function(o){ return o.value===keep; });
     sel.value = hasKeep ? keep : (state.archives.length ? state.archives[0].id : "__new__");
     toggleRouteNewArchiveDates();
@@ -1532,6 +1690,14 @@
       '<div class="field">'+
         '<label class="field-label"><input type="checkbox" style="margin-right:8px;" data-draftfield-toggle="'+pfx+'viaEnabled" '+(stop.viaEnabled?'checked':'')+'> VIA announcement at this stop</label>'+
         (stop.viaEnabled ? '<textarea class="f" rows="2" style="margin-top:6px;" data-draftfield="'+pfx+'viaText" placeholder="'+esc(viaPreview)+'">'+esc(stop.viaText)+'</textarea>' : '')+
+      '</div>'+
+      '<div class="field" style="max-width:360px;">'+
+        '<label class="field-label">Connect special announcement</label>'+
+        '<select class="f" data-draftfield="'+pfx+'specialAnnouncementId">'+
+          '<option value="">— None —</option>'+
+          state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
+        '</select>'+
+        '<div class="field-hint">Choose which special announcement plays at this stop, if any.</div>'+
       '</div>'+
     '</div>';
   }
@@ -1637,7 +1803,8 @@
       id:newRouteId, name:name,
       validFrom: validFrom,
       validTo: validTo,
-      stops: state.routeDraft.stops.slice()
+      stops: state.routeDraft.stops.slice(),
+      fahrten: []
     });
     if(arc.routeIds.indexOf(newRouteId)===-1) arc.routeIds.push(newRouteId);
 
@@ -1649,12 +1816,11 @@
     document.getElementById("routeBuilderCard").style.display = "none";
   });
 
+  // Compact preview shown under each Route in the Routes list — click anywhere on the card to
+  // open this Route in its own editor page (see fahrtEditorBodyHtml / renderFahrtEditor below).
   function routeCardHtml(r, opts){
     opts = opts || {};
-    var openIdx = state.openStopByRoute[r.id];
-    var groupKey = "route:"+r.id;
-    var collapsed = !!collapsedGroups[groupKey];
-    return '<div class="card route-card">'+
+    return '<div class="card route-card" data-open-fahrt="'+r.id+'" style="cursor:pointer;" title="Open this Route to edit stops, Fahrten &amp; announcements">'+
       '<div class="route-card-head">'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           '<span class="route-card-title">'+esc(r.name)+'</span>'+
@@ -1662,12 +1828,71 @@
         '</span>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           (opts.showDelete
-            ? '<button class="icon-btn" data-del="'+r.id+'" title="Delete route">✕</button>'
+            ? '<button class="icon-btn" data-del="'+r.id+'" title="Delete Fahrt">✕</button>'
             : '<span class="chip chip-success"><span class="chip-dot"></span>Included</span>')+
-          '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Minimize')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+          '<span class="icon-btn" style="pointer-events:none;" title="Open Fahrt"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
         '</span>'+
       '</div>'+
       '<div class="route-card-validity tabular">'+(r.validFrom&&r.validTo? fmtRange(r.validFrom,r.validTo) : "No validity set")+'</div>'+
+      '<div class="route-line"><div class="route-line-row">'+
+        r.stops.map(function(stop, i){
+          var s = state.stations.find(function(x){ return x.code===stop.code; });
+          var dotClass = stop.type==="D" ? "through" : (stop.type==="B" ? "request" : "");
+          return '<div class="route-line-stop">'+
+            '<div style="display:flex;align-items:center;width:100%;">'+
+              (i===0 ? '<div style="flex:1;"></div>' : '<div class="route-line-seg"></div>')+
+              '<div class="route-line-dot '+dotClass+'"></div>'+
+              (i===r.stops.length-1 ? '<div style="flex:1;"></div>' : '<div class="route-line-seg"></div>')+
+            '</div>'+
+            '<div class="route-line-label" title="'+s.name+'">'+s.code+'</div>'+
+            '<div class="route-line-type">'+stop.type+'</div>'+
+          '</div>';
+        }).join("")+
+      '</div></div>'+
+      '<div class="route-card-foot"><span class="chip chip-neutral tabular">'+r.stops.length+' stops</span></div>'+
+    '</div>';
+  }
+
+  // Table of Fahrten (train-number trips) running on this Route — Zugnummer, validity period and
+  // weekday flags, matching the Routen-zu-Zugnummern-zuordnen reference screenshot.
+  function fahrtenTableHtml(r){
+    var fahrten = r.fahrten || [];
+    var rows = fahrten.map(function(fz, i){
+      return '<tr>'+
+        '<td><input class="f tabular" style="padding:5px 8px;font-size:12px;" data-fzfield="'+r.id+'|'+i+'|zugnummer" value="'+esc(fz.zugnummer)+'" placeholder="e.g. 17501"></td>'+
+        '<td><input class="f tabular" type="date" style="padding:5px 8px;font-size:12px;" data-fzfield="'+r.id+'|'+i+'|validFrom" value="'+esc(fz.validFrom)+'"></td>'+
+        '<td><input class="f tabular" type="date" style="padding:5px 8px;font-size:12px;" data-fzfield="'+r.id+'|'+i+'|validTo" value="'+esc(fz.validTo)+'"></td>'+
+        DAY_KEYS.map(function(k){ return '<td style="text-align:center;"><input type="checkbox" data-fzday="'+r.id+'|'+i+'|'+k+'" '+(fz.days[k]?'checked':'')+'></td>'; }).join("")+
+        '<td><button class="icon-btn" data-fz-remove="'+r.id+'|'+i+'" title="Remove this Fahrt">✕</button></td>'+
+      '</tr>';
+    }).join("");
+    return '<section class="form-section">'+
+      '<div class="card" style="padding:0;overflow-x:auto;">'+
+        '<table class="audio-table fahrten-table">'+
+          '<thead><tr><th>Zugnummer</th><th>Valid from</th><th>Valid to</th>'+DAY_KEYS.map(function(k){ return '<th style="text-align:center;">'+DAY_LABEL[k]+'</th>'; }).join("")+'<th></th></tr></thead>'+
+          '<tbody>'+(rows || '<tr><td colspan="11"><div class="empty-state" style="padding:16px;"><strong>No Fahrten yet</strong>Add one below.</div></td></tr>')+'</tbody>'+
+        '</table>'+
+      '</div>'+
+      '<div style="margin-top:10px;">'+
+        '<button class="btn btn-sm btn-outlined-primary" data-fz-add="'+r.id+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New Fahrt</button>'+
+      '</div>'+
+    '</section>';
+  }
+
+  // Full editor body for a single Route — its own page, reached via routeCardHtml's "open" click.
+  function fahrtEditorBodyHtml(r){
+    var openIdx = state.openStopByRoute[r.id];
+    return '<div class="field-row">'+
+        '<div class="field"><label class="field-label">Route name</label><input class="f" id="fahrtNameInput" value="'+esc(r.name)+'"></div>'+
+        '<div></div>'+
+      '</div>'+
+      '<div class="field-row">'+
+        '<div class="field"><label class="field-label">Valid from</label><input class="f" type="date" id="fahrtValidFrom" value="'+esc(r.validFrom||'')+'"></div>'+
+        '<div class="field"><label class="field-label">Valid to</label><input class="f" type="date" id="fahrtValidTo" value="'+esc(r.validTo||'')+'"></div>'+
+      '</div>'+
+      (r.fromTimetable ? '<div class="from-timetable" style="margin:-6px 0 14px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</div>' : '')+
+      '<section class="form-section" style="border-top:none;padding-top:0;margin-top:0;">'+
+      '<div class="form-section-head"><div><h4>Route stops</h4><div class="desc">The infrastructure this Route follows — stations, order and distances</div></div></div>'+
       '<div class="route-line"><div class="route-line-row">'+
         r.stops.map(function(stop, i){
           var s = state.stations.find(function(x){ return x.code===stop.code; });
@@ -1684,7 +1909,6 @@
           '</div>';
         }).join("")+
       '</div></div>'+
-      (collapsed ? '' :
       '<div class="route-legend"><span><span class="route-line-dot" style="margin-top:0;"></span>'+STOP_TYPE_LABEL.H+'</span><span><span class="route-line-dot request" style="margin-top:0;"></span>'+STOP_TYPE_LABEL.B+'</span><span><span class="route-line-dot through" style="margin-top:0;"></span>'+STOP_TYPE_LABEL.D+'</span></div>'+
       '<table class="audio-table" style="margin-top:10px;">'+
         '<thead><tr><th>#</th><th>Station</th><th>Code</th><th>Type</th><th>Distance</th><th></th></tr></thead>'+
@@ -1720,10 +1944,67 @@
           '<button class="btn btn-sm btn-outlined-primary" data-route-add-btn="'+r.id+'">Add stop</button>'+
         '</div>'+
       '</div>'+
-      '<div class="route-card-foot"><span class="chip chip-neutral tabular">'+r.stops.length+' stops</span></div>'
-      )+
-    '</div>';
+      '<div class="route-card-foot">'+
+        '<span class="chip chip-neutral tabular">'+r.stops.length+' stops</span>'+
+        '<button class="icon-btn" data-del="'+r.id+'" title="Delete this Route">✕</button>'+
+      '</div>'+
+      '</section>'+
+      fahrtenTableHtml(r);
   }
+
+  function renderFahrtEditor(){
+    var card = document.getElementById("fahrtEditorCard");
+    var r = state.routes.find(function(x){ return x.id===state.selectedRouteId; });
+    if(!r){
+      card.innerHTML = '<div class="empty-state"><strong>Route not found</strong>It may have been deleted.</div>';
+      document.getElementById("fahrtBreadcrumbCurrent").textContent = "—";
+      document.getElementById("fahrtEditorTitle").textContent = "Route";
+      return;
+    }
+    document.getElementById("fahrtBreadcrumbCurrent").textContent = r.name;
+    document.getElementById("fahrtEditorTitle").textContent = r.name;
+    card.innerHTML = fahrtEditorBodyHtml(r);
+  }
+  bindRouteCardEvents(document.getElementById("fahrtEditorCard"), renderFahrtEditor);
+  document.getElementById("fahrtEditorCard").addEventListener("input", function(e){
+    var fz = e.target.closest("[data-fzfield]");
+    if(fz){
+      var pfz = fz.dataset.fzfield.split("|");
+      var rfz = state.routes.find(function(x){ return x.id===pfz[0]; });
+      if(rfz && rfz.fahrten && rfz.fahrten[parseInt(pfz[1],10)]){ rfz.fahrten[parseInt(pfz[1],10)][pfz[2]] = fz.value; persist(); }
+      return;
+    }
+    var r = state.routes.find(function(x){ return x.id===state.selectedRouteId; });
+    if(!r) return;
+    if(e.target.id==="fahrtNameInput"){ r.name = e.target.value; document.getElementById("fahrtEditorTitle").textContent = r.name; persist(); }
+    if(e.target.id==="fahrtValidFrom"){ r.validFrom = e.target.value; persist(); }
+    if(e.target.id==="fahrtValidTo"){ r.validTo = e.target.value; persist(); }
+  });
+  document.getElementById("fahrtEditorCard").addEventListener("change", function(e){
+    var day = e.target.closest("[data-fzday]"); if(!day) return;
+    var pd = day.dataset.fzday.split("|");
+    var rd = state.routes.find(function(x){ return x.id===pd[0]; });
+    if(rd && rd.fahrten && rd.fahrten[parseInt(pd[1],10)]){ rd.fahrten[parseInt(pd[1],10)].days[pd[2]] = day.checked; persist(); }
+  });
+  document.getElementById("fahrtEditorCard").addEventListener("click", function(e){
+    var addBtn = e.target.closest("[data-fz-add]");
+    if(addBtn){
+      var r5 = state.routes.find(function(x){ return x.id===addBtn.dataset.fzAdd; });
+      if(r5){
+        if(!r5.fahrten) r5.fahrten = [];
+        r5.fahrten.push(mkFahrt("", r5.validFrom, r5.validTo));
+        persist(); renderFahrtEditor();
+      }
+      return;
+    }
+    var rmBtn = e.target.closest("[data-fz-remove]");
+    if(rmBtn){
+      var prm = rmBtn.dataset.fzRemove.split("|");
+      var r6 = state.routes.find(function(x){ return x.id===prm[0]; });
+      if(r6 && r6.fahrten){ r6.fahrten.splice(parseInt(prm[1],10),1); persist(); renderFahrtEditor(); }
+      return;
+    }
+  });
 
   function stopDetailHtml(route, idx){
     var stop = route.stops[idx];
@@ -1758,9 +2039,17 @@
         '<label class="field-label"><input type="checkbox" style="margin-right:8px;" data-stopfield-toggle="'+pfx+'viaEnabled" '+(stop.viaEnabled?'checked':'')+'> VIA announcement at this stop</label>'+
         (stop.viaEnabled ? '<textarea class="f" rows="2" style="margin-top:6px;" data-stopfield="'+pfx+'viaText" placeholder="'+esc(viaPreview)+'">'+esc(stop.viaText)+'</textarea>' : '')+
       '</div>'+
+      '<div class="field" style="max-width:360px;">'+
+        '<label class="field-label">Connect special announcement</label>'+
+        '<select class="f" data-stopfield="'+pfx+'specialAnnouncementId">'+
+          '<option value="">— None —</option>'+
+          state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
+        '</select>'+
+        '<div class="field-hint">Choose which special announcement plays at this stop, if any.</div>'+
+      '</div>'+
       '<div class="save-bar" style="margin-top:4px;padding-top:14px;">'+
-        '<span class="field-hint">Removing a stop renumbers the sequence for this route.</span>'+
-        '<button class="btn btn-sm btn-danger-text" data-stop-remove="'+route.id+'|'+idx+'" '+(route.stops.length<=2?'disabled title="A route needs at least two stops"':'')+'>Remove this stop</button>'+
+        '<span class="field-hint">Removing a stop renumbers the sequence for this Route.</span>'+
+        '<button class="btn btn-sm btn-danger-text" data-stop-remove="'+route.id+'|'+idx+'" '+(route.stops.length<=2?'disabled title="A Fahrt needs at least two stops"':'')+'>Remove this stop</button>'+
       '</div>'+
     '</div>';
   }
@@ -2338,4 +2627,5 @@
   updateNavCounts();
 })();
 </script>
-</body></html>
+</body>
+</html>
