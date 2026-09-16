@@ -145,6 +145,11 @@
   .panel.active{ display:block; }
   .panel-head{ margin-bottom:18px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   .panel-head h2{ font-size:19px; font-weight:600; }
+  .fahrt-title-input{ display:block; font-size:19px; font-weight:600; font-family:inherit; color:var(--text); background:none; border:none; border-bottom:1px solid transparent; padding:2px 0; margin:-2px 0 0 -1px; width:auto; max-width:100%; border-radius:2px; transition:background .1s ease, border-color .1s ease; }
+  .fahrt-title-input:hover{ background:rgba(0,0,0,0.05); }
+  .fahrt-title-input:focus{ outline:none; background:rgba(0,0,0,0.05); border-bottom:1px solid var(--accent); }
+  :root[data-theme="dark"] .fahrt-title-input:hover, :root[data-theme="dark"] .fahrt-title-input:focus{ background:rgba(255,255,255,0.08); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .fahrt-title-input:hover, :root:not([data-theme="light"]) .fahrt-title-input:focus{ background:rgba(255,255,255,0.08); } }
   .panel-head p{ margin:4px 0 0; color:var(--text-muted); font-size:13px; max-width:66ch; }
   .panel-head-actions{ display:flex; align-items:center; gap:12px; flex:none; }
 
@@ -256,7 +261,22 @@
   :root[data-theme="dark"] .readonly-field.filled{ border-bottom-color:rgba(255,255,255,0.5); }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .readonly-field.filled{ border-bottom-color:rgba(255,255,255,0.5); } }
   .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .lang-dropdown summary{ list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; height:37px; box-sizing:border-box; padding:9px 10px 7px; border-radius:4px 4px 0 0; background:var(--surface-2); border-bottom:1px solid rgba(0,0,0,0.42); font-size:13px; letter-spacing:0.15px; color:var(--text); font-family:var(--font-body); transition:background .1s ease; }
+  .lang-dropdown summary:hover{ background:rgba(0,0,0,0.09); }
+  .lang-dropdown summary::-webkit-details-marker{ display:none; }
+  .lang-dropdown summary::marker{ content:""; }
+  .lang-dropdown summary::after{ content:"▾"; color:var(--text-faint); font-size:11px; margin-left:8px; flex:none; }
+  .lang-dropdown[open] summary::after{ content:"▴"; }
+  :root[data-theme="dark"] .lang-dropdown summary{ border-bottom-color:rgba(255,255,255,0.5); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .lang-dropdown summary{ border-bottom-color:rgba(255,255,255,0.5); } }
+  .lang-dropdown-body{ margin-top:6px; padding:10px 12px; border:1px solid var(--border-strong); border-radius:8px; background:var(--surface); display:flex; flex-direction:column; gap:8px; }
+  .lang-dropdown-body label{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; cursor:pointer; }
+  .via-toggle-box{ display:flex; align-items:center; gap:8px; height:37px; padding:0 10px; border-radius:4px 4px 0 0; background:var(--surface-2); border:none; border-bottom:1px solid rgba(0,0,0,0.42); font-size:13px; font-weight:500; cursor:pointer; }
+  :root[data-theme="dark"] .via-toggle-box{ border-bottom-color:rgba(255,255,255,0.5); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .via-toggle-box{ border-bottom-color:rgba(255,255,255,0.5); } }
   .field-row-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .field-row-4{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; }
+  .field-row-4.generate-route-row{ grid-template-columns:90px 1fr 1fr 1fr; }
   .field-row-5{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:14px; }
   .group-box{ height:37px; min-height:37px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:9px 10px 7px; border-radius:4px 4px 0 0; background:var(--surface-2); border:none; border-bottom:1px solid rgba(0,0,0,0.42); color:var(--text-faint); font-family:var(--font-body); font-size:13px; }
   .readonly-field{ height:37px; display:flex; align-items:center; gap:8px; padding:8.5px 12px; border-radius:4px; background:var(--surface); border:1px solid var(--border-strong); color:var(--text); font-family:var(--font-body); font-size:13px; font-weight:400; letter-spacing:0.15px; }
@@ -359,6 +379,7 @@
   .template-head-left{ display:flex; align-items:center; gap:10px; }
   .template-icon{ width:30px; height:30px; border-radius:8px; background:var(--accent-soft); color:var(--accent-strong); display:flex; align-items:center; justify-content:center; flex:none; }
   .template-title{ font-size:13px; font-weight:600; }
+  .template-id{ color:var(--text-faint); font-weight:500; margin-right:8px; }
   .template-sub{ font-size:11px; color:var(--text-faint); }
   .template-audio-name{ font-size:11.5px; color:var(--text-muted); font-family:var(--font-mono); }
   .segment-chain{ display:flex; flex-direction:column; gap:6px; }
@@ -375,16 +396,16 @@
   .lang-chain-card + .lang-chain-card{ margin-top:10px; }
   .lang-chain-head{ display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
   .lang-chain-count{ font-size:11.5px; color:var(--text-faint); }
-  .lang-chain-rows{ display:flex; flex-direction:column; gap:2px; margin-bottom:8px; }
-  .lang-seg-row.segment-row{ background:none; border:none; padding:7px 6px; gap:10px; }
-  .lang-seg-row.missing{ background:var(--surface-2); }
-  .lang-seg-index{ width:16px; flex:none; font-size:11.5px; color:var(--text-faint); font-family:var(--font-mono); text-align:right; }
+  .lang-chain-rows{ display:flex; flex-direction:column; gap:0; margin-bottom:8px; }
+  .lang-seg-row.segment-row{ background:none; border:none; border-bottom:1px solid var(--border); padding:8px 6px; gap:10px; border-radius:0; transition:background .1s ease; }
+  .lang-chain-rows .lang-seg-row.segment-row:last-child{ border-bottom:none; }
+  .lang-seg-row.segment-row:hover{ background:var(--surface-2); }
+  .lang-seg-index{ min-width:16px; flex:none; font-size:11.5px; color:var(--text-faint); font-family:var(--font-mono); text-align:right; }
   .lang-seg-warn{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:none; border:1.5px dashed var(--warning); color:var(--warning); font-weight:700; font-size:11px; flex:none; }
   .lang-seg-warn-wrap{ display:inline-flex; align-items:center; gap:5px; flex:none; }
-  .lang-seg-warn-label{ color:var(--warning); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
   .lang-seg-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
   .lang-seg-file{ font-size:12.5px; font-weight:600; font-family:var(--font-mono); color:var(--text); }
-  .lang-seg-file.missing{ font-style:italic; color:var(--warning); font-weight:500; }
+  .lang-seg-file.missing{ color:var(--warning); }
   .lang-seg-desc{ font-size:11px; color:var(--text-faint); }
 
   .naming-rule{ display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:10px; background:var(--accent-soft); border:1px solid var(--accent-soft); color:var(--accent-strong); font-size:12.3px; line-height:1.55; margin-bottom:16px; }
@@ -409,11 +430,15 @@
   table.audio-table thead th:last-child{ border-top-right-radius:8px; }
   table.audio-table th:not(:empty)::after{ content:""; display:inline-block; width:13px; height:13px; margin-left:4px; vertical-align:middle; opacity:0.55; background-repeat:no-repeat; background-size:contain; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5-5 5 5M7 14l5 5 5-5'/%3E%3C/svg%3E"); }
   table.audio-table td{ padding:10px; border-bottom:1px solid var(--border); font-size:12.8px; vertical-align:middle; }
+  table.audio-table tr:last-child td{ border-bottom:none; }
+  table.audio-table tbody tr:hover td{ background:var(--surface-2); }
   .fahrten-table th, .fahrten-table td{ border-right:1px solid var(--border); }
   .fahrten-table th:last-child, .fahrten-table td:last-child{ border-right:none; }
   .fahrten-table td input.f{ background:var(--surface); border:1px solid var(--border-strong); border-radius:4px; padding:5px 8px; }
   .fahrten-table td input.f:focus{ border:1px solid var(--accent); padding:5px 8px; }
-  table.audio-table tr:last-child td{ border-bottom:none; }
+  .audio-clip-name{ font-weight:500; }
+  .audio-clip-duration{ color:var(--text-faint); font-weight:400; margin-left:2px; }
+  .audio-clip-desc{ color:var(--text-muted); font-size:12px; margin-top:2px; }
   tr.station-overview-row{ cursor:pointer; }
   tr.station-overview-row:hover td{ background:var(--surface-2); }
   .breadcrumbs{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-faint); margin-bottom:10px; }
@@ -457,6 +482,7 @@
     .station-list{ max-height:280px; }
     .station-detail{ order:2; padding:18px 16px; }
     .field-row, .field-row-3{ grid-template-columns:1fr; }
+    .field-row-4{ grid-template-columns:1fr 1fr; }
     .field-row-5{ grid-template-columns:1fr 1fr; }
     .langtbl{ grid-template-columns:90px repeat(3,minmax(180px,1fr)); overflow-x:auto; padding-bottom:2px; }
     .isr-topnav{ padding:0 10px; gap:14px; overflow-x:auto; }
@@ -483,6 +509,7 @@
     table.audio-table th, table.audio-table td, table.sz-table th, table.sz-table td{ padding:8px 6px; font-size:11.8px; }
     .btn{ padding:8px 11px; font-size:12.5px; }
     .field-row-3{ grid-template-columns:1fr; }
+    .field-row-4, .field-row-4.generate-route-row{ grid-template-columns:1fr; }
     .field-row-5{ grid-template-columns:1fr; }
   }
 </style>
@@ -509,29 +536,19 @@
         <button class="isr-topnav-item active" id="navDropdownTrigger">Base Data<svg class="brand-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <nav class="nav-dropdown" id="navList">
           <button class="nav-item active" data-tab="archive">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="6" r="2.2" stroke="currentColor" stroke-width="1.8"/><circle cx="19" cy="18" r="2.2" stroke="currentColor" stroke-width="1.8"/><path d="M5 8v3a4 4 0 0 0 4 4h6a4 4 0 0 1 4 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             <span>Routes</span>
-            <span class="nav-count" id="navCountArchive">0</span>
           </button>
           <button class="nav-item" data-tab="stationoverview">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M9 10v9" stroke="currentColor" stroke-width="1.8"/></svg>
             <span>Station Overview</span>
-            <span class="nav-count" id="navCountStationOverview">0</span>
           </button>
           <button class="nav-item" data-tab="sonderziel">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 3v18M5 4h12l-3 4 3 4H5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
             <span>Special Destinations</span>
-            <span class="nav-count" id="navCountSz">0</span>
           </button>
           <button class="nav-item" data-tab="audiolib">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7 9m5-5l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             <span>Audio Library</span>
-            <span class="nav-count" id="navCountAudioLib">0</span>
           </button>
           <button class="nav-item" data-tab="audio">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12h2l2.5-5 3 10 2.5-7 2 2H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span>Audio Archive</span>
-            <span class="nav-count" id="navCountAudio">0</span>
           </button>
           <div class="nav-divider"></div>
           <div class="nav-foot"><button class="btn-sync" id="resetDataBtn" style="padding:0;">Reset sample data</button></div>
@@ -570,7 +587,8 @@
 
       <div class="section-label">Generate route</div>
       <div class="card" style="padding:20px 22px; margin-bottom:22px;">
-        <div class="field-row-3" style="align-items:end;">
+        <div class="field-row-4 generate-route-row" style="align-items:end;">
+          <div class="field"><label class="field-label">Version</label><input class="f tabular" disabled value="1" style="text-align:center;"></div>
           <div class="field"><label class="field-label">Seasonal schedule</label><select class="f" id="seasonPicker"></select></div>
           <div class="field"><label class="field-label">Valid from</label><input class="f" type="date" id="validFrom" value="2026-09-07"></div>
           <div class="field"><label class="field-label">Valid to</label><input class="f" type="date" id="validTo" value="2026-10-05"></div>
@@ -630,8 +648,12 @@
       </div>
       <div class="panel-head">
         <div>
-          <h2 id="fahrtEditorTitle">Route</h2>
+          <input id="fahrtEditorTitle" class="fahrt-title-input" value="Route" title="Click to rename this Route">
           <p>Stops, Fahrten and announcement connections for this Route.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="save-status" id="fahrtSaveStatus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved automatically</span>
+          <button class="btn btn-primary" id="fahrtSaveBtn">Save route</button>
         </div>
       </div>
       <div class="card" id="fahrtEditorCard" style="padding:20px 22px;"></div>
@@ -754,7 +776,7 @@
       </div>
       <div class="card" style="padding:6px 4px; overflow-x:auto;">
         <table class="audio-table">
-          <thead><tr><th style="padding-left:16px;">Code</th><th>Filename</th><th>Description</th><th>Size</th><th>Uploaded</th><th style="padding-right:16px;">Playback</th></tr></thead>
+          <thead><tr><th style="padding-left:16px;">Code</th><th>Clip</th><th>Size</th><th>Uploaded</th><th style="padding-right:16px;">Action</th></tr></thead>
           <tbody id="audioTableBody"></tbody>
         </table>
       </div>
@@ -1016,7 +1038,7 @@
   };
 
   function mkStop(code, type, distanceKm){
-    return { code:code, type:type, distanceKm:distanceKm, gpsIndex:"", languages:"he, en", stationText:"", arrivalOverride:"", lastOverride:"", departureOverride:"", viaEnabled:false, viaText:"", specialAnnouncementId:"" };
+    return { code:code, type:type, distanceKm:distanceKm, gpsIndex:"", languages:"he, en", announceLanguages:"he, en", stationText:"", arrivalOverride:"", lastOverride:"", departureOverride:"", viaEnabled:false, viaText:"", specialAnnouncementId:"" };
   }
   function assignGpsIndex(stops){
     stops.forEach(function(s,i){ s.gpsIndex = String((i+1)*100); });
@@ -1062,7 +1084,10 @@
       return {
         id:idPrefix+"-"+(i+1), name:line.name, validFrom:validFrom, validTo:validTo, fromTimetable:true,
         stops: assignGpsIndex(line.stops.map(function(s){ return mkStop(s[0], s[1], s[2]); })),
-        fahrten: [ mkFahrt(baseZug, validFrom, validTo) ]
+        fahrten: [
+          mkFahrt(baseZug, validFrom, validTo),
+          (function(){ var wk = mkFahrt(String(parseInt(baseZug,10)+1), validFrom, validTo); DAY_KEYS.forEach(function(k){ wk.days[k] = (k==="sa"||k==="so"); }); return wk; })()
+        ]
       };
     });
   }
@@ -1111,6 +1136,15 @@
   loadPersisted();
   // self-heal: routes saved before the Fahrten table existed won't have this array yet
   state.routes.forEach(function(r){ if(!r.fahrten) r.fahrten = []; });
+  // self-heal: timetable-imported routes saved before the weekend-trip sample was added only had one Fahrt
+  state.routes.forEach(function(r){
+    if(r.fromTimetable && r.fahrten.length===1){
+      var base = parseInt(r.fahrten[0].zugnummer,10);
+      var wk = mkFahrt(isNaN(base)?"":String(base+1), r.fahrten[0].validFrom, r.fahrten[0].validTo);
+      DAY_KEYS.forEach(function(k){ wk.days[k] = (k==="sa"||k==="so"); });
+      r.fahrten.push(wk);
+    }
+  });
   function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]; }); }
   function langText(obj){
     if(!obj) return "";
@@ -1369,11 +1403,7 @@
   bindRouteCardEvents(document.getElementById("archiveHistoryList"));
 
   function updateNavCounts(){
-    document.getElementById("navCountArchive").textContent = state.archives.length;
-    document.getElementById("navCountSz").textContent = state.sonderziele.length;
-    document.getElementById("navCountAudioLib").textContent = state.audioLibrary.length;
-    document.getElementById("navCountAudio").textContent = state.specialAnnouncements.length;
-    document.getElementById("navCountStationOverview").textContent = state.stations.length;
+    // Nav item counters were removed from the UI; counts still tracked in state for other views.
   }
 
   /* ---------------- Station Config ---------------- */
@@ -1406,6 +1436,12 @@
     var link = e.target.closest("[data-tab-jump]");
     if(!link) return;
     switchTab(link.dataset.tabJump);
+  });
+  document.getElementById("fahrtSaveBtn").addEventListener("click", function(){
+    persist();
+    updateNavCounts();
+    var statusEl = document.getElementById("fahrtSaveStatus");
+    if(statusEl) statusEl.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved';
   });
 
   function renderStationPicker(){
@@ -1877,6 +1913,7 @@
       '</tr>';
     }).join("");
     return '<section class="form-section">'+
+      '<div class="form-section-head"><div><h4>Trips</h4><div class="desc">Scheduled trips running on this Route — train number, validity and weekdays</div></div></div>'+
       '<div class="card" style="padding:0;overflow-x:auto;">'+
         '<table class="audio-table fahrten-table">'+
           '<thead><tr><th>Zugnummer</th><th>Valid from</th><th>Valid to</th>'+DAY_KEYS.map(function(k){ return '<th style="text-align:center;">'+DAY_LABEL[k]+'</th>'; }).join("")+'<th></th></tr></thead>'+
@@ -1892,15 +1929,7 @@
   // Full editor body for a single Route — its own page, reached via routeCardHtml's "open" click.
   function fahrtEditorBodyHtml(r){
     var openIdx = state.openStopByRoute[r.id];
-    return '<div class="field-row">'+
-        '<div class="field"><label class="field-label">Route name</label><input class="f" id="fahrtNameInput" value="'+esc(r.name)+'"></div>'+
-        '<div></div>'+
-      '</div>'+
-      '<div class="field-row">'+
-        '<div class="field"><label class="field-label">Valid from</label><input class="f" type="date" id="fahrtValidFrom" value="'+esc(r.validFrom||'')+'"></div>'+
-        '<div class="field"><label class="field-label">Valid to</label><input class="f" type="date" id="fahrtValidTo" value="'+esc(r.validTo||'')+'"></div>'+
-      '</div>'+
-      (r.fromTimetable ? '<div class="from-timetable" style="margin:-6px 0 14px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</div>' : '')+
+    return (r.fromTimetable ? '<div class="from-timetable" style="margin:0 0 14px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</div>' : '')+
       '<section class="form-section" style="border-top:none;padding-top:0;margin-top:0;">'+
       '<div class="form-section-head"><div><h4>Route stops</h4><div class="desc">The infrastructure this Route follows — stations, order and distances</div></div></div>'+
       '<div class="route-line"><div class="route-line-row">'+
@@ -1968,14 +1997,21 @@
     if(!r){
       card.innerHTML = '<div class="empty-state"><strong>Route not found</strong>It may have been deleted.</div>';
       document.getElementById("fahrtBreadcrumbCurrent").textContent = "—";
-      document.getElementById("fahrtEditorTitle").textContent = "Route";
+      document.getElementById("fahrtEditorTitle").value = "Route";
       return;
     }
     document.getElementById("fahrtBreadcrumbCurrent").textContent = r.name;
-    document.getElementById("fahrtEditorTitle").textContent = r.name;
+    document.getElementById("fahrtEditorTitle").value = r.name;
     card.innerHTML = fahrtEditorBodyHtml(r);
   }
   bindRouteCardEvents(document.getElementById("fahrtEditorCard"), renderFahrtEditor);
+  document.getElementById("fahrtEditorTitle").addEventListener("input", function(e){
+    var r = state.routes.find(function(x){ return x.id===state.selectedRouteId; });
+    if(!r) return;
+    r.name = e.target.value;
+    document.getElementById("fahrtBreadcrumbCurrent").textContent = r.name;
+    persist();
+  });
   document.getElementById("fahrtEditorCard").addEventListener("input", function(e){
     var fz = e.target.closest("[data-fzfield]");
     if(fz){
@@ -1986,15 +2022,35 @@
     }
     var r = state.routes.find(function(x){ return x.id===state.selectedRouteId; });
     if(!r) return;
-    if(e.target.id==="fahrtNameInput"){ r.name = e.target.value; document.getElementById("fahrtEditorTitle").textContent = r.name; persist(); }
     if(e.target.id==="fahrtValidFrom"){ r.validFrom = e.target.value; persist(); }
     if(e.target.id==="fahrtValidTo"){ r.validTo = e.target.value; persist(); }
   });
   document.getElementById("fahrtEditorCard").addEventListener("change", function(e){
-    var day = e.target.closest("[data-fzday]"); if(!day) return;
-    var pd = day.dataset.fzday.split("|");
-    var rd = state.routes.find(function(x){ return x.id===pd[0]; });
-    if(rd && rd.fahrten && rd.fahrten[parseInt(pd[1],10)]){ rd.fahrten[parseInt(pd[1],10)].days[pd[2]] = day.checked; persist(); }
+    var day = e.target.closest("[data-fzday]");
+    if(day){
+      var pd = day.dataset.fzday.split("|");
+      var rd = state.routes.find(function(x){ return x.id===pd[0]; });
+      if(rd && rd.fahrten && rd.fahrten[parseInt(pd[1],10)]){ rd.fahrten[parseInt(pd[1],10)].days[pd[2]] = day.checked; persist(); }
+      return;
+    }
+    var langPick = e.target.closest("[data-langpick]");
+    if(langPick){
+      var pp2 = langPick.dataset.langpick.split("|"), plRid = pp2[0], plIdx = parseInt(pp2[1],10), plField = pp2[2], plLang = pp2[3];
+      var rl = state.routes.find(function(x){ return x.id===plRid; });
+      if(rl && rl.stops[plIdx]){
+        var cur = (rl.stops[plIdx][plField]||"").split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+        var has = cur.indexOf(plLang)>-1;
+        if(langPick.checked && !has) cur.push(plLang);
+        if(!langPick.checked && has) cur = cur.filter(function(l){ return l!==plLang; });
+        rl.stops[plIdx][plField] = cur.join(", ");
+        persist();
+        var summaryEl = langPick.closest(".lang-dropdown");
+        if(summaryEl){
+          var sumText = cur.length ? cur.map(function(l){ return LANG_NAME[l]||l; }).join(", ") : "Select languages…";
+          summaryEl.querySelector("summary").textContent = sumText;
+        }
+      }
+    }
   });
   document.getElementById("fahrtEditorCard").addEventListener("click", function(e){
     var addBtn = e.target.closest("[data-fz-add]");
@@ -2014,8 +2070,26 @@
       if(r6 && r6.fahrten){ r6.fahrten.splice(parseInt(prm[1],10),1); persist(); renderFahrtEditor(); }
       return;
     }
+    var gotoAudioLink = e.target.closest("[data-goto-audio]");
+    if(gotoAudioLink){ switchTab("audio"); return; }
   });
 
+  function langPickerHtml(label, pfx, field, csv){
+    var selected = (csv||"").split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+    var summary = selected.length ? selected.map(function(l){ return LANG_NAME[l]||l; }).join(", ") : "Select languages…";
+    return '<div class="field">'+
+      '<label class="field-label">'+label+'</label>'+
+      '<details class="lang-dropdown">'+
+        '<summary>'+esc(summary)+'</summary>'+
+        '<div class="lang-dropdown-body">'+
+          LANGS.map(function(l){
+            var checked = selected.indexOf(l)>-1;
+            return '<label><input type="checkbox" data-langpick="'+pfx+field+'|'+l+'" '+(checked?'checked':'')+'> '+LANG_NAME[l]+'</label>';
+          }).join("")+
+        '</div>'+
+      '</details>'+
+    '</div>';
+  }
   function stopDetailHtml(route, idx){
     var stop = route.stops[idx];
     var station = state.stations.find(function(s){ return s.code===stop.code; });
@@ -2029,25 +2103,19 @@
     return '<div class="stop-detail">'+
       '<div class="stop-detail-head"><strong>'+station.name+'</strong><span class="chip chip-neutral tabular">'+station.code+'</span>'+(isFirst?'<span class="chip chip-accent">First stop</span>':'')+(isLast?'<span class="chip chip-accent">Last stop</span>':'')+'</div>'+
       '<div class="field-row-3">'+
-        '<div class="field"><label class="field-label">Unique station code</label><div class="readonly-field tabular">'+station.code+'</div></div>'+
-        '<div class="field"><label class="field-label">Distance from previous (km)</label><input class="f tabular" type="number" step="0.1" data-stopfield="'+pfx+'distanceKm" value="'+esc(stop.distanceKm)+'" '+(isFirst?'disabled placeholder="—"':'')+'></div>'+
-        '<div class="field"><label class="field-label">GPS index</label><input class="f tabular" data-stopfield="'+pfx+'gpsIndex" value="'+esc(stop.gpsIndex)+'"></div>'+
-      '</div>'+
-      '<div class="field-row">'+
         '<div class="field"><label class="field-label">Stop type</label><select class="f" data-stopfield="'+pfx+'type">'+
           Object.keys(STOP_TYPE_LABEL).map(function(k){ return '<option value="'+k+'" '+(k===stop.type?'selected':'')+'>'+STOP_TYPE_LABEL[k]+'</option>'; }).join("")+
         '</select></div>'+
+        '<div class="field"><label class="field-label">Distance from previous (km)</label><input class="f tabular" type="number" step="0.1" data-stopfield="'+pfx+'distanceKm" value="'+esc(stop.distanceKm)+'" '+(isFirst?'disabled placeholder="—"':'')+'></div>'+
+        '<div class="field"><label class="field-label">GPS index</label><input class="f tabular" data-stopfield="'+pfx+'gpsIndex" value="'+esc(stop.gpsIndex)+'"></div>'+
       '</div>'+
-      '<div class="field-row">'+
-        '<div class="field"><label class="field-label">Station languages</label><input class="f" data-stopfield="'+pfx+'languages" value="'+esc(stop.languages)+'" placeholder="he, en, ar"></div>'+
-        '<div class="field"><label class="field-label">Station text (override)</label><input class="f" data-stopfield="'+pfx+'stationText" value="'+esc(stop.stationText)+'" placeholder="'+esc(langText(station.display.front))+'"></div>'+
-      '</div>'+
-      '<div class="field"><label class="field-label">Announcement — arrival</label><textarea class="f" rows="2" data-stopfield="'+pfx+'arrivalOverride" placeholder="'+esc(nextPreview)+'">'+esc(stop.arrivalOverride)+'</textarea><div class="field-hint">Default from template: “'+esc(nextPreview)+'”</div></div>'+
-      (isLast ? '<div class="field"><label class="field-label">Announcement — arrival at last station</label><textarea class="f" rows="2" data-stopfield="'+pfx+'lastOverride" placeholder="'+esc(lastPreview)+'">'+esc(stop.lastOverride)+'</textarea><div class="field-hint">Default from template: “'+esc(lastPreview)+'”</div></div>' : '')+
-      (isFirst ? '<div class="field"><label class="field-label">Departure announcement</label><textarea class="f" rows="2" data-stopfield="'+pfx+'departureOverride" placeholder="'+esc(welcomePreview)+'">'+esc(stop.departureOverride)+'</textarea><div class="field-hint">Default from template: “'+esc(welcomePreview)+'”</div></div>' : '')+
-      '<div class="field">'+
-        '<label class="field-label"><input type="checkbox" style="margin-right:8px;" data-stopfield-toggle="'+pfx+'viaEnabled" '+(stop.viaEnabled?'checked':'')+'> VIA announcement at this stop</label>'+
-        (stop.viaEnabled ? '<textarea class="f" rows="2" style="margin-top:6px;" data-stopfield="'+pfx+'viaText" placeholder="'+esc(viaPreview)+'">'+esc(stop.viaText)+'</textarea>' : '')+
+      '<div class="field-row-3">'+
+        langPickerHtml("Display languages", pfx, "languages", stop.languages)+
+        langPickerHtml("Announcement languages", pfx, "announceLanguages", stop.announceLanguages)+
+        '<div class="field">'+
+          '<label class="field-label">VIA announcement</label>'+
+          '<label style="display:flex;align-items:center;gap:8px;height:37px;font-size:13px;font-weight:500;cursor:pointer;"><input type="checkbox" data-stopfield-toggle="'+pfx+'viaEnabled" '+(stop.viaEnabled?'checked':'')+'> Play at this stop</label>'+
+        '</div>'+
       '</div>'+
       '<div class="field" style="max-width:360px;">'+
         '<label class="field-label">Connect special announcement</label>'+
@@ -2152,26 +2220,24 @@
         var desc = refClip ? refClip.description : "";
         return '<div class="segment-row lang-seg-row'+(missing?' missing':'')+'" draggable="true" data-seg-group="'+groupKey+'" data-seg-index="'+i+'">'+
           '<span class="drag-handle" title="Drag to reorder">⠿</span>'+
-          '<span class="lang-seg-index">'+(i+1)+'.</span>'+
+          '<span class="lang-seg-index tabular">'+esc(code||(i+1))+'</span>'+
           (!missing && !clip.sample
             ? '<button class="icon-btn" data-langseg-play="'+groupKey+'|'+lang+'|'+i+'" title="Play"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></button><audio id="langsegaud-'+groupKey+'-'+lang+'-'+i+'" src="'+(clip?(audioObjectUrls[clip.id]||''):'')+'" style="display:none;"></audio>'
-            : '<span class="lang-seg-warn-wrap" style="'+(missing?'':'visibility:hidden;')+'"><span class="lang-seg-warn" title="Missing file">!</span><span class="lang-seg-warn-label">Missing</span></span>')+
+            : '<span class="lang-seg-warn-wrap" style="visibility:hidden;"><span class="lang-seg-warn">!</span></span>')+
           '<span class="lang-seg-text">'+
-            '<span class="lang-seg-file'+(missing?' missing':'')+'">'+esc(filename)+(missing?' — missing':'')+'</span>'+
+            '<span class="lang-seg-file'+(missing?' missing':'')+'" title="'+(missing?'Missing file':'')+'">'+esc(filename)+'</span>'+
             (desc ? '<span class="lang-seg-desc">'+esc(desc)+'</span>' : '')+
           '</span>'+
           '<span class="route-stop-actions">'+
             '<button class="icon-btn" data-replace-seg="'+groupKey+'|'+lang+'|'+i+'" title="Replace this audio file"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M17 2l4 4-4 4M3 12a9 9 0 0 1 15-6.7L21 6M7 22l-4-4 4-4M21 12a9 9 0 0 1-15 6.7L3 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
             '<input type="file" accept="audio/*" style="display:none;" data-replace-input="'+groupKey+'|'+lang+'|'+i+'">'+
-            '<button class="icon-btn" data-seg-up="'+groupKey+'|'+i+'" '+(i===0?'disabled':'')+' title="Move up">↑</button>'+
-            '<button class="icon-btn" data-seg-down="'+groupKey+'|'+i+'" '+(i===segments.length-1?'disabled':'')+' title="Move down">↓</button>'+
             '<button class="icon-btn" data-seg-remove="'+groupKey+'|'+i+'" title="Remove">✕</button>'+
           '</span>'+
         '</div>';
       }).join("");
       var statusChip = segments.length===0 ? '' : (missingCount===0
-        ? '<span class="chip chip-success"><span class="chip-dot"></span>Complete</span>'
-        : '<span class="chip chip-warning"><span class="chip-dot"></span>'+missingCount+' file'+(missingCount>1?'s':'')+' missing</span>');
+        ? '<span class="chip chip-success">Complete</span>'
+        : '<span class="chip chip-warning">'+missingCount+' file'+(missingCount>1?'s':'')+' missing</span>');
       return '<div class="lang-chain-card">'+
         '<div class="lang-chain-head">'+
           '<span class="chip '+lang+'">'+LANG_NAME[lang]+'</span>'+
@@ -2334,11 +2400,9 @@
       var collapsed = !!collapsedGroups[groupKey];
       return '<div class="card template-card">'+
         '<div class="template-head"><div class="template-head-left">'+
-          '<div class="template-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 12h2l2.5-5 3 10 2.5-7 2 2H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
-          '<div><div class="template-title"><span class="chip chip-neutral tabular" style="margin-right:8px;">No. '+(i+1)+'</span>'+esc(t.label)+'</div><div class="template-sub">'+esc(t.desc)+'</div></div>'+
+          '<div><div class="template-title"><span class="template-id tabular" title="Fixed by the system">ID '+announceIdDisplay(t.announceId)+'</span>'+esc(t.label)+'</div><div class="template-sub">'+esc(t.desc)+'</div></div>'+
         '</div>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
-          '<span class="chip chip-neutral tabular" title="Fixed by the system">ID '+announceIdDisplay(t.announceId)+'</span>'+
           (t.custom ? '<button class="icon-btn" data-del-template="'+key+'" title="Delete this template">✕</button>' : '')+
           '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
@@ -2394,11 +2458,9 @@
       var collapsed = !!collapsedGroups[groupKey];
       return '<div class="card template-card">'+
         '<div class="template-head"><div class="template-head-left">'+
-          '<div class="template-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 12h2l2.5-5 3 10 2.5-7 2 2H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
-          '<div><div class="template-title"><span class="chip chip-neutral tabular" style="margin-right:8px;">No. '+(i+1)+'</span>'+esc(sa.name)+'</div><div class="template-sub">'+esc(sa.description)+'</div></div>'+
+          '<div><div class="template-title"><span class="template-id tabular" title="Fixed by the system">ID '+specialAnnounceIdDisplay(sa, i)+'</span>'+esc(sa.name)+'</div><div class="template-sub">'+esc(sa.description)+'</div></div>'+
         '</div>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
-          '<span class="chip chip-neutral tabular" title="Fixed by the system">ID '+specialAnnounceIdDisplay(sa, i)+'</span>'+
           '<span class="from-timetable" title="Fixed by the system, imported automatically from the timetable"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</span>'+
           '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
@@ -2422,7 +2484,7 @@
   function renderAudioTable(){
     var body = document.getElementById("audioTableBody");
     if(state.audioLibrary.length===0){
-      body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><strong>No clips uploaded yet</strong>Drop files above to add them.</div></td></tr>';
+      body.innerHTML = '<tr><td colspan="5"><div class="empty-state"><strong>No clips uploaded yet</strong>Drop files above to add them.</div></td></tr>';
       return;
     }
     body.innerHTML = state.audioLibrary.map(function(a){
@@ -2431,21 +2493,24 @@
       return '<tr>'+
         (editing
           ? '<td style="padding-left:16px;"><input class="f" type="number" inputmode="numeric" style="padding:5px 8px;font-size:12px;width:70px;" data-code="'+a.id+'" value="'+esc(a.code||"")+'" placeholder="e.g. 12"></td>'
-          : '<td style="padding-left:16px;"><span class="chip chip-neutral tabular">'+esc(a.code||"—")+'</span></td>')+
-        '<td><span class="audio-name"><span class="audio-name-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12h2l2.5-5 3 10 2.5-7 2 2H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
-            '<span><div>'+esc(a.name)+'</div>'+(mismatched ? '<div class="name-mismatch">⚠ Rename to '+esc((a.code||"N"))+'_en.mp3</div>' : '')+'</span>'+
-          '</span></td>'+
-        (editing
-          ? '<td><input class="f" style="padding:5px 8px;font-size:12px;" data-desc="'+a.id+'" value="'+esc(a.description||"")+'" placeholder="What does this say?"></td>'
-          : '<td>'+esc(a.description||"—")+'</td>')+
+          : '<td class="tabular" style="padding-left:16px;color:var(--text-muted);">'+esc(a.code||"—")+'</td>')+
+        '<td>'+
+          '<div class="audio-clip-name">'+esc(a.name)+(a.duration&&a.duration!=="—" ? ' <span class="tabular audio-clip-duration">'+esc(a.duration)+'</span>' : '')+'</div>'+
+          (editing
+            ? '<input class="f" style="padding:5px 8px;font-size:12px;margin-top:5px;" data-desc="'+a.id+'" value="'+esc(a.description||"")+'" placeholder="What does this say?">'
+            : '<div class="audio-clip-desc">'+esc(a.description||"No description yet")+'</div>')+
+          (mismatched ? '<div class="name-mismatch">⚠ Rename to '+esc((a.code||"N"))+'_en.mp3</div>' : '')+
+        '</td>'+
         '<td class="tabular" style="color:var(--text-faint);">'+fmtSize(a.size)+'</td>'+
         '<td style="color:var(--text-faint);">'+a.uploadedAt+'</td>'+
-        '<td style="padding-right:16px;display:flex;gap:6px;align-items:center;">'+
+        '<td style="padding-right:16px;">'+
+          '<div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;">'+
           (a.sample
-            ? '<span title="Sample entry — upload a file to enable playback" style="color:var(--text-faint);font-size:11.5px;">Sample</span>'
-            : '<button class="btn btn-sm" data-play="'+a.id+'">▶ Play</button><audio id="aud-'+a.id+'" src="'+audioObjectUrls[a.id]+'" style="display:none;"></audio>')+
-          '<button class="icon-btn" data-edit-audio="'+a.id+'" title="'+(editing?'Done editing':'Edit code &amp; description')+'">'+(editing?'✓':'✎')+'</button>'+
+            ? '<span class="chip chip-neutral" title="Sample entry — upload a file to enable playback">Sample</span>'
+            : '<button class="icon-btn" data-play="'+a.id+'" title="Play preview">▶</button><audio id="aud-'+a.id+'" src="'+audioObjectUrls[a.id]+'" style="display:none;"></audio>')+
+          '<button class="icon-btn'+(editing?'':' pencil')+'" data-edit-audio="'+a.id+'" title="'+(editing?'Done editing':'Edit code &amp; description')+'">'+(editing?'✓':'✎')+'</button>'+
           '<button class="icon-btn" data-del="'+a.id+'" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+          '</div>'+
         '</td>'+
       '</tr>';
     }).join("");
@@ -2455,8 +2520,8 @@
     var play = e.target.closest("[data-play]");
     if(play){
       var el = document.getElementById("aud-"+play.dataset.play);
-      if(el.paused){ el.play(); play.textContent="⏸ Pause"; } else { el.pause(); play.textContent="▶ Play"; }
-      el.onended = function(){ play.textContent="▶ Play"; };
+      if(el.paused){ el.play(); play.textContent="⏸"; play.title="Pause"; } else { el.pause(); play.textContent="▶"; play.title="Play preview"; }
+      el.onended = function(){ play.textContent="▶"; play.title="Play preview"; };
       return;
     }
     var editBtn = e.target.closest("[data-edit-audio]");
