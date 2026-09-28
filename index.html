@@ -1,8 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!DOCTYPE html><html><head><meta charset="utf-8">
 <title>Base Data Provisioning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -513,8 +509,7 @@
     .field-row-5{ grid-template-columns:1fr; }
   }
 </style>
-</head>
-<body>
+</head><body>
 
 <div class="app-shell">
   <div class="topbar">
@@ -695,7 +690,7 @@
         <table class="audio-table">
           <thead><tr>
             <th>Name</th><th>Name (EN)</th><th>Name (HE)</th><th>Name (AR)</th>
-            <th>Station ID</th><th>MOT Station Name</th><th>MOT Station ID</th><th>Platforms</th><th></th>
+            <th>Station ID</th><th>MOT Station Name</th><th>MOT Station ID</th><th>Platforms</th><th>Inner window (m)</th><th>Outer window (m)</th><th></th>
           </tr></thead>
           <tbody id="stationOverviewBody"></tbody>
         </table>
@@ -1468,6 +1463,8 @@
         '<td>'+esc(s.motStationName||'—')+'</td>'+
         '<td class="tabular">'+esc(s.motStationId||'—')+'</td>'+
         '<td class="tabular">'+s.platforms+'</td>'+
+        '<td class="tabular">'+(s.gps?(s.gps.innerLength+'×'+s.gps.innerWidth):'—')+'</td>'+
+        '<td class="tabular">'+(s.gps?(s.gps.outerLength+'×'+s.gps.outerWidth):'—')+'</td>'+
         '<td style="white-space:nowrap;">'+
           '<button class="icon-btn" data-overview-view="'+s.code+'" title="View this station"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/></svg></button>'+
           '<button class="icon-btn pencil" data-overview-edit="'+s.code+'" title="Edit this station">✎</button>'+
@@ -1564,6 +1561,13 @@
       '</section>';
 
     var baseDataPanel =
+      '<section class="form-section">'+
+        '<div class="form-section-head"><div><h4>GPS window dimensions</h4><div class="desc">Inner (approach) and outer (arming) trigger zone size — edit on the GPS Window tab</div></div></div>'+
+        '<div class="field-row">'+
+          '<div class="field"><label class="field-label">Inner window (m)</label><input class="f tabular" value="'+esc(st.gps.innerLength+'×'+st.gps.innerWidth)+'" disabled></div>'+
+          '<div class="field"><label class="field-label">Outer window (m)</label><input class="f tabular" value="'+esc(st.gps.outerLength+'×'+st.gps.outerWidth)+'" disabled></div>'+
+        '</div>'+
+      '</section>'+
       '<section class="form-section">'+
         '<div class="form-section-head"><div><h4>Display texts</h4><div class="desc">Station name as shown on each on-board and platform display — all three languages are always shown together</div></div></div>'+
         '<div class="langtbl">'+
@@ -2702,5 +2706,4 @@
   updateNavCounts();
 })();
 </script>
-</body>
-</html>
+</body></html>
