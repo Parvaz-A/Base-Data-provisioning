@@ -540,7 +540,7 @@
             <span>Station Overview</span>
           </button>
           <button class="nav-item" data-tab="sonderziel">
-            <span>Special Destinations</span>
+            <span>Special Train Service Texts</span>
           </button>
           <button class="nav-item" data-tab="audiolib">
             <span>Audio Library</span>
@@ -704,14 +704,14 @@
     <section class="panel" id="panel-sonderziel">
       <div class="panel-head">
         <div>
-          <h2>Special Destinations</h2>
+          <h2>Special Train Service Texts</h2>
           <p>Special destination texts, independent of any station or route. The driver selects one directly on the vehicle — e.g. for training runs, empty stock movements, or chartered services.</p>
         </div>
-        <div class="search-box"><input type="text" id="searchSonderziel" placeholder="Search special destinations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="search-box"><input type="text" id="searchSonderziel" placeholder="Search special train service texts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
       <div class="card sz-form">
-        <h4 style="font-size:13.5px;font-weight:600;margin-bottom:14px;">New special destination</h4>
+        <h4 style="font-size:13.5px;font-weight:600;margin-bottom:14px;">New special train service text</h4>
         <div class="field"><label class="field-label">Internal name</label><input class="f" id="szName" placeholder="e.g. Training Run"></div>
         <div class="field-hint" style="margin:-8px 0 10px;">Display texts — all three languages are always shown together</div>
         <div class="langtbl">
@@ -738,7 +738,7 @@
         </div>
         <div class="save-bar" style="margin-top:2px;">
           <span class="field-hint">Applies to any vehicle, on any route.</span>
-          <button class="btn btn-primary" id="szAddBtn">Add special destination</button>
+          <button class="btn btn-primary" id="szAddBtn">Add special train service text</button>
         </div>
       </div>
 
@@ -837,27 +837,28 @@
         <div class="search-box"><input type="text" id="searchAudio" placeholder="Search announcements"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
-      <div class="section-label" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-        <span>Announcement templates (auto-applied to every station)</span>
-        <button class="btn btn-sm btn-primary" id="tplBuilderOpenBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New announcement template</button>
-      </div>
-      <div class="card" id="tplBuilderCard" style="padding:18px 20px; margin-bottom:16px; display:none;">
-        <div class="form-section-head" style="margin-bottom:14px;">
-          <h4 style="font-size:13.5px;font-weight:600;">New announcement template</h4>
-          <button class="icon-btn" id="tplBuilderCloseBtn" title="Close">✕</button>
-        </div>
-        <div class="field-row" style="align-items:end;">
-          <div class="field"><label class="field-label">Name</label><input class="f" id="tplName" placeholder="e.g. Doors closing"></div>
-          <div class="field"><label class="field-label">Description</label><input class="f" id="tplDesc" placeholder="When this plays automatically"></div>
-        </div>
-        <button class="btn btn-primary" id="tplAddBtn">Save</button>
-      </div>
+      <div class="section-label">Announcement templates (auto-applied to every station)</div>
+      <p class="field-hint" style="margin:-6px 0 12px;">These 4 templates are fixed by the system — only their audio clips can be changed here.</p>
       <div id="templateList"></div>
 
-      <div class="section-label">Special announcements (driver-triggered combinations)</div>
+      <div class="section-label" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span>Special announcements (driver-triggered combinations)</span>
+        <button class="btn btn-sm btn-primary" id="saBuilderOpenBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New special announcement</button>
+      </div>
+      <div class="card" id="saBuilderCard" style="padding:18px 20px; margin-bottom:16px; display:none;">
+        <div class="form-section-head" style="margin-bottom:14px;">
+          <h4 style="font-size:13.5px;font-weight:600;">New special announcement</h4>
+          <button class="icon-btn" id="saBuilderCloseBtn" title="Close">✕</button>
+        </div>
+        <div class="field-row" style="align-items:end;">
+          <div class="field"><label class="field-label">Name</label><input class="f" id="saName" placeholder="e.g. Doors closing"></div>
+          <div class="field"><label class="field-label">Description</label><input class="f" id="saDesc" placeholder="When this plays"></div>
+        </div>
+        <button class="btn btn-primary" id="saAddBtn">Save</button>
+      </div>
       <div id="specialList"></div>
 
-      <p class="field-hint" style="margin-top:14px;">Special announcements are fixed by the system and imported automatically from the timetable — they can't be added or removed here, only assigned audio clips. Function announcements (fixed system messages) are hard-coded in the onboard unit and are not editable here.</p>
+      <p class="field-hint" style="margin-top:14px;">Special announcements imported automatically from the timetable are fixed and can't be removed — only assigned audio clips. Special announcements added here can be edited and removed. Function announcements (fixed system messages) are hard-coded in the onboard unit and are not editable here.</p>
     </section>
 
   </main>
@@ -933,10 +934,10 @@
   // stop-specific announcements (station name inserted) for whichever tag is set.
   var ANNOUNCE_TAG_OPTIONS = [
     { value:"",        num:null, label:"— No special tag —" },
-    { value:"NEXT",    num:1,    label:"Next station" },
-    { value:"LAST",    num:2,    label:"Final stop" },
-    { value:"WELCOME", num:3,    label:"Welcome / start" },
-    { value:"VIA",     num:4,    label:"Via station" }
+    { value:"NEXT",    num:1,    label:"Announcement arrival" },
+    { value:"LAST",    num:2,    label:"Announcement arrival last station" },
+    { value:"WELCOME", num:3,    label:"Departure announcement" },
+    { value:"VIA",     num:4,    label:"VIA announcement" }
   ];
   function announceIdOptionsHtml(selected){
     return ANNOUNCE_TAG_OPTIONS.map(function(o){ return '<option value="'+o.value+'" '+(o.value===(selected||"")?'selected':'')+'>'+(o.num!=null?o.num:'—')+'</option>'; }).join("");
@@ -949,22 +950,22 @@
   }
 
   var TEMPLATES_DEFAULT = {
-    next:   { announceId:"NEXT",    label:"Next station",  desc:"Played approaching every non-final stop — a combination of clips, sharing the station-name placeholder", text:{
+    next:   { announceId:"NEXT",    label:"Announcement arrival",  desc:"Played approaching every non-final stop — a combination of clips, sharing the station-name placeholder", text:{
       en:"The next station is {station}. Please mind the gap between the train and the platform.",
       he:"התחנה הבאה היא {station}. אנא שימו לב לרווח בין הרכבת לרציף.",
       ar:"المحطة القادمة هي {station}. يرجى الانتباه إلى الفجوة بين القطار والرصيف."
     }, segments:["lib-next-pre","lib-stname","lib-next-suf"] },
-    last:   { announceId:"LAST",    label:"Final stop",    desc:"Played approaching the last station on the route — a combination of clips, sharing the station-name placeholder", text:{
+    last:   { announceId:"LAST",    label:"Announcement arrival last station",    desc:"Played approaching the last station on the route — a combination of clips, sharing the station-name placeholder", text:{
       en:"This is the final stop, {station}. Please remember to take all your belongings.",
       he:"זוהי התחנה האחרונה, {station}. אנא זכרו לקחת את כל החפצים שלכם.",
       ar:"هذه هي المحطة الأخيرة، {station}. يرجى تذكر أخذ جميع أغراضكم."
     }, segments:["lib-last-pre","lib-stname","lib-last-suf"] },
-    welcome:{ announceId:"WELCOME", label:"Welcome / start", desc:"Played when the service departs its first station — a combination of clips, sharing the station-name placeholder", text:{
+    welcome:{ announceId:"WELCOME", label:"Departure announcement", desc:"Played when the service departs its first station — a combination of clips, sharing the station-name placeholder", text:{
       en:"Welcome aboard. This train calls at all stations to {station}. Please have your ticket ready for inspection.",
       he:"ברוכים הבאים לרכבת. רכבת זו עוצרת בכל התחנות עד {station}. אנא הכינו את הכרטיס לביקורת.",
       ar:"أهلاً بكم على متن القطار. يتوقف هذا القطار في جميع المحطات حتى {station}. يرجى تجهيز التذكرة للتفتيش."
     }, segments:["lib-welc-pre","lib-stname","lib-welc-suf"] },
-    via:{ announceId:"VIA", label:"Via station", desc:"Announces an intermediate interchange along the route — chained from several clips since the waypoint name changes per route", text:{
+    via:{ announceId:"VIA", label:"VIA announcement", desc:"Announces an intermediate interchange along the route — chained from several clips since the waypoint name changes per route", text:{
       en:"This train travels via {station}.",
       he:"רכבת זו נוסעת דרך {station}.",
       ar:"يمر هذا القطار عبر {station}."
@@ -1162,7 +1163,7 @@
     fahrt:{ title:"Route", sub:"Stops, Fahrten & announcement connections for this Route" },
     station:{ title:"Station Configuration", sub:"Codes, GPS positioning & display texts" },
     stationoverview:{ title:"Station Overview", sub:"All stations from the timetable export, at a glance" },
-    sonderziel:{ title:"Special Destinations", sub:"Special destination texts, independent of stations" },
+    sonderziel:{ title:"Special Train Service Texts", sub:"Special destination texts, independent of stations" },
     audiolib:{ title:"Audio Library", sub:"Upload clips once, reuse them everywhere" },
     audio:{ title:"Audio Archive", sub:"Announcement templates & special announcements" }
   };
@@ -2151,7 +2152,7 @@
   function renderSzTable(){
     var body = document.getElementById("szTableBody");
     if(state.sonderziele.length===0){
-      body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><strong>No special destinations yet</strong>Add one above.</div></td></tr>';
+      body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><strong>No special train service texts yet</strong>Add one above.</div></td></tr>';
       return;
     }
     body.innerHTML = state.sonderziele.map(function(sz){
@@ -2436,22 +2437,23 @@
   });
   document.getElementById("templateList").addEventListener("change", function(e){ if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
   bindChainDragEvents(document.getElementById("templateList"));
-  document.getElementById("tplBuilderOpenBtn").addEventListener("click", function(){
-    document.getElementById("tplBuilderCard").style.display = "block";
-    document.getElementById("tplBuilderCard").scrollIntoView({ behavior:"smooth", block:"start" });
+  document.getElementById("saBuilderOpenBtn").addEventListener("click", function(){
+    document.getElementById("saBuilderCard").style.display = "block";
+    document.getElementById("saBuilderCard").scrollIntoView({ behavior:"smooth", block:"start" });
   });
-  document.getElementById("tplBuilderCloseBtn").addEventListener("click", function(){
-    document.getElementById("tplBuilderCard").style.display = "none";
+  document.getElementById("saBuilderCloseBtn").addEventListener("click", function(){
+    document.getElementById("saBuilderCard").style.display = "none";
   });
-  document.getElementById("tplAddBtn").addEventListener("click", function(){
-    var name = document.getElementById("tplName").value.trim();
+  document.getElementById("saAddBtn").addEventListener("click", function(){
+    var name = document.getElementById("saName").value.trim();
     if(!name) return;
-    var key = "custom-"+Date.now();
-    // No system tag for custom templates — that ID is fixed by the system for the 4 built-in ones only.
-    state.templates[key] = { announceId:"", label:name, desc:document.getElementById("tplDesc").value, text:{en:"",he:"",ar:""}, segments:[], custom:true };
-    document.getElementById("tplName").value = ""; document.getElementById("tplDesc").value = "";
-    document.getElementById("tplBuilderCard").style.display = "none";
-    persist(); renderTemplateList(); updateNavCounts();
+    state.specialAnnouncements.push({
+      id: "sa-custom-"+Date.now(), sysId: nextSpecialAnnounceSysId(), announceId:"",
+      name: name, description: document.getElementById("saDesc").value, segments:[], custom:true
+    });
+    document.getElementById("saName").value = ""; document.getElementById("saDesc").value = "";
+    document.getElementById("saBuilderCard").style.display = "none";
+    persist(); renderSpecialList(); updateNavCounts();
   });
 
   function renderSpecialList(){
@@ -2468,7 +2470,7 @@
           '<div><div class="template-title"><span class="template-id tabular" title="Fixed by the system">ID '+specialAnnounceIdDisplay(sa, i)+'</span>'+esc(sa.name)+'</div><div class="template-sub">'+esc(sa.description)+'</div></div>'+
         '</div>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
-          '<span class="from-timetable" title="Fixed by the system, imported automatically from the timetable"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</span>'+
+          (sa.custom ? '<button class="icon-btn" data-del-special="'+sa.id+'" title="Delete this special announcement">✕</button>' : '<span class="from-timetable" title="Fixed by the system, imported automatically from the timetable"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</span>')+
           '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
         '</div>'+
@@ -2476,7 +2478,15 @@
       '</div>';
     }).join("");
   }
-  document.getElementById("specialList").addEventListener("click", function(e){ handleChainClick(e); });
+  document.getElementById("specialList").addEventListener("click", function(e){
+    var delS = e.target.closest("[data-del-special]");
+    if(delS){
+      state.specialAnnouncements = state.specialAnnouncements.filter(function(x){ return x.id!==delS.dataset.delSpecial; });
+      persist(); renderSpecialList(); updateNavCounts();
+      return;
+    }
+    handleChainClick(e);
+  });
   document.getElementById("specialList").addEventListener("change", function(e){ if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
   bindChainDragEvents(document.getElementById("specialList"));
 
