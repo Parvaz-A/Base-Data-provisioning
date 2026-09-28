@@ -428,6 +428,9 @@
   table.audio-table td{ padding:10px; border-bottom:1px solid var(--border); font-size:12.8px; vertical-align:middle; }
   table.audio-table tr:last-child td{ border-bottom:none; }
   table.audio-table tbody tr:hover td{ background:var(--surface-2); }
+  table.station-overview-table th:last-child, table.station-overview-table td:last-child{ position:sticky; right:0; background:var(--surface); box-shadow:-1px 0 0 var(--border); }
+  table.station-overview-table thead th:last-child{ background:var(--surface-2); z-index:2; }
+  table.station-overview-table tbody tr:hover td:last-child{ background:var(--surface-2); }
   .fahrten-table th, .fahrten-table td{ border-right:1px solid var(--border); }
   .fahrten-table th:last-child, .fahrten-table td:last-child{ border-right:none; }
   .fahrten-table td input.f{ background:var(--surface); border:1px solid var(--border-strong); border-radius:4px; padding:5px 8px; }
@@ -687,10 +690,10 @@
         </div>
       </div>
       <div class="card" style="padding:0;overflow-x:auto;">
-        <table class="audio-table">
+        <table class="audio-table station-overview-table">
           <thead><tr>
             <th>Name</th><th>Name (EN)</th><th>Name (HE)</th><th>Name (AR)</th>
-            <th>Station ID</th><th>MOT Station Name</th><th>MOT Station ID</th><th>Platforms</th><th>Inner window (m)</th><th>Outer window (m)</th><th></th>
+            <th>Station ID</th><th>MOT Station Name</th><th>MOT Station ID</th><th>Platforms</th><th>Inner window (m)</th><th>Outer window (m)</th><th>Action</th>
           </tr></thead>
           <tbody id="stationOverviewBody"></tbody>
         </table>
