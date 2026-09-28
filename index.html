@@ -2112,6 +2112,11 @@
     var welcomePreview = langText(state.templates.welcome.text).replace("{station}", station.name);
     var viaPreview = langText(state.templates.via.text).replace("{station}", station.name);
     var pfx = route.id+"|"+idx+"|";
+    // Short forms for the per-stop picker only — the field's own label already says "Announcement",
+    // so repeating that word in every option is redundant. Full wording is kept everywhere else (Audio Archive etc).
+    var SHORT_TPL_LABEL = { next:"Arrival", last:"Arrival last station", welcome:"Departure", via:"VIA" };
+    var defaultAnnounceKey = isFirst ? "welcome" : (isLast ? "last" : "next");
+    var defaultAnnounceLabel = SHORT_TPL_LABEL[defaultAnnounceKey];
     return '<div class="stop-detail">'+
       '<div class="stop-detail-head"><strong>'+station.name+'</strong><span class="chip chip-neutral tabular">'+station.code+'</span>'+(isFirst?'<span class="chip chip-accent">First stop</span>':'')+(isLast?'<span class="chip chip-accent">Last stop</span>':'')+'</div>'+
       '<div class="field-row-3">'+
@@ -2125,17 +2130,21 @@
         langPickerHtml("Display languages", pfx, "languages", stop.languages)+
         langPickerHtml("Announcement languages", pfx, "announceLanguages", stop.announceLanguages)+
         '<div class="field">'+
-          '<label class="field-label">VIA announcement</label>'+
-          '<label style="display:flex;align-items:center;gap:8px;height:37px;font-size:13px;font-weight:500;cursor:pointer;"><input type="checkbox" data-stopfield-toggle="'+pfx+'viaEnabled" '+(stop.viaEnabled?'checked':'')+'> Play at this stop</label>'+
+          '<label class="field-label">Announcement at this stop</label>'+
+          '<select class="f" data-stopfield="'+pfx+'specialAnnouncementId">'+
+            '<option value="">Default — '+esc(defaultAnnounceLabel)+'</option>'+
+            '<optgroup label="Announcement templates">'+
+              '<option value="tpl:next" '+(stop.specialAnnouncementId==="tpl:next"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.next)+'</option>'+
+              '<option value="tpl:last" '+(stop.specialAnnouncementId==="tpl:last"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.last)+'</option>'+
+              '<option value="tpl:welcome" '+(stop.specialAnnouncementId==="tpl:welcome"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.welcome)+'</option>'+
+              '<option value="tpl:via" '+(stop.specialAnnouncementId==="tpl:via"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.via)+'</option>'+
+            '</optgroup>'+
+            (state.specialAnnouncements.length ? '<optgroup label="Special announcements">'+
+              state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
+            '</optgroup>' : '')+
+          '</select>'+
+          '<div class="field-hint">Overrides the default just for this stop.</div>'+
         '</div>'+
-      '</div>'+
-      '<div class="field" style="max-width:360px;">'+
-        '<label class="field-label">Connect special announcement</label>'+
-        '<select class="f" data-stopfield="'+pfx+'specialAnnouncementId">'+
-          '<option value="">— None —</option>'+
-          state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
-        '</select>'+
-        '<div class="field-hint">Choose which special announcement plays at this stop, if any.</div>'+
       '</div>'+
       '<div class="save-bar" style="margin-top:4px;padding-top:14px;">'+
         '<span class="field-hint">Removing a stop renumbers the sequence for this Route.</span>'+
