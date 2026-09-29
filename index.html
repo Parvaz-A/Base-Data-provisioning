@@ -201,6 +201,8 @@
   .btn-danger-text{ border:none; background:none; color:var(--danger); box-shadow:none; }
   .btn-danger-text:hover{ background:rgba(211,47,47,0.08); border-color:transparent; }
   .btn-danger-text:disabled{ background:none; border:none; color:rgba(0,0,0,0.26); }
+  .btn-text{ border:none; background:none; color:var(--text-muted); box-shadow:none; }
+  .btn-text:hover{ background:var(--surface-2); border-color:transparent; color:var(--text); }
   .btn-outlined-primary{ background:none; border-color:var(--accent); color:var(--accent); }
   .btn-outlined-primary:hover{ background:var(--accent-soft); border-color:var(--accent-strong); color:var(--accent-strong); }
   .btn-outlined-primary:disabled{ background:none; border-color:rgba(0,0,0,0.12); color:rgba(0,0,0,0.26); }
@@ -214,6 +216,8 @@
   [data-tip]:hover::after, [data-tip]:focus-visible::after{ opacity:1; transform:translateX(-50%) translateY(0); }
   [data-tip]:hover::before, [data-tip]:focus-visible::before{ opacity:1; }
   .icon-btn:hover{ background:rgba(0,0,0,0.06); color:var(--text); }
+  .icon-btn-play{ border:1.5px solid var(--border-strong); color:var(--text); }
+  .icon-btn-play:hover{ background:var(--accent); border-color:var(--accent); color:var(--accent-contrast); }
   .icon-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 
   label.field-label{ display:block; font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:5px; letter-spacing:0.01em; }
@@ -377,6 +381,9 @@
   .template-title{ font-size:13px; font-weight:600; }
   .template-id{ color:var(--text-faint); font-weight:500; margin-right:8px; }
   .template-sub{ font-size:11px; color:var(--text-faint); }
+  .tpl-text-edit{ display:block; width:100%; resize:none; overflow:hidden; border:none; border-bottom:1px dashed transparent; background:none; padding:0; margin-top:2px; font-family:inherit; font-size:11px; color:var(--text-faint); line-height:1.4; }
+  .tpl-text-edit:hover{ border-bottom-color:var(--border-strong); }
+  .tpl-text-edit:focus{ outline:none; border-bottom-color:var(--accent); color:var(--text); }
   .template-audio-name{ font-size:11.5px; color:var(--text-muted); font-family:var(--font-mono); }
   .segment-chain{ display:flex; flex-direction:column; gap:6px; }
   .segment-row{ display:flex; align-items:center; gap:10px; padding:7px 9px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); cursor:grab; transition:opacity .12s, border-color .12s; }
@@ -516,7 +523,6 @@
     .section-label > .btn{ width:100%; justify-content:center; }
   }
 </style>
-</head><body>
 
 <div class="app-shell">
   <div class="topbar">
@@ -778,8 +784,17 @@
       </div>
       <div class="card" style="padding:6px 4px; overflow-x:auto;">
         <table class="audio-table">
-          <thead><tr><th style="padding-left:16px;">Code</th><th>Clip</th><th>Size</th><th>Uploaded</th><th style="padding-right:16px;">Action</th></tr></thead>
+          <thead><tr><th style="padding-left:16px;">Code</th><th>Clip</th><th>Description</th><th>Size</th><th>Uploaded</th><th style="padding-right:16px;">Action</th></tr></thead>
           <tbody id="audioTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-label">Station name recordings</div>
+      <p class="field-hint" style="margin:-6px 0 12px;">Every station needs its own spoken name, in each language — upload one clip per station per language here. Until uploaded, the shared placeholder plays instead.</p>
+      <div class="card" style="padding:6px 4px; overflow-x:auto;">
+        <table class="audio-table">
+          <thead><tr><th style="padding-left:16px;">Station</th><th>English</th><th>Hebrew</th><th>Arabic</th></tr></thead>
+          <tbody id="stationNameAudioBody"></tbody>
         </table>
       </div>
     </section>
@@ -799,7 +814,7 @@
           <input type="file" id="modalAudioInput" accept="audio/*" style="display:none;">
         </div>
 
-        <div class="field">
+        <div class="field" id="modalFilenameModeField">
           <label class="field-label">Filename mode</label>
           <select class="f" id="modalFilenameMode">
             <option value="keep">Keep uploaded filename</option>
@@ -820,12 +835,18 @@
         </div>
 
         <div class="field">
+          <label class="field-label">Title <span style="color:var(--danger);">*</span></label>
+          <input class="f" id="modalTitle" placeholder="e.g. Platform change" required>
+          <div class="field-hint">Used to identify this clip everywhere it's picked from — in the library, segment chains and exports.</div>
+        </div>
+
+        <div class="field">
           <label class="field-label">Description</label>
           <input class="f" id="modalDescription" placeholder="e.g. Platform change announcement">
         </div>
 
-        <div class="save-bar" style="margin-top:2px;border-top:none;padding-top:0;">
-          <button class="btn" id="modalCancelBtn" type="button">Cancel</button>
+        <div class="save-bar" style="margin-top:2px;border-top:none;padding-top:0;justify-content:flex-end;gap:8px;">
+          <button class="btn btn-text" id="modalCancelBtn" type="button">Cancel</button>
           <button class="btn btn-primary" id="modalUploadBtn" type="button">Upload</button>
         </div>
       </div>
@@ -916,13 +937,17 @@
   // Every clip's code is a plain system number now (not a text tag) — still editable per clip,
   // still used in the filename naming convention (e.g. code 7 -> "7_en.mp3").
   var AUDIO_LIBRARY_SEED = [
-    { id:"lib-welc-pre", code:"5",  name:"5_en.mp3",  description:"“Welcome aboard, this train calls at all stations to” prefix", duration:"0:04", size:62000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-welc-suf", code:"6",  name:"6_en.mp3",  description:"“Please have your ticket ready for inspection” suffix", duration:"0:03", size:44000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-viapre",   code:"7",  name:"7_en.mp3",  description:"“This train travels via” prefix",                   duration:"0:03", size:48000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-stname",   code:"8",  name:"8_en.mp3",  description:"Placeholder — station name insert, shared across every announcement", duration:"0:02", size:32000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-viasuf",   code:"9",  name:"9_en.mp3",  description:"Via-station suffix / continuation",                 duration:"0:03", size:45000,  uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-pltchg",   code:"10", name:"10_en.mp3", description:"Platform change for the next departure",            duration:"0:08", size:128000, uploadedAt:"sample library", sample:true, lang:"en" },
-    { id:"lib-dlyapg",   code:"11", name:"11_en.mp3", description:"Apology for a delayed service",                      duration:"0:12", size:187000, uploadedAt:"sample library", sample:true, lang:"en" }
+    { id:"lib-next-pre", code:"1",  name:"1_en.mp3",  title:"Next station prefix",       description:"“The next station is” prefix", duration:"0:03", size:40000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-next-suf", code:"2",  name:"2_en.mp3",  title:"Mind the gap suffix",       description:"“Please mind the gap between the train and the platform” suffix", duration:"0:04", size:58000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-last-pre", code:"3",  name:"3_en.mp3",  title:"Final stop prefix",         description:"“This is the final stop” prefix", duration:"0:03", size:42000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-last-suf", code:"4",  name:"4_en.mp3",  title:"Take your belongings suffix", description:"“Please remember to take all your belongings” suffix", duration:"0:04", size:55000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-welc-pre", code:"5",  name:"5_en.mp3",  title:"Welcome aboard prefix",     description:"“Welcome aboard, this train calls at all stations to” prefix", duration:"0:04", size:62000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-welc-suf", code:"6",  name:"6_en.mp3",  title:"Ticket ready suffix",        description:"“Please have your ticket ready for inspection” suffix", duration:"0:03", size:44000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-viapre",   code:"7",  name:"7_en.mp3",  title:"Via station prefix",         description:"“This train travels via” prefix",                   duration:"0:03", size:48000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-stname",   code:"8",  name:"8_en.mp3",  title:"Station name placeholder",   description:"Placeholder — station name insert, shared across every announcement", duration:"0:02", size:32000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-viasuf",   code:"9",  name:"9_en.mp3",  title:"Via continuation suffix",    description:"Via-station suffix / continuation",                 duration:"0:03", size:45000,  uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-pltchg",   code:"10", name:"10_en.mp3", title:"Platform change",            description:"Platform change for the next departure",            duration:"0:08", size:128000, uploadedAt:"sample library", sample:true, lang:"en" },
+    { id:"lib-dlyapg",   code:"11", name:"11_en.mp3", title:"Delay apology",              description:"Apology for a delayed service",                      duration:"0:12", size:187000, uploadedAt:"sample library", sample:true, lang:"en" }
   ];
   function nextAudioCode(){
     var max = 0;
@@ -1125,6 +1150,16 @@
       state.archives.forEach(function(arc){
         arc.routeIds = arc.routeIds.filter(function(id){ return state.routes.some(function(r){ return r.id===id; }); });
       });
+      // self-heal: an earlier build let a duplicate clip slip into a template's saved chain
+      // (e.g. the same suffix listed twice) — only repair chains that are actually broken like
+      // that, so a deliberate customization (added/reordered clip) still survives a reload.
+      Object.keys(TEMPLATES_DEFAULT).forEach(function(key){
+        var tpl = state.templates[key];
+        if(!tpl || !tpl.segments) return;
+        var hasDup = tpl.segments.some(function(id, idx){ return tpl.segments.indexOf(id) !== idx; });
+        var hasStationSlot = tpl.segments.indexOf("lib-stname") !== -1;
+        if(hasDup || !hasStationSlot) tpl.segments = TEMPLATES_DEFAULT[key].segments.slice();
+      });
     }catch(e){ /* ignore corrupt/unavailable storage */ }
   }
   function persist(){
@@ -1180,7 +1215,7 @@
     if(tab==="archive"){ renderRouteBuilder(); renderArchive(); }
     if(tab==="fahrt") renderFahrtEditor();
     if(tab==="sonderziel") renderSzTable();
-    if(tab==="audiolib") renderAudioTable();
+    if(tab==="audiolib"){ renderAudioTable(); renderStationNameAudioTable(); }
     if(tab==="audio"){ renderTemplateList(); renderSpecialList(); }
     if(tab==="stationoverview") renderStationOverview();
   }
@@ -2130,20 +2165,16 @@
         langPickerHtml("Display languages", pfx, "languages", stop.languages)+
         langPickerHtml("Announcement languages", pfx, "announceLanguages", stop.announceLanguages)+
         '<div class="field">'+
-          '<label class="field-label">Announcement at this stop</label>'+
+          '<label class="field-label">Special announcement at this stop</label>'+
           '<select class="f" data-stopfield="'+pfx+'specialAnnouncementId">'+
-            '<option value="">Default — '+esc(defaultAnnounceLabel)+'</option>'+
-            '<optgroup label="Announcement templates">'+
-              '<option value="tpl:next" '+(stop.specialAnnouncementId==="tpl:next"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.next)+'</option>'+
-              '<option value="tpl:last" '+(stop.specialAnnouncementId==="tpl:last"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.last)+'</option>'+
-              '<option value="tpl:welcome" '+(stop.specialAnnouncementId==="tpl:welcome"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.welcome)+'</option>'+
-              '<option value="tpl:via" '+(stop.specialAnnouncementId==="tpl:via"?'selected':'')+'>'+esc(SHORT_TPL_LABEL.via)+'</option>'+
-            '</optgroup>'+
-            (state.specialAnnouncements.length ? '<optgroup label="Special announcements">'+
-              state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
-            '</optgroup>' : '')+
+            '<option value="">— None —</option>'+
+            state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
           '</select>'+
-          '<div class="field-hint">Overrides the default just for this stop.</div>'+
+          '<div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;">'+
+            '<span class="chip chip-neutral" style="font-weight:600;">'+esc(defaultAnnounceLabel)+'</span>'+
+            (stop.specialAnnouncementId ? '<span style="color:var(--text-faint);font-size:12px;">›</span><span class="chip chip-accent" style="font-weight:600;">'+esc((state.specialAnnouncements.find(function(sa){ return sa.id===stop.specialAnnouncementId; })||{}).name||"")+'</span>' : '')+
+          '</div>'+
+          '<div class="field-hint">'+(stop.specialAnnouncementId ? 'Default plays first, then this special announcement.' : 'Always plays. Pick a special announcement above to add one after it.')+'</div>'+
         '</div>'+
       '</div>'+
       '<div class="save-bar" style="margin-top:4px;padding-top:14px;">'+
@@ -2216,7 +2247,7 @@
 
   function librarySelectOptions(){
     return '<option value="">+ Add clip from library…</option>' + state.audioLibrary.map(function(c){
-      return '<option value="'+c.id+'">'+esc(c.code||c.name)+' — '+esc(c.name)+'</option>';
+      return '<option value="'+c.id+'">'+esc(c.title||c.name)+'</option>';
     }).join("");
   }
 
@@ -2227,10 +2258,42 @@
     if(kind==="sa"){ var sa = state.specialAnnouncements.find(function(x){ return x.id===id; }); return sa ? sa.segments : null; }
     return null;
   }
+  function chainOwnerFor(groupKey){
+    var i = groupKey.indexOf(":");
+    var kind = groupKey.slice(0,i), id = groupKey.slice(i+1);
+    if(kind==="tpl") return state.templates[id] || null;
+    if(kind==="sa") return state.specialAnnouncements.find(function(x){ return x.id===id; }) || null;
+    return null;
+  }
+  var expandedStationRows = {};
+  function stationRowPanelHtml(expandKey, lang){
+    var recordedCount = state.stations.filter(function(s){ return stationAudioEntry(s.code, lang); }).length;
+    return '<div style="margin:-2px 0 8px 30px;background:var(--surface-2);border-radius:6px;padding:8px 10px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px 6px;font-size:11px;color:var(--text-faint);">'+
+        '<span>'+recordedCount+' of '+state.stations.length+' stations recorded</span>'+
+      '</div>'+
+      '<div style="max-height:260px;overflow-y:auto;border-radius:6px;background:var(--surface);border:1px solid var(--border);">'+
+      state.stations.map(function(s){
+        var entry = stationAudioEntry(s.code, lang);
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--border);">'+
+          (entry ? '<span class="chip chip-success" style="flex:none;padding:1px 6px;">'+
+              '<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.2l-3.5-3.5L4 14.2 9 19.2 20 8.2l-1.5-1.5z"/></svg></span>'
+            : '<span class="chip chip-warning" style="flex:none;padding:1px 6px;">'+
+              '<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg></span>')+
+          '<span style="flex:1;min-width:0;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(s.name)+'</span>'+
+          '<span style="font-size:10.5px;color:var(--text-faint);flex:none;">'+(entry?'recorded':'not recorded yet')+'</span>'+
+          (entry ? '<span style="flex:none;"><button class="icon-btn icon-btn-play" data-station-row-play="'+entry.id+'|'+expandKey+'" title="Play this station\'s recording"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></button><audio id="strowaud-'+entry.id+'-'+expandKey.replace(/[^a-zA-Z0-9]/g,"")+'" src="'+(audioObjectUrls[entry.id]||'')+'" style="display:none;"></audio></span>' : '')+
+        '</div>';
+      }).join("")+
+      '</div>'+
+      '<div style="padding-top:6px;"><a href="#" data-goto-station-recordings="1" style="font-size:12px;">Upload or replace station recordings in the Audio Library →</a></div>'+
+    '</div>';
+  }
 
   function segmentChainHtml(groupKey, segments){
     return LANGS.map(function(lang){
       var missingCount = 0;
+      var previewParts = [];
       var rows = segments.map(function(segId, i){
         var refClip = libClip(segId);
         var code = refClip ? (refClip.code || refClip.name) : null;
@@ -2239,26 +2302,62 @@
         if(missing) missingCount++;
         var filename = clip ? clip.name : (code ? code+"_"+lang+".mp3" : lang+"-clip.mp3");
         var desc = refClip ? refClip.description : "";
+        var title = clip ? (clip.title||filename) : (refClip ? (refClip.title||filename) : filename);
+        previewParts.push(segId==="lib-stname" ? "{station}" : title);
+        var isStationRow = segId==="lib-stname";
+        var stationExpandKey = groupKey+"|"+lang;
+        var isStationExpanded = isStationRow && !!expandedStationRows[stationExpandKey];
         return '<div class="segment-row lang-seg-row'+(missing?' missing':'')+'" draggable="true" data-seg-group="'+groupKey+'" data-seg-index="'+i+'">'+
           '<span class="drag-handle" title="Drag to reorder">⠿</span>'+
-          '<span class="lang-seg-index tabular">'+esc(code||(i+1))+'</span>'+
-          (!missing && !clip.sample
-            ? '<button class="icon-btn" data-langseg-play="'+groupKey+'|'+lang+'|'+i+'" title="Play"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></button><audio id="langsegaud-'+groupKey+'-'+lang+'-'+i+'" src="'+(clip?(audioObjectUrls[clip.id]||''):'')+'" style="display:none;"></audio>'
-            : '<span class="lang-seg-warn-wrap" style="visibility:hidden;"><span class="lang-seg-warn">!</span></span>')+
+          '<span class="lang-seg-index tabular">'+(i+1)+'.</span>'+
+          (missing ? '<span class="lang-seg-warn-wrap" style="visibility:hidden;"><span class="lang-seg-warn">!</span></span>' : '')+
+          (clip ? '<audio id="langsegaud-'+groupKey+'-'+lang+'-'+i+'" src="'+(audioObjectUrls[clip.id]||'')+'" style="display:none;"></audio>' : '')+
           '<span class="lang-seg-text">'+
-            '<span class="lang-seg-file'+(missing?' missing':'')+'" title="'+(missing?'Missing file':'')+'">'+esc(filename)+'</span>'+
+            '<span class="lang-seg-file'+(missing?' missing':'')+'" title="'+(missing?'Missing file':filename)+'">'+esc(title)+'</span>'+
+            '<span class="lang-seg-desc tabular">'+esc(filename)+'</span>'+
             (desc ? '<span class="lang-seg-desc">'+esc(desc)+'</span>' : '')+
           '</span>'+
           '<span class="route-stop-actions">'+
-            '<button class="icon-btn" data-replace-seg="'+groupKey+'|'+lang+'|'+i+'" title="Replace this audio file"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M17 2l4 4-4 4M3 12a9 9 0 0 1 15-6.7L21 6M7 22l-4-4 4-4M21 12a9 9 0 0 1-15 6.7L3 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
-            '<input type="file" accept="audio/*" style="display:none;" data-replace-input="'+groupKey+'|'+lang+'|'+i+'">'+
-            '<button class="icon-btn" data-seg-remove="'+groupKey+'|'+i+'" title="Remove">✕</button>'+
+            (isStationRow
+              ? '<button class="icon-btn" data-toggle-station-row="'+stationExpandKey+'" title="'+(isStationExpanded?'Hide per-station recordings':'Show per-station recordings')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(isStationExpanded?'180deg':'0deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
+              : (!missing ? '<button class="icon-btn icon-btn-play" data-langseg-play="'+groupKey+'|'+lang+'|'+i+'" title="Play this clip"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></button>' : '')+
+                '<button class="icon-btn" data-replace-seg="'+groupKey+'|'+lang+'|'+i+'" title="Replace this audio file"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M17 2l4 4-4 4M3 12a9 9 0 0 1 15-6.7L21 6M7 22l-4-4 4-4M21 12a9 9 0 0 1-15 6.7L3 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+                '<input type="file" accept="audio/*" style="display:none;" data-replace-input="'+groupKey+'|'+lang+'|'+i+'">')+
+            '<button class="icon-btn" data-seg-remove="'+groupKey+'|'+i+'" title="Remove this clip from the chain">✕</button>'+
           '</span>'+
-        '</div>';
+        '</div>'+
+        (isStationExpanded ? stationRowPanelHtml(stationExpandKey, lang) : '');
       }).join("");
       var statusChip = segments.length===0 ? '' : (missingCount===0
         ? '<span class="chip chip-success">Complete</span>'
         : '<span class="chip chip-warning">'+missingCount+' file'+(missingCount>1?'s':'')+' missing</span>');
+      var owner = chainOwnerFor(groupKey);
+      var overrideParts = owner && owner.chainPreviewParts ? owner.chainPreviewParts[lang] : null;
+      var hasOverride = !!(overrideParts && overrideParts.some(function(v){ return v!=null && v!==""; }));
+      var previewKey = groupKey+"|"+lang;
+      var isEditingPreview = !!editingChainPreview[previewKey];
+      var previewDisplayHtml = previewParts.map(function(p, idx){
+        if(p==="{station}") return '<span class="chip chip-accent" style="font-family:var(--font-mono);">{station}</span>';
+        var val = (overrideParts && overrideParts[idx]!=null && overrideParts[idx]!=="") ? overrideParts[idx] : p;
+        return esc(val);
+      }).join(' <span style="opacity:.35;">›</span> ');
+      var previewEditHtml = previewParts.map(function(p, idx){
+        if(p==="{station}") return '<span class="chip chip-accent" style="font-family:var(--font-mono);white-space:nowrap;">{station}</span>';
+        var val = (overrideParts && overrideParts[idx]!=null && overrideParts[idx]!=="") ? overrideParts[idx] : p;
+        var chW = Math.max(6, Math.min(30, val.length+1));
+        return '<input data-chain-part="'+previewKey+'|'+idx+'" value="'+esc(val)+'" style="display:inline-block;height:auto;width:'+chW+'ch;max-width:100%;padding:2px 1px 3px;font-size:13px;font-family:inherit;border:none;border-bottom:1px dashed var(--border-strong);border-radius:0;background:none;color:var(--text);transition:border-color .12s ease,background .12s ease;" onfocus="this.style.borderBottomColor=\'var(--accent)\';this.style.borderBottomStyle=\'solid\';" onblur="this.style.borderBottomColor=\'var(--border-strong)\';this.style.borderBottomStyle=\'dashed\';" title="Correct the wording for this clip — overrides just this part until reset.">';
+      }).join(' <span style="opacity:.35;">›</span> ');
+      var previewBlock = !segments.length ? '' :
+        '<div class="field" style="margin-top:8px;">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'+
+            '<label class="field-label" style="margin:0;" title="Auto-built from the clips above, in play order — the station-name clip always shows as {station}. Click the pencil to correct any part by hand.">How this will play</label>'+
+            '<span style="display:flex;align-items:center;gap:4px;">'+
+              (isEditingPreview && hasOverride ? '<button class="icon-btn" data-reset-chain-preview="'+previewKey+'" title="Discard corrections and go back to the auto-built text"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 1 3 6.7M3 12v6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '')+
+              '<button class="icon-btn" data-toggle-chain-preview="'+previewKey+'" title="'+(isEditingPreview?'Done — save this wording':'Correct any part by hand')+'">'+(isEditingPreview?'✓':'✎')+'</button>'+
+            '</span>'+
+          '</div>'+
+          '<div class="readonly-field" style="height:auto;min-height:37px;margin-top:4px;line-height:2;display:flex;flex-wrap:wrap;align-items:center;gap:6px 2px;padding-top:6px;padding-bottom:6px;" title="Each part comes from the clip above it, in play order — click ✎ to correct one by hand">'+(isEditingPreview ? previewEditHtml : previewDisplayHtml)+'</div>'+
+        '</div>';
       return '<div class="lang-chain-card">'+
         '<div class="lang-chain-head">'+
           '<span class="chip '+lang+'">'+LANG_NAME[lang]+'</span>'+
@@ -2266,13 +2365,15 @@
           statusChip+
         '</div>'+
         (segments.length ? '<div class="lang-chain-rows">'+rows+'</div>' : '<div class="field-hint" style="padding:2px 0 8px;">No items yet.</div>')+
-        '<select class="f" data-chain-picker="'+groupKey+'" style="margin-top:2px;">'+librarySelectOptions()+'</select>'+
+        previewBlock+
+        '<select class="f" data-chain-picker="'+groupKey+'" style="margin-top:2px;" title="Add a clip from the library to this chain">'+librarySelectOptions()+'</select>'+
       '</div>';
     }).join("");
   }
 
   var collapsedGroups = {};
   var editingAudioIds = {};
+  var editingChainPreview = {};
   function handleCollapseToggle(e){
     var btn = e.target.closest("[data-collapse-toggle]");
     if(!btn) return false;
@@ -2284,6 +2385,48 @@
 
   function handleChainClick(e){
     if(handleCollapseToggle(e)) return;
+    if(handleStationAudioClick(e)) return;
+    var togglePreview = e.target.closest("[data-toggle-chain-preview]");
+    if(togglePreview){
+      var pk = togglePreview.dataset.toggleChainPreview;
+      editingChainPreview[pk] = !editingChainPreview[pk];
+      renderTemplateList(); renderSpecialList();
+      return;
+    }
+    var resetPreview = e.target.closest("[data-reset-chain-preview]");
+    if(resetPreview){
+      var rpk = resetPreview.dataset.resetChainPreview.split("|");
+      var rGroupKey = rpk[0], rLang = rpk[1];
+      var rOwner = chainOwnerFor(rGroupKey);
+      if(rOwner && rOwner.chainPreviewParts) delete rOwner.chainPreviewParts[rLang];
+      persist();
+      renderTemplateList(); renderSpecialList();
+      return;
+    }
+    var toggleStationRow = e.target.closest("[data-toggle-station-row]");
+    if(toggleStationRow){
+      var srk = toggleStationRow.dataset.toggleStationRow;
+      expandedStationRows[srk] = !expandedStationRows[srk];
+      renderTemplateList(); renderSpecialList();
+      return;
+    }
+    var stationRowPlay = e.target.closest("[data-station-row-play]");
+    if(stationRowPlay){
+      var srp = stationRowPlay.dataset.stationRowPlay.split("|");
+      var srEl = document.getElementById("strowaud-"+srp[0]+"-"+srp[1].replace(/[^a-zA-Z0-9]/g,""));
+      if(srEl && srEl.getAttribute("src")) srEl.play();
+      return;
+    }
+    var gotoStationRec = e.target.closest("[data-goto-station-recordings]");
+    if(gotoStationRec){
+      e.preventDefault();
+      document.querySelector('[data-tab="audiolib"]').click();
+      setTimeout(function(){
+        var el = document.getElementById("stationNameAudioBody");
+        if(el) el.scrollIntoView({ behavior:"smooth", block:"center" });
+      }, 50);
+      return;
+    }
     var replaceBtn = e.target.closest("[data-replace-seg]");
     if(replaceBtn){
       var row = replaceBtn.closest(".lang-seg-row");
@@ -2295,7 +2438,7 @@
     if(langPlayBtn){
       var lp = langPlayBtn.dataset.langsegPlay.split("|");
       var elLang = document.getElementById("langsegaud-"+lp[0]+"-"+lp[1]+"-"+lp[2]);
-      if(elLang) elLang.play();
+      if(elLang && elLang.getAttribute("src")) elLang.play();
       return;
     }
     var playBtn = e.target.closest("[data-seg-play]");
@@ -2421,9 +2564,11 @@
       var collapsed = !!collapsedGroups[groupKey];
       return '<div class="card template-card">'+
         '<div class="template-head"><div class="template-head-left">'+
-          '<div><div class="template-title"><span class="template-id tabular" title="Fixed by the system">ID '+announceIdDisplay(t.announceId)+'</span>'+esc(t.label)+'</div><div class="template-sub">'+esc(t.desc)+'</div></div>'+
+          '<div style="flex:1;"><div class="template-title"><span class="template-id tabular" title="Fixed by the system">ID '+announceIdDisplay(t.announceId)+'</span>'+esc(t.label)+'</div>'+
+          '<textarea class="tpl-text-edit" rows="1" data-tpl="'+key+'" data-lang="'+state.contentLang+'" placeholder="How this announcement will play, e.g. with a {station} placeholder">'+esc(langText(t.text))+'</textarea></div>'+
         '</div>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
+          '<button class="icon-btn icon-btn-play" data-play-template="'+key+'|'+groupKey+'" title="Play preview"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></button>'+
           (t.custom ? '<button class="icon-btn" data-del-template="'+key+'" title="Delete this template">✕</button>' : '')+
           '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
@@ -2432,13 +2577,52 @@
       '</div>';
     }).join("");
   }
+  function handleChainPreviewInput(e){
+    var pv = e.target.closest("[data-chain-part]"); if(!pv) return false;
+    var parts = pv.dataset.chainPart.split("|");
+    var groupKey = parts[0], lang = parts[1], idx = parseInt(parts[2], 10);
+    var owner = chainOwnerFor(groupKey);
+    if(owner){
+      if(!owner.chainPreviewParts) owner.chainPreviewParts = {};
+      if(!owner.chainPreviewParts[lang]) owner.chainPreviewParts[lang] = [];
+      owner.chainPreviewParts[lang][idx] = pv.value;
+      persist();
+    }
+    return true;
+  }
   document.getElementById("templateList").addEventListener("input", function(e){
+    if(handleChainPreviewInput(e)) return;
     var ta = e.target.closest("textarea[data-tpl]"); if(!ta) return;
     state.templates[ta.dataset.tpl].text[ta.dataset.lang||"en"] = ta.value;
     persist();
     if(document.getElementById("panel-station").classList.contains("active")) renderStationDetail();
   });
+  document.getElementById("specialList").addEventListener("input", handleChainPreviewInput);
+  function playSegmentChain(groupKey, segments){
+    var lang = state.contentLang;
+    var i = 0;
+    function next(){
+      if(i>=segments.length) return;
+      var el = document.getElementById("langsegaud-"+groupKey+"-"+lang+"-"+i);
+      if(el && el.getAttribute("src")){
+        el.currentTime = 0;
+        el.onended = function(){ i++; next(); };
+        el.play();
+      } else {
+        i++; next();
+      }
+    }
+    next();
+  }
   document.getElementById("templateList").addEventListener("click", function(e){
+    var playT = e.target.closest("[data-play-template]");
+    if(playT){
+      var pt = playT.dataset.playTemplate.split("|");
+      var tKey = pt[0], tGroupKey = pt[1];
+      if(collapsedGroups[tGroupKey]){ collapsedGroups[tGroupKey] = false; renderTemplateList(); }
+      playSegmentChain(tGroupKey, state.templates[tKey].segments);
+      return;
+    }
     var delT = e.target.closest("[data-del-template]");
     if(delT){
       delete state.templates[delT.dataset.delTemplate];
@@ -2448,7 +2632,7 @@
     }
     handleChainClick(e);
   });
-  document.getElementById("templateList").addEventListener("change", function(e){ if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
+  document.getElementById("templateList").addEventListener("change", function(e){ if(handleStationAudioChange(e)) return; if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
   bindChainDragEvents(document.getElementById("templateList"));
   document.getElementById("saBuilderOpenBtn").addEventListener("click", function(){
     document.getElementById("saBuilderCard").style.display = "block";
@@ -2483,6 +2667,7 @@
           '<div><div class="template-title"><span class="template-id tabular" title="Fixed by the system">ID '+specialAnnounceIdDisplay(sa, i)+'</span>'+esc(sa.name)+'</div><div class="template-sub">'+esc(sa.description)+'</div></div>'+
         '</div>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
+          '<button class="icon-btn icon-btn-play" data-play-special="'+sa.id+'|'+groupKey+'" title="Play preview"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></button>'+
           (sa.custom ? '<button class="icon-btn" data-del-special="'+sa.id+'" title="Delete this special announcement">✕</button>' : '<span class="from-timetable" title="Fixed by the system, imported automatically from the timetable"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> from timetable</span>')+
           '<button class="icon-btn" data-collapse-toggle="'+groupKey+'" title="'+(collapsed?'Expand':'Collapse')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(collapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
         '</span>'+
@@ -2492,6 +2677,15 @@
     }).join("");
   }
   document.getElementById("specialList").addEventListener("click", function(e){
+    var playS = e.target.closest("[data-play-special]");
+    if(playS){
+      var ps = playS.dataset.playSpecial.split("|");
+      var saId = ps[0], saGroupKey = ps[1];
+      if(collapsedGroups[saGroupKey]){ collapsedGroups[saGroupKey] = false; renderSpecialList(); }
+      var sa2 = state.specialAnnouncements.find(function(x){ return x.id===saId; });
+      if(sa2) playSegmentChain(saGroupKey, sa2.segments);
+      return;
+    }
     var delS = e.target.closest("[data-del-special]");
     if(delS){
       state.specialAnnouncements = state.specialAnnouncements.filter(function(x){ return x.id!==delS.dataset.delSpecial; });
@@ -2500,7 +2694,7 @@
     }
     handleChainClick(e);
   });
-  document.getElementById("specialList").addEventListener("change", function(e){ if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
+  document.getElementById("specialList").addEventListener("change", function(e){ if(handleStationAudioChange(e)) return; if(handleReplaceFileChange(e)) return; handleChainPickerChange(e); });
   bindChainDragEvents(document.getElementById("specialList"));
 
   var NAME_PATTERN = /^[A-Za-z0-9-]+_en\.mp3$/;
@@ -2511,10 +2705,96 @@
     return (bytes/(1024*1024)).toFixed(1) + " MB";
   }
 
+  function stationAudioEntry(stationCode, lang){
+    return state.audioLibrary.find(function(c){ return c.stationCode===stationCode && c.lang===lang; }) || null;
+  }
+  function renderStationNameAudioTable(){
+    var body = document.getElementById("stationNameAudioBody");
+    body.innerHTML = state.stations.map(function(s){
+      return '<tr>'+
+        '<td style="padding-left:16px;">'+esc(s.name)+' <span class="tabular" style="color:var(--text-faint);">'+esc(s.code)+'</span></td>'+
+        LANGS.map(function(lang){
+          var entry = stationAudioEntry(s.code, lang);
+          if(entry){
+            return '<td>'+
+              '<div class="audio-clip-name">'+esc(entry.name)+(entry.duration&&entry.duration!=="—" ? ' <span class="tabular audio-clip-duration">'+esc(entry.duration)+'</span>' : '')+'</div>'+
+              '<div style="display:flex;gap:6px;align-items:center;margin-top:4px;">'+
+                '<button class="icon-btn icon-btn-play" data-station-audio-play="'+entry.id+'" title="Play preview">▶</button><audio id="staud-'+entry.id+'" src="'+(audioObjectUrls[entry.id]||'')+'" style="display:none;"></audio>'+
+                '<button class="icon-btn" data-station-audio-replace="'+s.code+'|'+lang+'" title="Replace this recording"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M17 2l4 4-4 4M3 12a9 9 0 0 1 15-6.7L21 6M7 22l-4-4 4-4M21 12a9 9 0 0 1-15 6.7L3 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+                '<button class="icon-btn" data-station-audio-delete="'+entry.id+'" title="Delete this recording"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+                '<input type="file" accept="audio/*" style="display:none;" data-station-audio-input="'+s.code+'|'+lang+'">'+
+              '</div>'+
+            '</td>';
+          }
+          return '<td>'+
+            '<button class="btn btn-sm" data-station-audio-upload="'+s.code+'|'+lang+'" type="button">+ Upload</button>'+
+            '<input type="file" accept="audio/*" style="display:none;" data-station-audio-input="'+s.code+'|'+lang+'">'+
+          '</td>';
+        }).join("")+
+      '</tr>';
+    }).join("");
+  }
+  function refreshAllStationAudioViews(){
+    renderStationNameAudioTable(); renderTemplateList(); renderSpecialList();
+  }
+  function handleStationAudioClick(e){
+    var playBtn = e.target.closest("[data-station-audio-play]");
+    if(playBtn){
+      var el = document.getElementById("staud-"+playBtn.dataset.stationAudioPlay);
+      if(!el || !el.getAttribute("src")) return true;
+      if(el.paused){ el.play(); playBtn.textContent="⏸"; } else { el.pause(); playBtn.textContent="▶"; }
+      el.onended = function(){ playBtn.textContent="▶"; };
+      return true;
+    }
+    var uploadBtn = e.target.closest("[data-station-audio-upload]");
+    var replaceBtn = e.target.closest("[data-station-audio-replace]");
+    if(uploadBtn || replaceBtn){
+      var abtn = uploadBtn || replaceBtn;
+      var key = uploadBtn ? uploadBtn.dataset.stationAudioUpload : replaceBtn.dataset.stationAudioReplace;
+      var input = abtn.parentElement.querySelector('[data-station-audio-input="'+key+'"]');
+      if(input) input.click();
+      return true;
+    }
+    var delBtn = e.target.closest("[data-station-audio-delete]");
+    if(delBtn){
+      state.audioLibrary = state.audioLibrary.filter(function(a){ return a.id!==delBtn.dataset.stationAudioDelete; });
+      refreshAllStationAudioViews(); updateNavCounts();
+      return true;
+    }
+    return false;
+  }
+  function handleStationAudioChange(e){
+    var input = e.target.closest("[data-station-audio-input]"); if(!input) return false;
+    var file = input.files[0]; if(!file) return true;
+    var parts = input.dataset.stationAudioInput.split("|"), stationCode = parts[0], lang = parts[1];
+    var station = state.stations.find(function(s){ return s.code===stationCode; });
+    var url = URL.createObjectURL(file);
+    var existing = stationAudioEntry(stationCode, lang);
+    if(existing){
+      audioObjectUrls[existing.id] = url;
+      existing.name = file.name; existing.size = file.size; existing.duration = "—";
+    } else {
+      var id = "a-" + Date.now() + "-" + Math.random().toString(36).slice(2,7);
+      audioObjectUrls[id] = url;
+      existing = { id:id, code:"", name:file.name, title:(station?station.name:stationCode)+" ("+LANG_NAME[lang]+")", description:"Station name recording for "+(station?station.name:stationCode), duration:"—", size:file.size, uploadedAt:"just now", sample:false, lang:lang, stationCode:stationCode };
+      state.audioLibrary.push(existing);
+    }
+    var audioEl = new Audio(url);
+    audioEl.addEventListener("loadedmetadata", function(){
+      var mins = Math.floor(audioEl.duration/60), secs = Math.round(audioEl.duration%60);
+      existing.duration = mins + ":" + (secs<10?"0":"")+secs;
+      refreshAllStationAudioViews();
+    });
+    refreshAllStationAudioViews(); updateNavCounts();
+    return true;
+  }
+  document.getElementById("stationNameAudioBody").addEventListener("click", handleStationAudioClick);
+  document.getElementById("stationNameAudioBody").addEventListener("change", handleStationAudioChange);
+
   function renderAudioTable(){
     var body = document.getElementById("audioTableBody");
     if(state.audioLibrary.length===0){
-      body.innerHTML = '<tr><td colspan="5"><div class="empty-state"><strong>No clips uploaded yet</strong>Drop files above to add them.</div></td></tr>';
+      body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><strong>No clips uploaded yet</strong>Drop files above to add them.</div></td></tr>';
       return;
     }
     body.innerHTML = state.audioLibrary.map(function(a){
@@ -2525,19 +2805,24 @@
           ? '<td style="padding-left:16px;"><input class="f" type="number" inputmode="numeric" style="padding:5px 8px;font-size:12px;width:70px;" data-code="'+a.id+'" value="'+esc(a.code||"")+'" placeholder="e.g. 12"></td>'
           : '<td class="tabular" style="padding-left:16px;color:var(--text-muted);">'+esc(a.code||"—")+'</td>')+
         '<td>'+
-          '<div class="audio-clip-name">'+esc(a.name)+(a.duration&&a.duration!=="—" ? ' <span class="tabular audio-clip-duration">'+esc(a.duration)+'</span>' : '')+'</div>'+
           (editing
-            ? '<input class="f" style="padding:5px 8px;font-size:12px;margin-top:5px;" data-desc="'+a.id+'" value="'+esc(a.description||"")+'" placeholder="What does this say?">'
-            : '<div class="audio-clip-desc">'+esc(a.description||"No description yet")+'</div>')+
+            ? '<input class="f" style="padding:5px 8px;font-size:12px;" data-title="'+a.id+'" value="'+esc(a.title||"")+'" placeholder="Title">'
+            : '<div class="audio-clip-name">'+esc(a.title||a.name)+(a.duration&&a.duration!=="—" ? ' <span class="tabular audio-clip-duration">'+esc(a.duration)+'</span>' : '')+'</div>')+
+          '<div class="audio-clip-desc tabular" style="font-size:11px;">'+esc(a.name)+'</div>'+
           (mismatched ? '<div class="name-mismatch">⚠ Rename to '+esc((a.code||"N"))+'_en.mp3</div>' : '')+
+        '</td>'+
+        '<td>'+
+          (editing
+            ? '<input class="f" style="padding:5px 8px;font-size:12px;" data-desc="'+a.id+'" value="'+esc(a.description||"")+'" placeholder="What does this say?">'
+            : (a.description ? '<div class="audio-clip-desc">'+esc(a.description)+'</div>' : '<span style="color:var(--text-faint);">No description yet</span>'))+
         '</td>'+
         '<td class="tabular" style="color:var(--text-faint);">'+fmtSize(a.size)+'</td>'+
         '<td style="color:var(--text-faint);">'+a.uploadedAt+'</td>'+
         '<td style="padding-right:16px;">'+
           '<div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;">'+
-          (a.sample
-            ? '<span class="chip chip-neutral" title="Sample entry — upload a file to enable playback">Sample</span>'
-            : '<button class="icon-btn" data-play="'+a.id+'" title="Play preview">▶</button><audio id="aud-'+a.id+'" src="'+audioObjectUrls[a.id]+'" style="display:none;"></audio>')+
+          '<button class="icon-btn icon-btn-play" data-play="'+a.id+'" title="Play preview">▶</button><audio id="aud-'+a.id+'" src="'+(audioObjectUrls[a.id]||'')+'" style="display:none;"></audio>'+
+          '<button class="icon-btn" data-replace-audio="'+a.id+'" title="Replace this audio file"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M17 2l4 4-4 4M3 12a9 9 0 0 1 15-6.7L21 6M7 22l-4-4 4-4M21 12a9 9 0 0 1-15 6.7L3 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+          '<input type="file" accept="audio/*" style="display:none;" data-replace-audio-input="'+a.id+'">'+
           '<button class="icon-btn'+(editing?'':' pencil')+'" data-edit-audio="'+a.id+'" title="'+(editing?'Done editing':'Edit code &amp; description')+'">'+(editing?'✓':'✎')+'</button>'+
           '<button class="icon-btn" data-del="'+a.id+'" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
           '</div>'+
@@ -2550,8 +2835,15 @@
     var play = e.target.closest("[data-play]");
     if(play){
       var el = document.getElementById("aud-"+play.dataset.play);
+      if(!el.getAttribute("src")){ return; }
       if(el.paused){ el.play(); play.textContent="⏸"; play.title="Pause"; } else { el.pause(); play.textContent="▶"; play.title="Play preview"; }
       el.onended = function(){ play.textContent="▶"; play.title="Play preview"; };
+      return;
+    }
+    var replaceBtn = e.target.closest("[data-replace-audio]");
+    if(replaceBtn){
+      var input = document.querySelector('[data-replace-audio-input="'+replaceBtn.dataset.replaceAudio+'"]');
+      if(input) input.click();
       return;
     }
     var editBtn = e.target.closest("[data-edit-audio]");
@@ -2567,6 +2859,22 @@
       renderAudioTable(); updateNavCounts(); renderTemplateList(); renderSpecialList();
     }
   });
+  document.getElementById("audioTableBody").addEventListener("change", function(e){
+    var input2 = e.target.closest("[data-replace-audio-input]"); if(!input2) return;
+    var file = input2.files[0]; if(!file) return;
+    var entry = state.audioLibrary.find(function(x){ return x.id===input2.dataset.replaceAudioInput; });
+    if(!entry) return;
+    var url = URL.createObjectURL(file);
+    audioObjectUrls[entry.id] = url;
+    entry.name = file.name; entry.size = file.size; entry.sample = false; entry.duration = "—";
+    var audioEl = new Audio(url);
+    audioEl.addEventListener("loadedmetadata", function(){
+      var mins = Math.floor(audioEl.duration/60), secs = Math.round(audioEl.duration%60);
+      entry.duration = mins + ":" + (secs<10?"0":"")+secs;
+      renderAudioTable(); renderTemplateList(); renderSpecialList();
+    });
+    renderAudioTable(); renderTemplateList(); renderSpecialList();
+  });
   document.getElementById("audioTableBody").addEventListener("input", function(e){
     var codeInput = e.target.closest("[data-code]");
     if(codeInput){
@@ -2578,6 +2886,12 @@
     if(descInput){
       var a2 = state.audioLibrary.find(function(x){ return x.id===descInput.dataset.desc; });
       if(a2) a2.description = descInput.value;
+      return;
+    }
+    var titleInput = e.target.closest("[data-title]");
+    if(titleInput){
+      var a3 = state.audioLibrary.find(function(x){ return x.id===titleInput.dataset.title; });
+      if(a3) a3.title = titleInput.value;
     }
   });
 
@@ -2610,6 +2924,7 @@
     document.getElementById("modalManualCodeRow").style.display = "none";
     document.getElementById("modalCode").value = "";
     document.getElementById("modalLang").value = "en";
+    document.getElementById("modalTitle").value = "";
     document.getElementById("modalDescription").value = "";
     document.getElementById("uploadModalOverlay").style.display = "flex";
   }
@@ -2634,8 +2949,10 @@
   document.getElementById("modalUploadBtn").addEventListener("click", function(){
     var file = document.getElementById("modalAudioInput").files[0];
     if(!file){ alert("Please choose a file to upload."); return; }
-    var mode = document.getElementById("modalFilenameMode").value;
+    var title = document.getElementById("modalTitle").value.trim();
+    if(!title){ alert("Please enter a title for this clip."); return; }
     var description = document.getElementById("modalDescription").value.trim();
+    var mode = document.getElementById("modalFilenameMode").value;
     var id = "a-" + Date.now() + "-" + Math.random().toString(36).slice(2,7);
     var url = URL.createObjectURL(file);
     audioObjectUrls[id] = url;
@@ -2654,7 +2971,7 @@
       var rawBase = base.replace(/_(en|he|ar)$/i, "");
       code = /^\d+$/.test(rawBase) ? rawBase : nextAudioCode();
     }
-    var entry = { id:id, code:code, name:finalName, description:description, duration:"—", size:file.size, uploadedAt:"just now", sample:false, lang:lang };
+    var entry = { id:id, code:code, name:finalName, title:title, description:description, duration:"—", size:file.size, uploadedAt:"just now", sample:false, lang:lang };
     state.audioLibrary.push(entry);
     var audioEl = new Audio(url);
     audioEl.addEventListener("loadedmetadata", function(){
