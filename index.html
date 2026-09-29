@@ -1142,7 +1142,19 @@
       }
       if(saved.routes && saved.routes.length) state.routes = saved.routes;
       if(saved.sonderziele && saved.sonderziele.length) state.sonderziele = saved.sonderziele;
-      if(saved.templates) state.templates = saved.templates;
+      // The 4 templates are fixed by the system — never let a saved snapshot from an older
+      // build override their name/ID; only the user-editable parts (wording, clip chain,
+      // preview overrides) carry over.
+      if(saved.templates){
+        Object.keys(TEMPLATES_DEFAULT).forEach(function(key){
+          var savedTpl = saved.templates[key];
+          if(!savedTpl) return;
+          var tpl = state.templates[key];
+          if(savedTpl.text) tpl.text = savedTpl.text;
+          if(savedTpl.segments) tpl.segments = savedTpl.segments;
+          if(savedTpl.chainPreviewParts) tpl.chainPreviewParts = savedTpl.chainPreviewParts;
+        });
+      }
       if(saved.archives && saved.archives.length) state.archives = saved.archives;
       if(saved.specialAnnouncements && saved.specialAnnouncements.length) state.specialAnnouncements = saved.specialAnnouncements;
       if(saved.contentLang) state.contentLang = saved.contentLang;
