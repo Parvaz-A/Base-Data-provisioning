@@ -963,8 +963,8 @@
   // stop-specific announcements (station name inserted) for whichever tag is set.
   var ANNOUNCE_TAG_OPTIONS = [
     { value:"",        num:null, label:"— No special tag —" },
-    { value:"NEXT",    num:1,    label:"Announcement arrival" },
-    { value:"LAST",    num:2,    label:"Announcement arrival last station" },
+    { value:"NEXT",    num:1,    label:"Arrival announcement" },
+    { value:"LAST",    num:2,    label:"Arrival announcement last station" },
     { value:"WELCOME", num:3,    label:"Departure announcement" },
     { value:"VIA",     num:4,    label:"VIA announcement" }
   ];
@@ -979,12 +979,12 @@
   }
 
   var TEMPLATES_DEFAULT = {
-    next:   { announceId:"NEXT",    label:"Announcement arrival",  desc:"Played approaching every non-final stop — a combination of clips, sharing the station-name placeholder", text:{
+    next:   { announceId:"NEXT",    label:"Arrival announcement",  desc:"Played approaching every non-final stop — a combination of clips, sharing the station-name placeholder", text:{
       en:"The next station is {station}. Please mind the gap between the train and the platform.",
       he:"התחנה הבאה היא {station}. אנא שימו לב לרווח בין הרכבת לרציף.",
       ar:"المحطة القادمة هي {station}. يرجى الانتباه إلى الفجوة بين القطار والرصيف."
     }, segments:["lib-next-pre","lib-stname","lib-next-suf"] },
-    last:   { announceId:"LAST",    label:"Announcement arrival last station",    desc:"Played approaching the last station on the route — a combination of clips, sharing the station-name placeholder", text:{
+    last:   { announceId:"LAST",    label:"Arrival announcement last station",    desc:"Played approaching the last station on the route — a combination of clips, sharing the station-name placeholder", text:{
       en:"This is the final stop, {station}. Please remember to take all your belongings.",
       he:"זוהי התחנה האחרונה, {station}. אנא זכרו לקחת את כל החפצים שלכם.",
       ar:"هذه هي المحطة الأخيرة، {station}. يرجى تذكر أخذ جميع أغراضكم."
