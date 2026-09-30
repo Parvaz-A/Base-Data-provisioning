@@ -1617,13 +1617,6 @@
 
     var baseDataPanel =
       '<section class="form-section">'+
-        '<div class="form-section-head"><div><h4>GPS window dimensions</h4><div class="desc">Inner (approach) and outer (arming) trigger zone size — edit on the GPS Window tab</div></div></div>'+
-        '<div class="field-row">'+
-          '<div class="field"><label class="field-label">Inner window (m)</label><input class="f tabular" value="'+esc(st.gps.innerLength+'×'+st.gps.innerWidth)+'" disabled></div>'+
-          '<div class="field"><label class="field-label">Outer window (m)</label><input class="f tabular" value="'+esc(st.gps.outerLength+'×'+st.gps.outerWidth)+'" disabled></div>'+
-        '</div>'+
-      '</section>'+
-      '<section class="form-section">'+
         '<div class="form-section-head"><div><h4>Display texts</h4><div class="desc">Station name as shown on each on-board and platform display — all three languages are always shown together</div></div></div>'+
         '<div class="langtbl">'+
           '<div></div>'+
@@ -2321,13 +2314,15 @@
         var isStationExpanded = isStationRow && !!expandedStationRows[stationExpandKey];
         return '<div class="segment-row lang-seg-row'+(missing?' missing':'')+'" draggable="true" data-seg-group="'+groupKey+'" data-seg-index="'+i+'">'+
           '<span class="drag-handle" title="Drag to reorder">⠿</span>'+
-          '<span class="lang-seg-index tabular">'+(i+1)+'.</span>'+
+          '<span class="chip chip-neutral tabular" style="min-width:20px;justify-content:center;padding:1px 7px;">'+(i+1)+'</span>'+
+          '<span class="chip" style="flex:none;padding:1px 8px;'+(isStationRow?'background:var(--accent-soft);color:var(--accent-strong);':'background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);')+'">'+(isStationRow?'field':'clip')+'</span>'+
           (missing ? '<span class="lang-seg-warn-wrap" style="visibility:hidden;"><span class="lang-seg-warn">!</span></span>' : '')+
           (clip ? '<audio id="langsegaud-'+groupKey+'-'+lang+'-'+i+'" src="'+(audioObjectUrls[clip.id]||'')+'" style="display:none;"></audio>' : '')+
           '<span class="lang-seg-text">'+
-            '<span class="lang-seg-file'+(missing?' missing':'')+'" title="'+(missing?'Missing file':filename)+'">'+esc(title)+'</span>'+
-            '<span class="lang-seg-desc tabular">'+esc(filename)+'</span>'+
-            (desc ? '<span class="lang-seg-desc">'+esc(desc)+'</span>' : '')+
+            (isStationRow
+              ? '<span class="chip chip-accent" style="font-family:var(--font-mono);align-self:flex-start;">{station}</span>'
+              : '<span class="lang-seg-file'+(missing?' missing':'')+'" title="'+(missing?'Missing file':filename)+'">'+esc(title)+'</span>')+
+            '<span class="lang-seg-desc">'+esc(desc||title)+' <span class="tabular" style="opacity:.6;">· '+esc(code||filename)+'</span></span>'+
           '</span>'+
           '<span class="route-stop-actions">'+
             (isStationRow
