@@ -1114,7 +1114,9 @@
         stops: assignGpsIndex(line.stops.map(function(s){ return mkStop(s[0], s[1], s[2]); })),
         fahrten: [
           mkFahrt(baseZug, validFrom, validTo),
-          (function(){ var wk = mkFahrt(String(parseInt(baseZug,10)+1), validFrom, validTo); DAY_KEYS.forEach(function(k){ wk.days[k] = (k==="sa"||k==="so"); }); return wk; })()
+          (function(){ var wk = mkFahrt(String(parseInt(baseZug,10)+1), validFrom, validTo); DAY_KEYS.forEach(function(k){ wk.days[k] = (k==="sa"||k==="so"); }); return wk; })(),
+          (function(){ var wd = mkFahrt(String(parseInt(baseZug,10)+2), validFrom, validTo); DAY_KEYS.forEach(function(k){ wd.days[k] = (k!=="sa"&&k!=="so"); }); return wd; })(),
+          (function(){ var ev = mkFahrt(String(parseInt(baseZug,10)+3), validFrom, validTo); DAY_KEYS.forEach(function(k){ ev.days[k] = true; }); return ev; })()
         ]
       };
     });
@@ -2176,10 +2178,10 @@
             state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
           '</select>'+
           '<div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;">'+
-            '<span class="chip chip-neutral" style="font-weight:600;">'+esc(defaultAnnounceLabel)+'</span>'+
-            (stop.specialAnnouncementId ? '<span style="color:var(--text-faint);font-size:12px;">›</span><span class="chip chip-accent" style="font-weight:600;">'+esc((state.specialAnnouncements.find(function(sa){ return sa.id===stop.specialAnnouncementId; })||{}).name||"")+'</span>' : '')+
+            '<span class="chip chip-neutral" style="font-weight:600;'+(stop.specialAnnouncementId?'text-decoration:line-through;opacity:.55;':'')+'" title="'+esc(defaultAnnounceLabel)+'">Based announcement</span>'+
+            (stop.specialAnnouncementId ? '<span style="color:var(--text-faint);font-size:12px;">replaced by</span><span class="chip chip-accent" style="font-weight:600;">'+esc((state.specialAnnouncements.find(function(sa){ return sa.id===stop.specialAnnouncementId; })||{}).name||"")+'</span>' : '')+
           '</div>'+
-          '<div class="field-hint">'+(stop.specialAnnouncementId ? 'Default plays first, then this special announcement.' : 'Always plays. Pick a special announcement above to add one after it.')+'</div>'+
+          '<div class="field-hint">'+(stop.specialAnnouncementId ? 'Plays automatically based on the journey — using a special announcement here replaces it for this stop.' : 'Plays automatically based on the journey. Pick a special announcement above to replace it for this stop.')+'</div>'+
         '</div>'+
       '</div>'+
       '<div class="save-bar" style="margin-top:4px;padding-top:14px;">'+
