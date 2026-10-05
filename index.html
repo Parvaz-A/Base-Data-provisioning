@@ -1,5 +1,4 @@
-<!DOCTYPE html><html><head><meta charset="utf-8">
-<title>Base Data Provisioning</title>
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Base Data Provisioning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
@@ -588,37 +587,36 @@
       <div class="panel-head">
         <div>
           <h2>Routes</h2>
-          <p>Generate a new route for a period — every Fahrt from the timetable is imported automatically, and you can always add more by hand. Every Fahrt always lives inside exactly one route.</p>
+          <p>One set of Routes that you keep working on. Pick a schedule and generate — the timetable is compared with the existing Routes and only what is missing is added. Existing configuration is never overwritten.</p>
         </div>
-        <div class="search-box"><input type="text" id="searchArchive" placeholder="Search routes, Fahrten &amp; stations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="search-box"><input type="text" id="searchArchive" placeholder="Search routes, Journeys &amp; stations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
       </div>
 
       <div class="section-label">Generate route</div>
       <div class="card" style="padding:20px 22px; margin-bottom:22px;">
         <div class="field-row-4 generate-route-row" style="align-items:end;">
           <div class="field"><label class="field-label">Version</label><input class="f tabular" disabled value="1" style="text-align:center;"></div>
-          <div class="field"><label class="field-label">Seasonal schedule</label><select class="f" id="seasonPicker"></select></div>
-          <div class="field"><label class="field-label">Valid from</label><input class="f" type="date" id="validFrom" value="2026-09-07"></div>
-          <div class="field"><label class="field-label">Valid to</label><input class="f" type="date" id="validTo" value="2026-10-05"></div>
+          <div class="field"><label class="field-label">Schedule</label><select class="f" id="seasonPicker"></select></div>
+          <div class="field"><label class="field-label" id="validFromLabel">Valid from</label><input class="f" type="date" id="validFrom" value="2026-09-07" disabled></div>
+          <div class="field"><label class="field-label" id="validToLabel">Valid to</label><input class="f" type="date" id="validTo" value="2026-10-05" disabled></div>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
           <button class="btn btn-primary" id="exportBtn">Generate route</button>
           <span class="field-hint" id="archiveSelectHint" style="color:var(--danger);"></span>
         </div>
-        <div class="field-hint" style="margin-top:8px;">Pulls in a Fahrt for every line in the chosen season's timetable, then generates an .xlsx export for SBR — use each route's own "+ New Fahrt" button to add more by hand.</div>
+        <div class="field-hint" style="margin-top:8px;">Validity comes from the selected schedule. Generate compares its timetable with the existing Routes and adds only the missing ones — download the result with Export.</div>
       </div>
 
-      <div class="section-label">Routes</div>
       <div id="archiveHistoryList"></div>
 
       <div class="card route-builder" id="routeBuilderCard" style="display:none;">
         <div class="form-section-head" style="margin-bottom:14px;">
-          <h4 style="font-size:13.5px;font-weight:600;">New Fahrt</h4>
+          <h4 style="font-size:13.5px;font-weight:600;">New Route</h4>
           <button class="icon-btn" id="routeBuilderCloseBtn" title="Close">✕</button>
         </div>
         <div class="field-row">
-          <div class="field"><label class="field-label">Fahrt name</label><input class="f" id="routeName" placeholder="e.g. Coastal Express 214"></div>
-          <div class="field"><label class="field-label">Route</label><select class="f" id="routeArchiveSelect"></select><div class="field-hint">Every Fahrt belongs to a route — pick one, or create a new one below.</div></div>
+          <div class="field"><label class="field-label">Route name</label><input class="f" id="routeName" placeholder="e.g. Coastal Express 214"></div>
+          <div class="field" style="display:none;"><label class="field-label">Period</label><select class="f" id="routeArchiveSelect"></select></div>
         </div>
         <div class="field-row" id="routeNewArchiveDates" style="display:none;">
           <div class="field"><label class="field-label">Valid from</label><input class="f" type="date" id="routeValidFrom" value="2026-09-07"></div>
@@ -657,7 +655,7 @@
       <div class="panel-head">
         <div>
           <input id="fahrtEditorTitle" class="fahrt-title-input" value="Route" title="Click to rename this Route">
-          <p>Stops, Fahrten and announcement connections for this Route.</p>
+          <p>Stops, Journeys and announcement connections for this Route.</p>
         </div>
         <div style="display:flex;align-items:center;gap:12px;">
           <span class="save-status" id="fahrtSaveStatus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved automatically</span>
@@ -1059,9 +1057,10 @@
     routeDraft: { stops:[] },
     openDraftStop: undefined,
     openStopByRoute: {},
+    // Only one schedule plan ships by default — "Generate route" always rewrites this single bar
+    // rather than piling up a new one per date range (see the exportBtn handler below).
     archives: [
-      { id:"arc-seed-1", from:"2026-09-07", to:"2026-10-05", when:"07 Sep 2026, 04:12", seasonId:"winter-2026", routeIds:["r-seed-1","r-seed-2","r-seed-3","r-seed-4","r-seed-5"] },
-      { id:"arc-seed-2", from:"2026-10-06", to:"2026-11-02", when:"06 Oct 2026, 03:47", seasonId:"winter-2026", routeIds:["r-seed-1","r-seed-2","r-seed-3"] }
+      { id:"arc-schedule", from:"2026-09-07", to:"2026-10-05", when:"07 Sep 2026, 04:12", seasonId:"winter-2026", routeIds:["r-seed-1","r-seed-2","r-seed-3","r-seed-4","r-seed-5"] }
     ]
   };
 
@@ -1087,14 +1086,14 @@
   // auto-populated with a route for each line in the chosen season, valid for the archive's period.
   // Users can still add further routes by hand.
   var SEASONAL_SCHEDULES = [
-    { id:"winter-2026", label:"Winter 2026/27", lines:[
+    { id:"winter-2026", label:"Winter 2026/27", from:"2026-09-07", to:"2026-10-05", lines:[
       { name:"Coastal Line 214",      stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6], ["TLV","H",30.5], ["TAH","H",3.1] ] },
       { name:"Southern Line 318",     stops:[ ["TAH","H",0], ["LOD","H",18.7], ["BGN","B",6.4], ["ASK","H",41.2], ["BSV","H",29.9] ] },
       { name:"Northern Local 108",    stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6] ] },
       { name:"Airport Connector 512", stops:[ ["TAH","H",0], ["BGN","H",15.2] ] },
       { name:"Central Peak 630",      stops:[ ["HRZ","H",0], ["TLV","H",11.3], ["TAH","H",3.1], ["LOD","B",18.7] ] }
     ] },
-    { id:"summer-2027", label:"Summer 2027", lines:[
+    { id:"summer-2027", label:"Summer 2027", from:"2027-06-01", to:"2027-08-31", lines:[
       { name:"Southern Line 318",         stops:[ ["TAH","H",0], ["LOD","H",18.7], ["BGN","B",6.4], ["ASK","H",41.2], ["BSV","H",29.9] ] },
       { name:"Airport Connector 512",      stops:[ ["TAH","H",0], ["BGN","H",15.2] ] },
       { name:"Beach Express 240",          stops:[ ["NHR","H",0], ["AKO","H",13.4], ["HFA","H",22.1], ["BNY","B",34.8], ["HDR","D",9.2], ["NTY","H",12.6], ["HRZ","H",10.4], ["TLV","H",7.5] ] },
@@ -1186,6 +1185,40 @@
     }catch(e){ /* storage unavailable — state still works in memory */ }
   }
   loadPersisted();
+  // self-heal: only one *generated* schedule plan should ever exist — merge any extras saved from
+  // an older build (before "Generate route" always rewrote a single bar) into the first of them.
+  // A manually-created, dateless "example" archive is left alone; it isn't part of this merge.
+  (function(){
+    var isGenerated = function(a){
+      if(a.generated) return true;
+      var routes = a.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
+      return routes.length>0 && routes.every(function(r){ return r.fromTimetable; });
+    };
+    var generated = state.archives.filter(isGenerated);
+    var manual = state.archives.filter(function(a){ return !isGenerated(a); });
+    if(generated.length > 1){
+      var mainArc = generated[0];
+      var seenNames = {};
+      mainArc.routeIds.forEach(function(id){
+        var r = state.routes.find(function(x){ return x.id===id; });
+        if(r) seenNames[r.name] = id;
+      });
+      var dropRouteIds = {};
+      generated.slice(1).forEach(function(a){
+        a.routeIds.forEach(function(id){
+          var r = state.routes.find(function(x){ return x.id===id; });
+          if(!r) return;
+          if(seenNames[r.name]){ dropRouteIds[id] = true; return; } // duplicate of a route already kept — drop it
+          seenNames[r.name] = id;
+          mainArc.routeIds.push(id);
+        });
+      });
+      state.routes = state.routes.filter(function(r){ return !dropRouteIds[r.id]; });
+      generated = [mainArc];
+    }
+    if(generated.length===1){ generated[0].id = "arc-schedule"; generated[0].generated = true; }
+    state.archives = generated.concat(manual);
+  })();
   // self-heal: routes saved before the Fahrten table existed won't have this array yet
   state.routes.forEach(function(r){ if(!r.fahrten) r.fahrten = []; });
   // self-heal: timetable-imported routes saved before the weekend-trip sample was added only had one Fahrt
@@ -1212,8 +1245,8 @@
   /* ---------------- tab navigation ---------------- */
 
   var TAB_META = {
-    archive:{ title:"Routes", sub:"Build routes; every Fahrt lives inside one route" },
-    fahrt:{ title:"Route", sub:"Stops, Fahrten & announcement connections for this Route" },
+    archive:{ title:"Routes", sub:"Build routes; every Journey lives inside one route" },
+    fahrt:{ title:"Route", sub:"Stops, Journeys & announcement connections for this Route" },
     station:{ title:"Station Configuration", sub:"Codes, GPS positioning & display texts" },
     stationoverview:{ title:"Station Overview", sub:"All stations from the timetable export, at a glance" },
     sonderziel:{ title:"Special Train Service Texts", sub:"Special destination texts, independent of stations" },
@@ -1265,61 +1298,74 @@
   }
 
   // Builds a simple route/stop table for the given archive and downloads it as an .xlsx file for SBR export.
-  function exportArchiveToSbrXlsx(archiveId){
-    var arc = state.archives.find(function(a){ return a.id===archiveId; });
-    if(!arc) return;
-    var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
+  function routesToXlsxRows(routes){
+    var rows = [["Route","Journey (Zugnummer)","Valid from","Valid to","#","Stop code","Stop name","Type","Distance (km)","Arrival","Departure"]];
+    routes.forEach(function(r){
+      (r.fahrten && r.fahrten.length ? r.fahrten : [null]).forEach(function(fz){
+        r.stops.forEach(function(s, i){
+          var st = state.stations.find(function(x){ return x.code===s.code; });
+          rows.push([
+            r.name, fz?fz.zugnummer:"", fz?fz.validFrom:"", fz?fz.validTo:"", i+1, s.code, st?st.name:"",
+            STOP_TYPE_LABEL[s.type]||s.type, s.distanceKm, s.arrivalOverride||"", s.departureOverride||""
+          ]);
+        });
+      });
+    });
+    return rows;
+  }
+  function writeRoutesXlsx(routes, filename){
     if(!routes.length){
-      alert("This route has no Fahrten yet — add at least one Fahrt before exporting to SBR.");
+      alert("There are no Routes yet to export.");
       return;
     }
+    // Routes with no Trips yet still export — their stops just show with blank Trip columns,
+    // since the point here is to see what's configured, complete or not.
     if(typeof XLSX==="undefined"){
       alert("The Excel export library didn't load — check your connection and try again.");
       return;
     }
-    var rows = [["Fahrt","Valid from","Valid to","#","Stop code","Stop name","Type","Distance (km)","Arrival","Departure"]];
-    routes.forEach(function(r){
-      r.stops.forEach(function(s, i){
-        var st = state.stations.find(function(x){ return x.code===s.code; });
-        rows.push([
-          r.name, r.validFrom, r.validTo, i+1, s.code, st?st.name:"",
-          STOP_TYPE_LABEL[s.type]||s.type, s.distanceKm, s.arrivalOverride||"", s.departureOverride||""
-        ]);
-      });
-    });
-    var ws = XLSX.utils.aoa_to_sheet(rows);
-    ws["!cols"] = [{wch:22},{wch:11},{wch:11},{wch:4},{wch:10},{wch:24},{wch:13},{wch:13},{wch:9},{wch:10}];
+    var ws = XLSX.utils.aoa_to_sheet(routesToXlsxRows(routes));
+    ws["!cols"] = [{wch:22},{wch:14},{wch:11},{wch:11},{wch:4},{wch:10},{wch:24},{wch:13},{wch:13},{wch:9},{wch:10}];
     var wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Fahrten");
-    XLSX.writeFile(wb, "SBR-export_"+arc.from+"_to_"+arc.to+".xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Journeys");
+    XLSX.writeFile(wb, filename);
+  }
+  function exportArchiveToSbrXlsx(archiveId){
+    var arc = state.archives.find(function(a){ return a.id===archiveId; });
+    if(!arc) return;
+    var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
+    writeRoutesXlsx(routes, "SBR-export_"+arc.from+"_to_"+arc.to+".xlsx");
   }
 
   document.getElementById("exportBtn").addEventListener("click", function(){
-    var from = document.getElementById("validFrom").value, to = document.getElementById("validTo").value;
     var seasonId = document.getElementById("seasonPicker").value || "winter-2026";
-    if(!from || !to){
-      document.getElementById("archiveSelectHint").textContent = "Pick both a start and end date.";
-      return;
+    var season = seasonById(seasonId);
+    var from = season.from, to = season.to;
+    var hint = document.getElementById("archiveSelectHint");
+    // One single set of Routes. Generate = delta compare: existing Routes stay untouched,
+    // only timetable lines without a Route yet are added. No auto-download — use Export.
+    var SCHEDULE_ARCHIVE_ID = "arc-schedule";
+    var arc = state.archives.find(function(a){ return a.id===SCHEDULE_ARCHIVE_ID || a.generated; }) || state.archives[0];
+    if(!arc){
+      arc = { id:SCHEDULE_ARCHIVE_ID, from:from, to:to, seasonId:seasonId, generated:true, when:"", routeIds:[] };
+      state.archives.unshift(arc);
     }
-    document.getElementById("archiveSelectHint").textContent = "";
-    var newArchiveId = "arc-"+Date.now();
-    // Pull in a route per line from the chosen season's timetable — the user can still add more by hand.
+    var existing = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
     var ttRoutes = routesFromTimetable(from, to, "r-"+Date.now(), seasonId);
-    ttRoutes.forEach(function(r){ state.routes.push(r); });
-    state.archives.unshift({
-      id:newArchiveId, from:from, to:to, seasonId:seasonId,
-      when: new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}),
-      routeIds: ttRoutes.map(function(r){ return r.id; })
-    });
+    var added = ttRoutes.filter(function(r){ return !existing.some(function(e){ return e.name===r.name; }); });
+    added.forEach(function(r){ state.routes.push(r); arc.routeIds.push(r.id); });
+    arc.from = from; arc.to = to; arc.seasonId = seasonId; arc.generated = true;
+    arc.when = new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
     persist();
     updateNavCounts();
-    justGeneratedArchiveIds = [newArchiveId];
+    justGeneratedArchiveIds = [arc.id];
     renderArchive();
-    // Already populated from the timetable — scroll to it so the import is visible; "+ New route" stays available for anything extra.
-    var newCard = document.querySelector('[data-archive-id="'+newArchiveId+'"]');
+    var incomplete = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(function(r){ return r && routeIncomplete(r); }).length;
+    hint.style.color = "var(--text-faint)";
+    hint.textContent = "Compared with existing Routes: "+added.length+" added, "+(ttRoutes.length-added.length)+" already configured"+(incomplete?" · "+incomplete+" incomplete":"")+".";
+    var newCard = document.querySelector('[data-archive-id="'+arc.id+'"]');
     if(newCard) newCard.scrollIntoView({ behavior:"smooth", block:"start" });
     setTimeout(function(){ justGeneratedArchiveIds = []; renderArchive(); }, 2000);
-    exportArchiveToSbrXlsx(newArchiveId);
   });
 
   var justGeneratedArchiveIds = [];
@@ -1337,12 +1383,16 @@
     document.getElementById("routeBuilderCard").style.display = "none";
   });
 
+  // A Route is incomplete if any of its stations has no English station-name recording yet.
+  function routeIncomplete(r){
+    return r.stops.some(function(st){ return !stationAudioEntry(st.code, "en"); });
+  }
   function renderArchive(){
     var histList = document.getElementById("archiveHistoryList");
     if(state.archives.length===0){
-      histList.innerHTML = '<div class="card empty-state"><strong>No routes yet</strong>Save a Fahrt above, or generate one below, to create the first one.</div>';
+      histList.innerHTML = '<div class="card empty-state"><strong>No Routes yet</strong>Pick a schedule above and click Generate route, or add one with + New Route.</div>';
     } else {
-      histList.innerHTML = state.archives.map(function(arc){
+      histList.innerHTML = state.archives.slice(0,1).map(function(arc){
         var routes = arc.routeIds.map(function(id){ return state.routes.find(function(r){ return r.id===id; }); }).filter(Boolean);
         var archiveGroupKey = "arc:"+arc.id;
         var archiveCollapsed = !!collapsedGroups[archiveGroupKey];
@@ -1350,23 +1400,25 @@
         var seasonLineCount = archSeason.lines.length;
         // Route-count chip color: amber when empty, green once every line in this archive's season has a route,
         // orange when some routes exist but the archive is still short of the full seasonal set.
+        var missingCount = archSeason.lines.filter(function(l){ return !routes.some(function(r){ return r.name===l.name; }); }).length;
+        var incompleteCount = routes.filter(routeIncomplete).length;
         var routeChipClass = routes.length===0 ? "chip-warning"
-          : routes.length>=seasonLineCount ? "chip-filled-success"
+          : (missingCount===0 && incompleteCount===0) ? "chip-filled-success"
           : "chip-filled-warning";
         return '<div class="card archive-entry'+(justGeneratedArchiveIds.indexOf(arc.id)>-1?' just-generated':'')+'" data-archive-id="'+arc.id+'">'+
           '<div class="archive-entry-head">'+
-            '<span class="archive-entry-title">Route &middot; '+fmtRange(arc.from,arc.to)+' <span class="chip outlined" style="margin-left:8px;font-weight:500;">'+esc(archSeason.label)+'</span></span>'+
+            '<span class="archive-entry-title">'+'Routes'+'</span>'+
             '<span style="display:flex;align-items:center;gap:8px;">'+
-              '<span class="chip '+routeChipClass+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' '+(routes.length===1?'Route':'Routes')+(routes.length>0 && routes.length<seasonLineCount ? ' · '+(seasonLineCount-routes.length)+' missing' : '')+'</span>'+
-              '<button class="icon-btn" data-export-sbr-for="'+arc.id+'" data-tip="Export Fahrten as .xlsx for SBR" aria-label="Export this route\'s Fahrten as an .xlsx file for SBR"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
-              '<button class="btn btn-sm btn-outlined-primary" data-new-route-for="'+arc.id+'" title="Create a new Route for this period"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New Route</button>'+
+              '<span class="chip '+routeChipClass+' tabular">'+(routes.length===0?'⚠ ':'')+routes.length+' '+(routes.length===1?'Route':'Routes')+(missingCount ? ' · '+missingCount+' missing' : '')+(incompleteCount ? ' · '+incompleteCount+' incomplete' : '')+'</span>'+
+              '<button class="btn btn-sm btn-text" data-export-sbr-for="'+arc.id+'" data-tip="Export Journeys as .xlsx for SBR" aria-label="Export this route\'s Journeys as an .xlsx file for SBR"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Export</button>'+
+              '<button class="btn btn-sm btn-outlined-primary" data-new-route-for="'+arc.id+'" title="Create a new Route"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New Route</button>'+
               '<button class="icon-btn" data-collapse-toggle="'+archiveGroupKey+'" title="'+(archiveCollapsed?'Expand route':'Minimize route')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(archiveCollapsed?'0deg':'180deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
             '</span>'+
           '</div>'+
           (archiveCollapsed ? '' :
-          '<div class="archive-entry-when">Generated '+arc.when+'</div>'+
+          (arc.when ? '<div class="archive-entry-when">Last compared '+arc.when+'</div>' : '')+
           '<div class="route-grid" style="margin-top:12px;">'+
-            (routes.length ? routes.map(function(r){ return routeCardHtml(r, { showDelete:true }); }).join("") : '<div class="empty-state" style="grid-column:1/-1;padding:16px;"><strong>No Routes in this route yet</strong>Use "+ New Route" above to add one.</div>')+
+            (routes.length ? routes.map(function(r){ return routeCardHtml(r, { showDelete:true }); }).join("") : '<div class="empty-state" style="grid-column:1/-1;padding:16px;"><strong>No Routes yet</strong>Use "+ New Route" above to add one.</div>')+
           '</div>'
           )+
         '</div>';
@@ -1399,7 +1451,7 @@
       }
       var openBtn = e.target.closest("[data-open-fahrt]");
       if(openBtn){
-        openFahrtEditor(openBtn.dataset.openFahrt);
+        openFahrtEditor(openBtn.dataset.openFahrt, !!openBtn.dataset.openFahrtHideTrips);
         return;
       }
       var toggle = e.target.closest("[data-stop-toggle]");
@@ -1480,8 +1532,10 @@
     switchTab(link.dataset.tabJump);
   });
 
-  function openFahrtEditor(routeId){
+  var fahrtEditorHideTrips = false;
+  function openFahrtEditor(routeId, hideTrips){
     state.selectedRouteId = routeId;
+    fahrtEditorHideTrips = !!hideTrips;
     switchTab("fahrt");
   }
   document.getElementById("fahrtBreadcrumb").addEventListener("click", function(e){
@@ -1899,10 +1953,10 @@
       }
     }
 
+    // the Route itself is a dateless base — only the Trips inside it carry a validity period.
+    // A brand-new Route starts with no Trips; add them by hand with "+ New Trip" below.
     state.routes.push({
       id:newRouteId, name:name,
-      validFrom: validFrom,
-      validTo: validTo,
       stops: state.routeDraft.stops.slice(),
       fahrten: []
     });
@@ -1920,7 +1974,7 @@
   // open this Route in its own editor page (see fahrtEditorBodyHtml / renderFahrtEditor below).
   function routeCardHtml(r, opts){
     opts = opts || {};
-    return '<div class="card route-card" data-open-fahrt="'+r.id+'" style="cursor:pointer;" title="Open this Route to edit stops, Fahrten &amp; announcements">'+
+    return '<div class="card route-card" data-open-fahrt="'+r.id+'" '+(opts.hideTripChip?'data-open-fahrt-hide-trips="1" ':'')+'style="cursor:pointer;" title="Open this Route to edit stops, Journeys &amp; announcements">'+
       '<div class="route-card-head">'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           '<span class="route-card-title">'+esc(r.name)+'</span>'+
@@ -1928,12 +1982,11 @@
         '</span>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           (opts.showDelete
-            ? '<button class="icon-btn" data-del="'+r.id+'" title="Delete Fahrt">✕</button>'
+            ? '<button class="icon-btn" data-del="'+r.id+'" title="Delete Route">✕</button>'
             : '<span class="chip chip-success"><span class="chip-dot"></span>Included</span>')+
-          '<span class="icon-btn" style="pointer-events:none;" title="Open Fahrt"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
+          '<span class="icon-btn" style="pointer-events:none;" title="Open Route"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
         '</span>'+
       '</div>'+
-      '<div class="route-card-validity tabular">'+(r.validFrom&&r.validTo? fmtRange(r.validFrom,r.validTo) : "No validity set")+'</div>'+
       '<div class="route-line"><div class="route-line-row">'+
         r.stops.map(function(stop, i){
           var s = state.stations.find(function(x){ return x.code===stop.code; });
@@ -1949,7 +2002,12 @@
           '</div>';
         }).join("")+
       '</div></div>'+
-      '<div class="route-card-foot"><span class="chip chip-neutral tabular">'+r.stops.length+' stops</span></div>'+
+      '<div class="route-card-foot"><span class="chip chip-neutral tabular">'+r.stops.length+' stops</span>'+
+        (routeIncomplete(r) ? '<span class="chip chip-warning" title="Station-name audio is missing for at least one stop">⚠ Incomplete — audio missing</span>' : '')+
+        (opts.hideTripChip ? '' : (r.fahrten && r.fahrten.length
+          ? '<span class="chip chip-success tabular">'+r.fahrten.length+' Trip'+(r.fahrten.length===1?'':'s')+'</span>'
+          : '<span class="chip chip-warning tabular">⚠ No Trips yet</span>'))+
+      '</div>'+
     '</div>';
   }
 
@@ -1963,7 +2021,7 @@
         '<td><input class="f tabular" type="date" style="padding:5px 8px;font-size:12px;" data-fzfield="'+r.id+'|'+i+'|validFrom" value="'+esc(fz.validFrom)+'"></td>'+
         '<td><input class="f tabular" type="date" style="padding:5px 8px;font-size:12px;" data-fzfield="'+r.id+'|'+i+'|validTo" value="'+esc(fz.validTo)+'"></td>'+
         DAY_KEYS.map(function(k){ return '<td style="text-align:center;"><input type="checkbox" data-fzday="'+r.id+'|'+i+'|'+k+'" '+(fz.days[k]?'checked':'')+'></td>'; }).join("")+
-        '<td><button class="icon-btn" data-fz-remove="'+r.id+'|'+i+'" title="Remove this Fahrt">✕</button></td>'+
+        '<td><button class="icon-btn" data-fz-remove="'+r.id+'|'+i+'" title="Remove this Trip">✕</button></td>'+
       '</tr>';
     }).join("");
     return '<section class="form-section">'+
@@ -1971,11 +2029,11 @@
       '<div class="card" style="padding:0;overflow-x:auto;">'+
         '<table class="audio-table fahrten-table">'+
           '<thead><tr><th>Zugnummer</th><th>Valid from</th><th>Valid to</th>'+DAY_KEYS.map(function(k){ return '<th style="text-align:center;">'+DAY_LABEL[k]+'</th>'; }).join("")+'<th></th></tr></thead>'+
-          '<tbody>'+(rows || '<tr><td colspan="11"><div class="empty-state" style="padding:16px;"><strong>No Fahrten yet</strong>Add one below.</div></td></tr>')+'</tbody>'+
+          '<tbody>'+(rows || '<tr><td colspan="11"><div class="empty-state" style="padding:16px;"><strong>No Trips yet</strong>Add one below.</div></td></tr>')+'</tbody>'+
         '</table>'+
       '</div>'+
       '<div style="margin-top:10px;">'+
-        '<button class="btn btn-sm btn-outlined-primary" data-fz-add="'+r.id+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New Fahrt</button>'+
+        '<button class="btn btn-sm btn-outlined-primary" data-fz-add="'+r.id+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>New Trip</button>'+
       '</div>'+
     '</section>';
   }
@@ -2112,7 +2170,14 @@
       var r5 = state.routes.find(function(x){ return x.id===addBtn.dataset.fzAdd; });
       if(r5){
         if(!r5.fahrten) r5.fahrten = [];
-        r5.fahrten.push(mkFahrt("", r5.validFrom, r5.validTo));
+        // the Route is a dateless base — default a new Trip's validity to match an existing Trip
+        // on this Route if there is one, otherwise fall back to the date range of the schedule
+        // (period/archive) this Route belongs to, since that's the only date around to borrow.
+        var likeFz = r5.fahrten[0];
+        var ownerArc = state.archives.find(function(a){ return a.routeIds.indexOf(r5.id)!==-1; });
+        var defFrom = likeFz ? likeFz.validFrom : (ownerArc ? ownerArc.from : "");
+        var defTo = likeFz ? likeFz.validTo : (ownerArc ? ownerArc.to : "");
+        r5.fahrten.push(mkFahrt("", defFrom, defTo));
         persist(); renderFahrtEditor();
       }
       return;
@@ -2177,16 +2242,12 @@
             '<option value="">— None —</option>'+
             state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
           '</select>'+
-          '<div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;">'+
-            '<span class="chip chip-neutral" style="font-weight:600;'+(stop.specialAnnouncementId?'text-decoration:line-through;opacity:.55;':'')+'" title="'+esc(defaultAnnounceLabel)+'">Based announcement</span>'+
-            (stop.specialAnnouncementId ? '<span style="color:var(--text-faint);font-size:12px;">replaced by</span><span class="chip chip-accent" style="font-weight:600;">'+esc((state.specialAnnouncements.find(function(sa){ return sa.id===stop.specialAnnouncementId; })||{}).name||"")+'</span>' : '')+
-          '</div>'+
-          '<div class="field-hint">'+(stop.specialAnnouncementId ? 'Plays automatically based on the journey — using a special announcement here replaces it for this stop.' : 'Plays automatically based on the journey. Pick a special announcement above to replace it for this stop.')+'</div>'+
+          '<div class="field-hint">'+(stop.specialAnnouncementId ? 'At '+esc(station.name)+' the '+esc(defaultAnnounceLabel)+' announcement (based on the journey) is replaced by the special announcement.' : 'At '+esc(station.name)+' the '+esc(defaultAnnounceLabel)+' announcement plays automatically, based on the journey. Pick a special announcement above to replace it.')+'</div>'+
         '</div>'+
       '</div>'+
       '<div class="save-bar" style="margin-top:4px;padding-top:14px;">'+
         '<span class="field-hint">Removing a stop renumbers the sequence for this Route.</span>'+
-        '<button class="btn btn-sm btn-danger-text" data-stop-remove="'+route.id+'|'+idx+'" '+(route.stops.length<=2?'disabled title="A Fahrt needs at least two stops"':'')+'>Remove this stop</button>'+
+        '<button class="btn btn-sm btn-danger-text" data-stop-remove="'+route.id+'|'+idx+'" '+(route.stops.length<=2?'disabled title="A Route needs at least two stops"':'')+'>Remove this stop</button>'+
       '</div>'+
     '</div>';
   }
@@ -3039,14 +3100,29 @@
 
   /* ---------------- init ---------------- */
 
+  function syncScheduleLabels(){
+    var picker = document.getElementById("seasonPicker");
+    var season = seasonById(picker.value);
+    document.getElementById("validFromLabel").textContent = season.label+" — Valid from";
+    document.getElementById("validToLabel").textContent = season.label+" — Valid to";
+    document.getElementById("validFrom").value = season.from;
+    document.getElementById("validTo").value = season.to;
+  }
   function renderSeasonPicker(){
     var picker = document.getElementById("seasonPicker");
     if(!picker) return;
     picker.innerHTML = SEASONAL_SCHEDULES.map(function(s){
-      return '<option value="'+s.id+'">'+esc(s.label)+' ('+s.lines.length+' lines)</option>';
+      return '<option value="'+s.id+'">'+esc(s.label)+'</option>';
     }).join("");
+    // Default the picker to the example schedule — "Summer 2027" — so clicking "Generate route"
+    // right away demonstrates rewriting the single schedule plan rather than adding a new one.
+    picker.value = "summer-2027";
+    document.getElementById("validFrom").value = "2027-06-01";
+    document.getElementById("validTo").value = "2027-08-31";
+    syncScheduleLabels();
   }
   renderSeasonPicker();
+  document.getElementById("seasonPicker").addEventListener("change", syncScheduleLabels);
   renderRouteBuilder();
   renderArchive();
   renderStationDetail();
