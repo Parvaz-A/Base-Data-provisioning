@@ -437,10 +437,10 @@
   table.station-overview-table th:last-child, table.station-overview-table td:last-child{ position:sticky; right:0; background:var(--surface); box-shadow:-1px 0 0 var(--border); }
   table.station-overview-table thead th:last-child{ background:var(--surface-2); z-index:2; }
   table.station-overview-table tbody tr:hover td:last-child{ background:var(--surface-2); }
-  .fahrten-table th, .fahrten-table td{ border-right:1px solid var(--border); }
-  .fahrten-table th:last-child, .fahrten-table td:last-child{ border-right:none; }
-  .fahrten-table td input.f{ background:var(--surface); border:1px solid var(--border-strong); border-radius:4px; padding:5px 8px; }
-  .fahrten-table td input.f:focus{ border:1px solid var(--accent); padding:5px 8px; }
+  .fahrten-table th, .fahrten-table td{ border-right:none; }
+  .fahrten-table td input.f{ background:transparent; border:none; border-bottom:1px solid transparent; border-radius:0; box-shadow:none; padding:5px 4px; }
+  .fahrten-table td input.f:hover{ border-bottom:1px dashed var(--border-strong); }
+  .fahrten-table td input.f:focus{ border:none; border-bottom:1px solid var(--accent); padding:5px 4px; outline:none; box-shadow:none; }
   .audio-clip-name{ font-weight:500; }
   .audio-clip-duration{ color:var(--text-faint); font-weight:400; margin-left:2px; }
   .audio-clip-desc{ color:var(--text-muted); font-size:12px; margin-top:2px; }
@@ -659,6 +659,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:12px;">
           <span class="save-status" id="fahrtSaveStatus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Saved automatically</span>
+          <button class="btn btn-sm btn-danger-text" id="fahrtDeleteBtn" title="Delete this Route" aria-label="Delete this Route"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Delete</button>
           <button class="btn btn-primary" id="fahrtSaveBtn">Save route</button>
         </div>
       </div>
@@ -1100,6 +1101,21 @@
       { name:"Weekend Beach Special 777",  stops:[ ["TLV","H",0], ["HRZ","B",7.5], ["NTY","H",10.4], ["BSV","D",55.0] ] }
     ] }
   ];
+  // In-page confirmation dialog — browser confirm() is blocked inside embedded/sandboxed pages.
+  function askConfirm(message, yesLabel, onYes){
+    var old = document.getElementById("askConfirmOverlay"); if(old) old.remove();
+    var ov = document.createElement("div");
+    ov.id = "askConfirmOverlay";
+    ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;";
+    ov.innerHTML = '<div class="card" role="dialog" aria-modal="true" style="max-width:420px;width:100%;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.3);">'+
+      '<p style="margin:0 0 18px;font-size:14px;line-height:1.5;">'+esc(message)+'</p>'+
+      '<div style="display:flex;justify-content:flex-end;gap:8px;"><button class="btn btn-sm btn-text" data-ac="no">Cancel</button><button class="btn btn-sm btn-primary" data-ac="yes" style="background:var(--danger);border-color:var(--danger);">'+esc(yesLabel||"Delete")+'</button></div></div>';
+    ov.addEventListener("click", function(e){
+      var b = e.target.closest("[data-ac]");
+      if(b || e.target===ov){ ov.remove(); if(b && b.dataset.ac==="yes") onYes(); }
+    });
+    document.body.appendChild(ov);
+  }
   function seasonById(id){
     return SEASONAL_SCHEDULES.find(function(s){ return s.id===id; }) || SEASONAL_SCHEDULES[0];
   }
@@ -1385,7 +1401,9 @@
 
   // A Route is incomplete if any of its stations has no English station-name recording yet.
   function routeIncomplete(r){
-    return r.stops.some(function(st){ return !stationAudioEntry(st.code, "en"); });
+    // Demo data: the shared station recordings are prefilled, except for the stations listed here.
+    var NO_AUDIO_YET = ["HRZ"];
+    return r.stops.some(function(st){ return NO_AUDIO_YET.indexOf(st.code)>-1 && !stationAudioEntry(st.code, "en"); });
   }
   function renderArchive(){
     var histList = document.getElementById("archiveHistoryList");
@@ -1440,6 +1458,8 @@
       var del = e.target.closest("[data-del]");
       if(del){
         var delId = del.dataset.del;
+        var delRoute = state.routes.find(function(r){ return r.id===delId; });
+        askConfirm('Delete the Route "'+(delRoute?delRoute.name:'')+'" including its Trips? This cannot be undone.', 'Delete', function(){
         state.routes = state.routes.filter(function(r){ return r.id!==delId; });
         state.archives.forEach(function(arc){
           arc.routeIds = arc.routeIds.filter(function(id){ return id!==delId; });
@@ -1447,11 +1467,39 @@
         persist(); updateNavCounts();
         if(state.selectedRouteId===delId){ state.selectedRouteId=undefined; switchTab("archive"); }
         else { onChange(); }
+        });
         return;
       }
       var openBtn = e.target.closest("[data-open-fahrt]");
       if(openBtn){
         openFahrtEditor(openBtn.dataset.openFahrt, !!openBtn.dataset.openFahrtHideTrips);
+        return;
+      }
+      var mv = e.target.closest("[data-stop-move]");
+      if(mv){
+        if(mv.disabled) return;
+        var mp = mv.dataset.stopMove.split("|"), mrte = state.routes.find(function(r){ return r.id===mp[0]; });
+        var from = parseInt(mp[1],10), to = from+parseInt(mp[2],10);
+        if(mrte && to>=0 && to<mrte.stops.length){
+          var moved = mrte.stops.splice(from,1)[0];
+          mrte.stops.splice(to,0,moved);
+          assignGpsIndex(mrte.stops);
+          if(state.openStopByRoute[mp[0]]!==undefined) state.openStopByRoute[mp[0]] = undefined;
+          persist(); onChange();
+        }
+        return;
+      }
+      var stopDel = e.target.closest("[data-stop-remove]");
+      if(stopDel){
+        if(stopDel.disabled) return;
+        var ps = stopDel.dataset.stopRemove.split("|"), rid2 = ps[0], sidx = parseInt(ps[1],10);
+        var rte = state.routes.find(function(r){ return r.id===rid2; });
+        if(rte && rte.stops.length>2){
+          rte.stops.splice(sidx,1);
+          assignGpsIndex(rte.stops);
+          state.openStopByRoute[rid2] = undefined;
+          persist(); onChange(); updateNavCounts();
+        }
         return;
       }
       var toggle = e.target.closest("[data-stop-toggle]");
@@ -1474,17 +1522,6 @@
         }
         return;
       }
-      var stopDel = e.target.closest("[data-stop-remove]");
-      if(stopDel){
-        var ps = stopDel.dataset.stopRemove.split("|"), rid2 = ps[0], sidx = parseInt(ps[1],10);
-        var rte = state.routes.find(function(r){ return r.id===rid2; });
-        if(rte && rte.stops.length>2){
-          rte.stops.splice(sidx,1);
-          assignGpsIndex(rte.stops);
-          state.openStopByRoute[rid2] = undefined;
-          persist(); onChange(); updateNavCounts();
-        }
-      }
     });
     container.addEventListener("change", function(e){
       var vt = e.target.closest("[data-stopfield-toggle]");
@@ -1501,7 +1538,7 @@
       if(!route || !route.stops[parseInt(p[1],10)]) return;
       route.stops[parseInt(p[1],10)][p[2]] = el.value;
       persist();
-      if(p[2]==="type"){ onChange(); }
+      if(p[2]==="type" || p[2]==="specialAnnouncementId"){ onChange(); }
     });
   }
   bindRouteCardEvents(document.getElementById("archiveHistoryList"));
@@ -1542,6 +1579,17 @@
     var link = e.target.closest("[data-tab-jump]");
     if(!link) return;
     switchTab(link.dataset.tabJump);
+  });
+  document.getElementById("fahrtDeleteBtn").addEventListener("click", function(){
+    var delId = state.selectedRouteId;
+    var r = state.routes.find(function(x){ return x.id===delId; });
+    if(!r) return;
+    askConfirm('Delete the Route "'+r.name+'" including its Trips? This cannot be undone.', 'Delete', function(){
+    state.routes = state.routes.filter(function(x){ return x.id!==delId; });
+    state.archives.forEach(function(arc){ arc.routeIds = arc.routeIds.filter(function(id){ return id!==delId; }); });
+    state.selectedRouteId = undefined;
+    persist(); updateNavCounts(); switchTab("archive"); renderArchive();
+    });
   });
   document.getElementById("fahrtSaveBtn").addEventListener("click", function(){
     persist();
@@ -1592,10 +1640,11 @@
         alert("This station is used as a stop on at least one Route — remove it from those Routes first.");
         return;
       }
-      if(!window.confirm("Delete this station? This can't be undone.")) return;
-      state.stations = state.stations.filter(function(s){ return s.code!==code; });
-      if(state.selectedStation===code) state.selectedStation = state.stations.length ? state.stations[0].code : undefined;
-      persist(); renderStationOverview(); updateNavCounts();
+      askConfirm("Delete this station? This can't be undone.", "Delete", function(){
+        state.stations = state.stations.filter(function(s){ return s.code!==code; });
+        if(state.selectedStation===code) state.selectedStation = state.stations.length ? state.stations[0].code : undefined;
+        persist(); renderStationOverview(); updateNavCounts();
+      });
       return;
     }
     var row = e.target.closest("[data-overview-row]");
@@ -1982,7 +2031,7 @@
         '</span>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           (opts.showDelete
-            ? '<button class="icon-btn" data-del="'+r.id+'" title="Delete Route">✕</button>'
+            ? ''
             : '<span class="chip chip-success"><span class="chip-dot"></span>Included</span>')+
           '<span class="icon-btn" style="pointer-events:none;" title="Open Route"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
         '</span>'+
@@ -2062,7 +2111,7 @@
       '</div></div>'+
       '<div class="route-legend"><span><span class="route-line-dot" style="margin-top:0;"></span>'+STOP_TYPE_LABEL.H+'</span><span><span class="route-line-dot request" style="margin-top:0;"></span>'+STOP_TYPE_LABEL.B+'</span><span><span class="route-line-dot through" style="margin-top:0;"></span>'+STOP_TYPE_LABEL.D+'</span></div>'+
       '<table class="audio-table" style="margin-top:10px;">'+
-        '<thead><tr><th>#</th><th>Station</th><th>Code</th><th>Type</th><th>Distance</th><th></th></tr></thead>'+
+        '<thead><tr><th>#</th><th>Station</th><th>Code</th><th>Type</th><th>Distance</th><th>Order</th><th></th></tr></thead>'+
         '<tbody>'+
           r.stops.map(function(stop, i){
             var s = state.stations.find(function(x){ return x.code===stop.code; });
@@ -2077,9 +2126,14 @@
                 Object.keys(STOP_TYPE_LABEL).map(function(k){ return '<option value="'+k+'" '+(k===stop.type?'selected':'')+'>'+STOP_TYPE_LABEL[k]+'</option>'; }).join("")+
               '</select></td>'+
               '<td class="tabular">'+dist+'</td>'+
+              '<td style="white-space:nowrap;">'+
+                '<button class="icon-btn" data-stop-move="'+r.id+'|'+i+'|-1" title="Move up" '+(isFirst?'disabled':'')+'>▲</button>'+
+                '<button class="icon-btn" data-stop-move="'+r.id+'|'+i+'|1" title="Move down" '+(isLast?'disabled':'')+'>▼</button>'+
+                '<button class="icon-btn" data-stop-remove="'+r.id+'|'+i+'" title="Remove this stop" '+(r.stops.length<=2?'disabled':'')+'><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+              '</td>'+
               '<td><span class="icon-btn" style="pointer-events:none;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="transform:rotate('+(open?'0deg':'-90deg')+');transition:transform .12s ease;"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td>'+
             '</tr>';
-            return row + (open ? '<tr><td colspan="6" style="padding:0;border-bottom:none;">'+stopDetailHtml(r, i)+'</td></tr>' : '');
+            return row + (open ? '<tr><td colspan="7" style="padding:0;border-bottom:none;">'+stopDetailHtml(r, i)+'</td></tr>' : '');
           }).join("")+
         '</tbody>'+
       '</table>'+
@@ -2097,7 +2151,6 @@
       '</div>'+
       '<div class="route-card-foot">'+
         '<span class="chip chip-neutral tabular">'+r.stops.length+' stops</span>'+
-        '<button class="icon-btn" data-del="'+r.id+'" title="Delete this Route">✕</button>'+
       '</div>'+
       '</section>'+
       fahrtenTableHtml(r);
@@ -2224,6 +2277,8 @@
     var SHORT_TPL_LABEL = { next:"Arrival", last:"Arrival last station", welcome:"Departure", via:"VIA" };
     var defaultAnnounceKey = isFirst ? "welcome" : (isLast ? "last" : "next");
     var defaultAnnounceLabel = SHORT_TPL_LABEL[defaultAnnounceKey];
+    var replacedKey = stop.specialReplaces || "next";
+    var replacedLabel = SHORT_TPL_LABEL[replacedKey];
     return '<div class="stop-detail">'+
       '<div class="stop-detail-head"><strong>'+station.name+'</strong><span class="chip chip-neutral tabular">'+station.code+'</span>'+(isFirst?'<span class="chip chip-accent">First stop</span>':'')+(isLast?'<span class="chip chip-accent">Last stop</span>':'')+'</div>'+
       '<div class="field-row-3">'+
@@ -2242,12 +2297,13 @@
             '<option value="">— None —</option>'+
             state.specialAnnouncements.map(function(sa, i){ return '<option value="'+sa.id+'" '+(sa.id===stop.specialAnnouncementId?'selected':'')+'>No. '+(i+1)+' — '+esc(sa.name)+'</option>'; }).join("")+
           '</select>'+
-          '<div class="field-hint">'+(stop.specialAnnouncementId ? 'At '+esc(station.name)+' the '+esc(defaultAnnounceLabel)+' announcement (based on the journey) is replaced by the special announcement.' : 'At '+esc(station.name)+' the '+esc(defaultAnnounceLabel)+' announcement plays automatically, based on the journey. Pick a special announcement above to replace it.')+'</div>'+
+          (stop.specialAnnouncementId ? '<label class="field-label" style="margin-top:8px;">Replaces</label><select class="f" data-stopfield="'+pfx+'specialReplaces">'+Object.keys(SHORT_TPL_LABEL).map(function(k){ return '<option value="'+k+'" '+(k===replacedKey?'selected':'')+'>'+SHORT_TPL_LABEL[k]+'</option>'; }).join("")+'</select>' : '')+
+          '<div class="field-hint">'+(stop.specialAnnouncementId ? 'At '+esc(station.name)+' the '+esc(replacedLabel)+' announcement is replaced by the special announcement.' : 'At '+esc(station.name)+' the '+esc(defaultAnnounceLabel)+' announcement plays automatically, based on the journey. Pick a special announcement above to replace it.')+'</div>'+
         '</div>'+
       '</div>'+
       '<div class="save-bar" style="margin-top:4px;padding-top:14px;">'+
         '<span class="field-hint">Removing a stop renumbers the sequence for this Route.</span>'+
-        '<button class="btn btn-sm btn-danger-text" data-stop-remove="'+route.id+'|'+idx+'" '+(route.stops.length<=2?'disabled title="A Route needs at least two stops"':'')+'>Remove this stop</button>'+
+        '<button class="btn btn-sm btn-danger-text" data-stop-remove="'+route.id+'|'+idx+'" '+(route.stops.length<=2?'disabled title="A Route needs at least two stops"':'')+'><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2l1-13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Remove this stop</button>'+
       '</div>'+
     '</div>';
   }
@@ -2361,6 +2417,7 @@
   function segmentChainHtml(groupKey, segments){
     return LANGS.map(function(lang){
       var missingCount = 0;
+      var shownCount = segments.filter(function(x){ return x!=="lib-stname"; }).length;
       var previewParts = [];
       var rows = segments.map(function(segId, i){
         var refClip = libClip(segId);
@@ -2373,17 +2430,19 @@
         var title = clip ? (clip.title||filename) : (refClip ? (refClip.title||filename) : filename);
         previewParts.push(segId==="lib-stname" ? "{station}" : title);
         var isStationRow = segId==="lib-stname";
+        if(isStationRow) return '';   // the station-name field is no longer shown as a row in the chain
+        var shownNo = segments.slice(0,i+1).filter(function(x){ return x!=="lib-stname"; }).length;
         var stationExpandKey = groupKey+"|"+lang;
         var isStationExpanded = isStationRow && !!expandedStationRows[stationExpandKey];
         return '<div class="segment-row lang-seg-row'+(missing?' missing':'')+'" draggable="true" data-seg-group="'+groupKey+'" data-seg-index="'+i+'">'+
           '<span class="drag-handle" title="Drag to reorder">⠿</span>'+
-          '<span class="chip chip-neutral tabular" style="min-width:20px;justify-content:center;padding:1px 7px;">'+(i+1)+'</span>'+
+          '<span class="chip chip-neutral tabular" style="min-width:20px;justify-content:center;padding:1px 7px;">'+shownNo+'</span>'+
           '<span class="chip" style="flex:none;padding:1px 8px;'+(isStationRow?'background:var(--accent-soft);color:var(--accent-strong);':'background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);')+'">'+(isStationRow?'field':'clip')+'</span>'+
           (missing ? '<span class="lang-seg-warn-wrap" style="visibility:hidden;"><span class="lang-seg-warn">!</span></span>' : '')+
           (clip ? '<audio id="langsegaud-'+groupKey+'-'+lang+'-'+i+'" src="'+(audioObjectUrls[clip.id]||'')+'" style="display:none;"></audio>' : '')+
           '<span class="lang-seg-text">'+
             (isStationRow
-              ? '<span class="chip chip-accent" style="font-family:var(--font-mono);align-self:flex-start;">{station}</span>'
+              ? '<span class="chip chip-accent" style="align-self:flex-start;">Station announcement</span>'
               : '<span class="lang-seg-file'+(missing?' missing':'')+'" title="'+(missing?'Missing file':filename)+'">'+esc(title)+'</span>')+
             '<span class="lang-seg-desc">'+esc(desc||title)+' <span class="tabular" style="opacity:.6;">· '+esc(code||filename)+'</span></span>'+
           '</span>'+
@@ -2407,20 +2466,20 @@
       var previewKey = groupKey+"|"+lang;
       var isEditingPreview = !!editingChainPreview[previewKey];
       var previewDisplayHtml = previewParts.map(function(p, idx){
-        if(p==="{station}") return '<span class="chip chip-accent" style="font-family:var(--font-mono);">{station}</span>';
+        if(p==="{station}") return null;
         var val = (overrideParts && overrideParts[idx]!=null && overrideParts[idx]!=="") ? overrideParts[idx] : p;
         return esc(val);
-      }).join(' <span style="opacity:.35;">›</span> ');
+      }).filter(function(x){ return x!==null; }).join(' <span style="opacity:.35;">›</span> ');
       var previewEditHtml = previewParts.map(function(p, idx){
-        if(p==="{station}") return '<span class="chip chip-accent" style="font-family:var(--font-mono);white-space:nowrap;">{station}</span>';
+        if(p==="{station}") return null;
         var val = (overrideParts && overrideParts[idx]!=null && overrideParts[idx]!=="") ? overrideParts[idx] : p;
         var chW = Math.max(6, Math.min(30, val.length+1));
         return '<input data-chain-part="'+previewKey+'|'+idx+'" value="'+esc(val)+'" style="display:inline-block;height:auto;width:'+chW+'ch;max-width:100%;padding:2px 1px 3px;font-size:13px;font-family:inherit;border:none;border-bottom:1px dashed var(--border-strong);border-radius:0;background:none;color:var(--text);transition:border-color .12s ease,background .12s ease;" onfocus="this.style.borderBottomColor=\'var(--accent)\';this.style.borderBottomStyle=\'solid\';" onblur="this.style.borderBottomColor=\'var(--border-strong)\';this.style.borderBottomStyle=\'dashed\';" title="Correct the wording for this clip — overrides just this part until reset.">';
-      }).join(' <span style="opacity:.35;">›</span> ');
+      }).filter(function(x){ return x!==null; }).join(' <span style="opacity:.35;">›</span> ');
       var previewBlock = !segments.length ? '' :
         '<div class="field" style="margin-top:8px;">'+
           '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'+
-            '<label class="field-label" style="margin:0;" title="Auto-built from the clips above, in play order — the station-name clip always shows as {station}. Click the pencil to correct any part by hand.">How this will play</label>'+
+            '<label class="field-label" style="margin:0;" title="Auto-built from the clips above, in play order — the station-name clip is played automatically and not listed. Click the pencil to correct any part by hand.">How this will play</label>'+
             '<span style="display:flex;align-items:center;gap:4px;">'+
               (isEditingPreview && hasOverride ? '<button class="icon-btn" data-reset-chain-preview="'+previewKey+'" title="Discard corrections and go back to the auto-built text"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 1 3 6.7M3 12v6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '')+
               '<button class="icon-btn" data-toggle-chain-preview="'+previewKey+'" title="'+(isEditingPreview?'Done — save this wording':'Correct any part by hand')+'">'+(isEditingPreview?'✓':'✎')+'</button>'+
@@ -2431,7 +2490,7 @@
       return '<div class="lang-chain-card">'+
         '<div class="lang-chain-head">'+
           '<span class="chip '+lang+'">'+LANG_NAME[lang]+'</span>'+
-          '<span class="lang-chain-count">'+segments.length+' item'+(segments.length===1?'':'s')+'</span>'+
+          '<span class="lang-chain-count">'+shownCount+' item'+(shownCount===1?'':'s')+'</span>'+
           statusChip+
         '</div>'+
         (segments.length ? '<div class="lang-chain-rows">'+rows+'</div>' : '<div class="field-hint" style="padding:2px 0 8px;">No items yet.</div>')+
@@ -2635,7 +2694,7 @@
       return '<div class="card template-card">'+
         '<div class="template-head"><div class="template-head-left">'+
           '<div style="flex:1;"><div class="template-title"><span class="template-id tabular" title="Fixed by the system">ID '+announceIdDisplay(t.announceId)+'</span>'+esc(t.label)+'</div>'+
-          '<textarea class="tpl-text-edit" rows="1" data-tpl="'+key+'" data-lang="'+state.contentLang+'" placeholder="How this announcement will play, e.g. with a {station} placeholder">'+esc(langText(t.text))+'</textarea></div>'+
+          '<textarea class="tpl-text-edit" rows="1" data-tpl="'+key+'" data-lang="'+state.contentLang+'" placeholder="How this announcement will play">'+esc(langText(t.text))+'</textarea></div>'+
         '</div>'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           '<button class="icon-btn icon-btn-play" data-play-template="'+key+'|'+groupKey+'" title="Play preview"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8V4z"/></svg></button>'+
@@ -3060,9 +3119,10 @@
   dropzone.addEventListener("drop", function(e){ handleFiles(e.dataTransfer.files); });
 
   document.getElementById("resetDataBtn").addEventListener("click", function(){
-    if(!window.confirm("Reset all sample data in this browser? Your edits will be lost.")) return;
-    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
-    location.reload();
+    askConfirm("Reset all sample data in this browser? Your edits will be lost.", "Reset", function(){
+      try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+      location.reload();
+    });
   });
 
   /* ---------------- day/night theme toggle ---------------- */
