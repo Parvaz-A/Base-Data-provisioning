@@ -1523,6 +1523,55 @@
         return;
       }
     });
+    // drag & drop: reorder stops inside a Route, and Route cards inside the list
+    var dragInfo = null;
+    container.addEventListener("dragstart", function(e){
+      var st = e.target.closest && e.target.closest("[data-drag-stop]");
+      var rt = e.target.closest && e.target.closest("[data-drag-route]");
+      if(st){ dragInfo = { kind:"stop", key:st.dataset.dragStop }; }
+      else if(rt){ dragInfo = { kind:"route", key:rt.dataset.dragRoute }; }
+      else { dragInfo = null; return; }
+      try{ e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", dragInfo.key); }catch(err){}
+      (st||rt).style.opacity = ".5";
+    });
+    container.addEventListener("dragend", function(e){
+      dragInfo = null;
+      [].forEach.call(container.querySelectorAll("[data-drag-stop],[data-drag-route]"), function(el){ el.style.opacity = ""; el.style.outline = ""; });
+    });
+    container.addEventListener("dragover", function(e){
+      if(!dragInfo) return;
+      var t = e.target.closest(dragInfo.kind==="stop" ? "[data-drag-stop]" : "[data-drag-route]");
+      if(!t) return;
+      e.preventDefault();
+      [].forEach.call(container.querySelectorAll("[data-drag-stop],[data-drag-route]"), function(el){ el.style.outline = ""; });
+      t.style.outline = "2px dashed var(--accent)";
+    });
+    container.addEventListener("drop", function(e){
+      if(!dragInfo) return;
+      var info = dragInfo;
+      var t = e.target.closest(info.kind==="stop" ? "[data-drag-stop]" : "[data-drag-route]");
+      if(!t) return;
+      e.preventDefault();
+      if(info.kind==="stop"){
+        var a = info.key.split("|"), b = t.dataset.dragStop.split("|");
+        if(a[0]!==b[0]) return;
+        var rte = state.routes.find(function(r){ return r.id===a[0]; });
+        var from = parseInt(a[1],10), to = parseInt(b[1],10);
+        if(!rte || from===to) return;
+        rte.stops.splice(to,0,rte.stops.splice(from,1)[0]);
+        assignGpsIndex(rte.stops);
+        state.openStopByRoute[a[0]] = undefined;
+      } else {
+        var toId = t.dataset.dragRoute;
+        if(info.key===toId) return;
+        var arc = state.archives.find(function(x){ return x.routeIds.indexOf(info.key)>-1 && x.routeIds.indexOf(toId)>-1; });
+        if(!arc) return;
+        var ids = arc.routeIds;
+        ids.splice(ids.indexOf(toId),0,ids.splice(ids.indexOf(info.key),1)[0]);
+      }
+      dragInfo = null;
+      persist(); onChange();
+    });
     container.addEventListener("change", function(e){
       var vt = e.target.closest("[data-stopfield-toggle]");
       if(vt){
@@ -2023,7 +2072,7 @@
   // open this Route in its own editor page (see fahrtEditorBodyHtml / renderFahrtEditor below).
   function routeCardHtml(r, opts){
     opts = opts || {};
-    return '<div class="card route-card" data-open-fahrt="'+r.id+'" '+(opts.hideTripChip?'data-open-fahrt-hide-trips="1" ':'')+'style="cursor:pointer;" title="Open this Route to edit stops, Journeys &amp; announcements">'+
+    return '<div class="card route-card" '+(opts.showDelete?'draggable="true" data-drag-route="'+r.id+'" ':'')+'data-open-fahrt="'+r.id+'" '+(opts.hideTripChip?'data-open-fahrt-hide-trips="1" ':'')+'style="cursor:pointer;" title="Open this Route to edit stops, Journeys &amp; announcements">'+
       '<div class="route-card-head">'+
         '<span style="display:flex;align-items:center;gap:8px;">'+
           '<span class="route-card-title">'+esc(r.name)+'</span>'+
@@ -2118,8 +2167,8 @@
             var isFirst = i===0, isLast = i===r.stops.length-1;
             var open = openIdx===i;
             var dist = (stop.distanceKm!==""&&stop.distanceKm!=null) ? stop.distanceKm+" km" : (isFirst ? "—" : "");
-            var row = '<tr class="route-stop-row'+(open?' open':'')+'" data-stop-toggle="'+r.id+'|'+i+'" title="Click to view/edit this stop">'+
-              '<td class="tabular">'+(i+1)+'</td>'+
+            var row = '<tr class="route-stop-row'+(open?' open':'')+'" draggable="true" data-drag-stop="'+r.id+'|'+i+'" data-stop-toggle="'+r.id+'|'+i+'" title="Click to view/edit this stop — drag to reorder">'+
+              '<td class="tabular"><span class="drag-handle" title="Drag to reorder">⠿</span> '+(i+1)+'</td>'+
               '<td>'+esc(s.name)+(isFirst?' <span class="chip chip-accent">First</span>':'')+(isLast?' <span class="chip chip-accent">Last</span>':'')+'</td>'+
               '<td class="tabular">'+s.code+'</td>'+
               '<td><select class="f" style="width:auto;padding:4px 6px;font-size:11.5px;" data-stopfield="'+r.id+'|'+i+'|type">'+
